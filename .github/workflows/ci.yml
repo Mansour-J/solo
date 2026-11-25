@@ -228,7 +228,13 @@ jobs:
         run: |
           cargo install cargo-audit --locked --quiet
           cargo audit --file services/api/Cargo.lock
-          cargo audit --file apps/client/src-tauri/Cargo.lock
+          # zip 4.x comes only from tauri-plugin-updater (2.12.0, the latest), and its advisories are about
+          # extracting hostile archives. The updater verifies each package's signature before unpacking
+          # it, and Windows packages aren't zips, so only a package signed with Solo's key gets there.
+          # Remove these once the updater depends on zip >= 9 (the API already does).
+          cargo audit --file apps/client/src-tauri/Cargo.lock \
+            --ignore RUSTSEC-2026-0367 --ignore RUSTSEC-2026-0368 --ignore RUSTSEC-2026-0369 \
+            --ignore RUSTSEC-2026-0429 --ignore RUSTSEC-2026-0545 --ignore RUSTSEC-2026-0548
           cargo audit --file services/local/Cargo.lock
 
   desktop:

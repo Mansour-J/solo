@@ -909,7 +909,13 @@ async fn the_accountant_pack_has_the_years_reports_journal_and_receipts() {
     assert_eq!(pack.headers[header::CONTENT_TYPE], "application/zip");
     let mut zip = zip::ZipArchive::new(std::io::Cursor::new(pack.bytes)).expect("a zip");
     let names: Vec<String> = (0..zip.len())
-        .map(|i| zip.by_index(i).expect("file").name().to_owned())
+        .map(|i| {
+            zip.by_index(i)
+                .expect("file")
+                .name()
+                .expect("a UTF-8 name")
+                .into_owned()
+        })
         .collect();
     for expected in [
         "Reports 2026-04-01 to 2027-03-31.pdf",

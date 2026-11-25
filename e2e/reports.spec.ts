@@ -52,7 +52,7 @@ test('reports show figures from the records, export as PDF and give a customer t
   await expect(page.getByRole('row', { name: /Kererū Café/ }).first()).toContainText('$600.00');
   const download = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Export' }).click();
-  await page.getByRole('menuitem', { name: 'PDF' }).click();
+  await page.getByRole('menuitem', { name: 'PDF', exact: true }).click();
   expect((await download).suggestedFilename()).toMatch(/^Accounts receivable \d{4}-\d{2}-\d{2}\.pdf$/);
 
   // The customer's statement, from their page.
