@@ -1,7 +1,7 @@
 [package]
 # Technical crate name; the user-facing product name comes from branding/brand.json (npm run brand:sync).
 name = "solo-desktop"
-version = "0.3.0"
+version = "0.4.0"
 description = "Desktop shell for the bookkeeping app"
 authors = ["Solo"]
 license = "AGPL-3.0-only"
