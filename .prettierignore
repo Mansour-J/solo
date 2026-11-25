@@ -11,3 +11,6 @@ apps/client/src-tauri
 services
 database
 *.md
+
+# Written by release-please
+CHANGELOG.md
