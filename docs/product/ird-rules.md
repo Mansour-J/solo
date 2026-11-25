@@ -1,0 +1,70 @@
+# IRD rules for sole traders, and how Solo follows them
+
+Checked against Inland Revenue's pages and guides on 24 November 2026: the GST guide IR375 (March
+2026), ird.govt.nz pages on GST, provisional tax, home office and vehicle expenses, the depreciation guide
+IR260, the employer's guide IR335 and the kilometre-rate instrument for 2025-26. Figures and dates change
+yearly: check the sources before relying on them. Solo's figures are informational; it doesn't file
+anything with IRD.
+
+**Status:** ✅ implemented and tested · 🟡 partly (workaround or missing piece) · ❌ not in Solo yet.
+
+## GST
+
+| Rule (IRD) | Solo | Tests |
+|---|---|---|
+| GST is 15%; the GST in a GST-inclusive price is 3/23 (IR375: $230 inclusive has $30 GST) | ✅ `domain::tax`, rates from the `tax_rates` table | `tax::tests::nz_gst_arithmetic`, `ird_rules::gst_is_15_percent_or_three_twenty_thirds_of_an_inclusive_price` |
+| Zero-rated supplies (e.g. exports, services to non-residents) are taxable at 0%; exempt supplies (financial services, residential rent) carry no GST | ✅ per line and per expense (`standard`, `zero_rated`, `exempt`, `no_gst`) | `ird_rules::zero_rated_exempt_and_unregistered_supplies_carry_no_gst` |
+| No GST before the registration date | ✅ `GstContext::for_date` | `tax::tests::registration_date_controls_gst`, `ird_rules::zero_rated_exempt_…` |
+| Register when turnover is over $60,000 in the last or next 12 months (within 21 days) | ✅ a dashboard notice when a business not registered passes $60,000 in the last 12 months | `insights::tests::gst_registration_threshold`, `ird_rules::a_business_over_60000_in_12_months_is_told_to_register_for_gst` |
+| Payments basis (sales up to $2 million): GST when paid, received or paid in proportion | ✅ journal entries on the cash basis | `ird_rules::each_accounting_basis_counts_gst_at_the_right_time`, `reports::profit_and_loss_matches_…` |
+| Invoice basis: when invoiced; hybrid: sales by invoice, expenses by payment | ✅ GST returns pick the entries per basis | `ird_rules::each_accounting_basis_…`, `gst_returns::each_period_shows_…` |
+| If no basis is chosen at registration, IRD uses the invoice basis | 🟡 Solo suggests the payments basis (most small businesses); the user chooses | — |
+| Filing monthly (required over $24 million), two-monthly (under $24 million) or six-monthly (under $500,000), aligned to the balance date, in odd or even months | ✅ Settings › Business details › GST returns (no turnover check on six-monthly) | `gst_returns::tests::*`, `gst_returns::the_return_period_is_a_business_setting` |
+| Two-monthly with a March balance date: Apr–May, Jun–Jul, Aug–Sep, Oct–Nov, Dec–Jan, Feb–Mar (IR375) | ✅ | `gst_returns::tests::irds_own_examples` |
+| Due the 28th of the month after the period; 7 May for periods ending 31 March; 15 January for 30 November; a weekend or public holiday moves it to the next working day | ✅ national holidays (Mondayised, Easter, Matariki, Labour Day); regional anniversary days aren't included | `gst_returns::tests::due_dates_skip_public_holidays` (Matariki 2024, Labour Day 2024), `nz_calendar::tests::*`, `…::irds_own_examples` |
+| A return is needed every period, even nil | ✅ shown as "Nil return" | `gst_returns::each_period_shows_…` |
+| Late filing penalty: $50 a return on the payments basis, $250 on invoice or hybrid; late payment penalties and interest | 🟡 explained on the GST page next to overdue returns; not calculated | — |
+| Mixed business and private use: claim the business share of the GST (apportionment; principal purpose allowed for purchases of $10,000 or less from 1 April 2023) | ✅ apportionment by business percentage | `ird_rules::only_the_business_share_of_a_mixed_use_cost_is_claimed`, `bookkeeping::expenses_split_business_and_private_shares_with_gst` |
+| Change-of-use adjustments for purchases over $10,000: 2 adjustment periods to $20,000, 5 to $500,000, 10 above (or land); actual use from acquisition weighted by months, against the intended or last adjusted use; none when the change is under 10 points and $1,000 or less; in the return that includes the balance date | ✅ **Year end › Assets › GST change of use** (migration V21); ✅ the final adjustment on disposal (IR375: tax fraction × consideration × (1 − use claimed)); 🟡 no wash-up rule or 12-month first period option | `change_of_use::tests::irds_boat_example` ($16,200 over five periods), `…::irds_car_examples` (Ben $750, Miriama none), `…::irds_final_adjustment_on_disposal` (Melissa $1,350), `ird_rules::an_asset_over_10000_gets_change_of_use_adjustments_at_balance_date` |
+| GST on assets bought (claimed in the period bought) | ✅ an asset's purchase GST counts as claimable in the GST return | `ird_rules::an_asset_over_10000_gets_change_of_use_adjustments_at_balance_date` |
+| Entertainment: 50% deductible; an annual GST adjustment of 15% of the non-deductible GST-exclusive amount (IR375: a $230 lunch gives $15) | ✅ an expense's **Deductible share** (e.g. 50%) moves the rest to non-deductible in the profit and loss and the income tax estimate, and the GST page adds the yearly adjustment to the period the financial year ends in | `ird_rules::entertainment_is_half_deductible_with_irds_yearly_gst_adjustment` |
+| Secondhand goods bought from someone not registered: a GST credit of 3/23 of the price paid | ✅ 3/23 of the price is the GST share of a 15% inclusive price, so the purchase is recorded as **Includes GST (15%)** (the guide says so) | `ird_rules::secondhand_goods_from_someone_not_registered_claim_3_23_of_the_price` |
+| Bad debts on the invoice or hybrid basis: a credit adjustment of 3/23 of the amount written off, in the period written off; none on the payments basis | ✅ **Write off as a bad debt** on an invoice: a bad-debt expense and, on the invoice basis, the GST credit in that period; the invoice reads "Written off" | `ird_rules::a_bad_debt_written_off_gets_its_gst_back_in_that_period_on_the_invoice_basis`, `invoices::writeOff.test` |
+| Taxable supply information (replaced tax invoices from 1 April 2023): over $200, the seller's name and GST number, date, description, quantity and price; over $1,000 also the buyer's name and identifier | ✅ invoice PDFs show the business's GST number, the customer, dates, lines, GST and totals | `bookkeeping::invoices_and_quotes_render_as_pdf` |
+| Keep records for 7 years | ✅ nothing is deleted silently; voided records stay in the history | — |
+
+## Income tax, withholding tax and provisional tax
+
+| Rule (IRD) | Solo | Tests |
+|---|---|---|
+| Schedular payments: the payer withholds at the contractor's IR330C rate (at least 10%; 45% without one), on the GST-exclusive amount when the contractor is GST-registered; the tax withheld is a credit against income tax | ✅ recorded per payment ("Tax withheld"), counted as tax paid | `ird_rules::a_schedular_payment_matches_a_buyer_created_tax_invoice` (168 h × $130: GST $3,276, withheld $4,368, paid $20,748), `annual_reports::*` |
+| Income tax rates from 1 April 2025: 10.5% to $15,600; 17.5% to $53,500; 30% to $78,100; 33% to $180,000; 39% above; 2024-25 composite rates (12.82%, 21.64%, 30.99% bands); earlier years from 1 April 2021 | ✅ the **Income tax** page estimates each year from the records (`income_tax_rates`, migration V16); other income, ACC levies, credits and losses aren't included | `income_tax::tests::*`, `income_tax::income_tax_provisional_tax_and_terminal_tax_by_year` |
+| Provisional tax when residual income tax (RIT) is over $5,000: standard option (last year's RIT + 5%; IRD's example $10,130 → $10,636), three instalments on 28 August, 15 January and 7 May (two, 28 October and 7 May, for six-monthly GST filers); no interest under the standard option when RIT is under $60,000 | ✅ standard option, instalments and what's been paid; 🟡 estimation, ratio and AIM options not offered | `income_tax::tests::provisional_tax_by_the_standard_option`, `…::instalment_and_terminal_tax_dates`, `income_tax::income_tax_provisional_tax_and_terminal_tax_by_year` |
+| Return (IR3) due 7 July; terminal tax due 7 February (7 April with a tax agent) | ✅ terminal tax and refunds per year (dates moved past weekends and holidays, e.g. 9 Feb 2027 after Waitangi Day's Mondayisation) | `income_tax::tests::instalment_and_terminal_tax_dates` |
+| Penalties are not deductible | ✅ "Not deductible for tax" expense categories, shown below net profit | `annual::*`, `annual_reports::*` |
+
+## Expenses
+
+| Rule (IRD) | Solo | Tests |
+|---|---|---|
+| Home office, apportionment: the business share (by area, and time where shared) of rates, insurance, power and mortgage interest (not principal); 50% of a shared landline; a fair business share of internet | ✅ any expense can be partly business; paid personally counts as money put in | `ird_rules::only_the_business_share_…`, `annual_reports::*` (home office internet at 25% and 35%) |
+| Home office, square metre rate option: (a × b) + (c × d) with d = $57.30 for 2025-26 ($55.60 for 2024-25); no other home costs or depreciation can then be claimed | ✅ **Year end › Home office**: a claim a year from IRD's rates (2021–2026, migration V19), posted as an expense paid personally | `home_office::tests::*`, `ird_rules::home_office_by_irds_square_metre_rate`, `yearend::homeOffice.test` |
+| Kilometre rates 2025-26: tier 1 for the first 14,000 km (petrol $1.20, diesel $1.30, petrol hybrid $0.90, electric $1.22), tier 2 above it (petrol $0.37, diesel $0.38, hybrid $0.24, electric $0.23); no separate depreciation; no GST to consider | ✅ dated rates per vehicle (the user enters IRD's) with an optional tier 1 limit and tier 2 rate (migration V20); the split follows the vehicle's recorded travel in the financial year, and later or deleted trips reprice the year; no GST claimed | `mileage::tests::kilometres_past_the_tier_1_limit_take_the_tier_2_rate`, `ird_rules::kilometres_past_14000_in_the_year_take_irds_tier_2_rate`, `ird_rules::kilometre_rate_mileage_claims_carry_no_gst`, `mileage::tiers.test` |
+| Without a logbook, vehicle running costs are limited to the lesser of actual business use or 25%; a 90-day logbook sets the percentage for up to three years | 🟡 explained in the guide; each recorded trip is a record of actual business travel, and the mileage CSV export is a logbook | — |
+| Depreciation: diminishing value or straight line at IRD's rates; in the year bought, the months owned including the month of purchase; private use excluded | ✅ | `depreciation::tests::*`, `annual::*` |
+| Low-value assets: up to $1,000 (GST-exclusive) can be deducted in full in the year bought | ✅ **Deduct in full** for such an asset (migration V17) | `depreciation::tests::a_low_value_asset_is_deducted_in_full_in_the_year_bought`, `ird_rules::a_low_value_asset_is_deducted_in_full_in_the_year_bought` |
+| Disposals (IR260): no depreciation in the year of sale; the sale against the adjusted tax value at the start of that year: above it, depreciation recovered up to cost (taxable); below it, a loss on disposal (deductible); above cost, a capital gain (not taxable); the private-use share kept out; GST on the sale for a registered business | ✅ **Sell or scrap** on an asset (migration V25); the depreciation schedule shows disposals | `depreciation::tests::a_sale_above_book_value_…`, `…::a_sale_below_book_value_…`, `ird_rules::selling_an_asset_recovers_depreciation_or_records_a_loss` |
+| Buildings: residential 0% | 🟡 the rate is the user's own | — |
+
+## Sources
+
+- [GST guide IR375 (March 2026)](https://www.ird.govt.nz/-/media/project/ir/home/documents/forms-and-guides/ir300---ir399/ir375/ir375.pdf)
+- [Filing and paying GST, and refunds](https://www.ird.govt.nz/gst/filing-and-paying-gst-and-refunds) · [Paying GST](https://www.ird.govt.nz/gst/filing-and-paying-gst-and-refunds/paying-gst) · [Registering for GST](https://www.ird.govt.nz/gst/registering-for-gst)
+- [GST adjustments for business, private and exempt use](https://www.ird.govt.nz/gst/gst-adjustments) · [Special supplies](https://www.ird.govt.nz/gst/charging-gst/special-supplies) · [How taxable supply information works](https://www.ird.govt.nz/gst/tax-invoices-for-gst/how-tax-invoices-for-gst-work)
+- [Entertainment expenses IR268](https://www.ird.govt.nz/-/media/project/ir/home/documents/forms-and-guides/ir200---ir299/ir268/ir268-2024.pdf)
+- [Provisional tax](https://www.ird.govt.nz/income-tax/provisional-tax) · [Payment dates](https://www.ird.govt.nz/income-tax/provisional-tax/paying-your-provisional-tax/payment-dates-for-provisional-tax) · [IR289](https://www.ird.govt.nz/-/media/project/ir/home/documents/forms-and-guides/ir200---ir299/ir289/ir289.pdf?modified=20250331194240)
+- [Tax rates for individuals](https://www.ird.govt.nz/income-tax/income-tax-for-individuals/tax-codes-and-tax-rates-for-individuals/tax-rates-for-individuals) · [Timelines at the end of the tax year](https://www.ird.govt.nz/income-tax/income-tax-for-individuals/what-happens-at-the-end-of-the-tax-year/timelines-at-the-end-of-the-tax-year)
+- [Deductions from payments to contractors](https://www.ird.govt.nz/income-tax/withholding-taxes/schedular-payments/making-schedular-payments/deductions-from-payments-to-contractors) · [IR335 Employer's guide](https://www.ird.govt.nz/-/media/project/ir/home/documents/forms-and-guides/ir300---ir399/ir335/ir335.pdf)
+- [Home office expenses](https://www.ird.govt.nz/home-office-expenses) · [Square metre rate 2026](https://www.ird.govt.nz/updates/news-folder/2026/square-metre-rate-for-home-office-calculations-2026)
+- [Kilometre rates 2025-2026](https://www.ird.govt.nz/income-tax/income-tax-for-businesses-and-organisations/types-of-business-expenses/claiming-vehicle-expenses/kilometre-rates-2025-2026) · [Vehicle expenses](https://www.ird.govt.nz/vehicle-expenses)
+- [Depreciation guide IR260](https://www.ird.govt.nz/-/media/project/ir/home/documents/forms-and-guides/ir200---ir299/ir260/ir260.pdf)

@@ -1,0 +1,62 @@
+# Development services: PostgreSQL with Flyway migrations (for the API's integration tests and
+# `scripts/api-dev.mjs`) and a local mail catcher. Solo itself is a desktop app with its own bundled
+# database; nothing here is a deployment.
+#
+#   docker compose --env-file environment.example up -d --wait db      (npm run db:up)
+#
+# Mail: http://localhost:${MAILPIT_UI_PORT:-8025}. See docs/development/setup.md.
+name: solo
+
+x-restart: &restart
+  restart: unless-stopped
+
+services:
+  db:
+    <<: *restart
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-solo}
+      POSTGRES_USER: ${POSTGRES_USER:-solo_owner}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?Set APP_DB_PASSWORD in .env}
+    ports:
+      - '127.0.0.1:${POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - ./infra/docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  # Applies pending migrations, then exits. The API only starts after it succeeds.
+  migrate:
+    image: flyway/flyway:11-alpine
+    command: migrate
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      FLYWAY_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-solo}
+      FLYWAY_USER: ${POSTGRES_USER:-solo_owner}
+      FLYWAY_PASSWORD: ${POSTGRES_PASSWORD}
+      FLYWAY_SCHEMAS: solo
+      FLYWAY_DEFAULT_SCHEMA: solo
+      FLYWAY_LOCATIONS: filesystem:/flyway/migrations
+      FLYWAY_VALIDATE_MIGRATION_NAMING: 'true'
+      FLYWAY_CONNECT_RETRIES: '20'
+      FLYWAY_CLEAN_DISABLED: 'true'
+    volumes:
+      - ./database/migrations:/flyway/migrations:ro
+
+  # Catches the invoices and quotes the development API emails.
+  mailpit:
+    <<: *restart
+    image: axllent/mailpit:v1.29
+    ports:
+      - '127.0.0.1:${MAILPIT_UI_PORT:-8025}:8025'
+      - '127.0.0.1:${MAILPIT_SMTP_PORT:-1025}:1025'
+
+volumes:
+  pgdata: {}

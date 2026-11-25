@@ -1,0 +1,5 @@
+# Read by every cargo build under this repository, whatever the working directory.
+[env]
+# The PostgreSQL release bundled into the desktop app's local server (services/local); it must match
+# `solo_local::POSTGRES_VERSION`. Without it the build would bundle whatever release is newest.
+POSTGRESQL_VERSION = "=18.7.0"

@@ -1,0 +1,69 @@
+{
+  "$schema": "../../../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "Solo",
+  "version": "../../../package.json",
+  "identifier": "nz.solo.app",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:5173",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Solo",
+        "width": 1320,
+        "height": 860,
+        "minWidth": 380,
+        "minHeight": 560,
+        "resizable": true,
+        "center": true,
+        "zoomHotkeysEnabled": true
+      }
+    ],
+    "security": {
+      "csp": {
+        "default-src": "'self'",
+        "script-src": "'self'",
+        "style-src": "'self' 'unsafe-inline'",
+        "img-src": "'self' data: blob:",
+        "font-src": "'self' data:",
+        "connect-src": "'self' ipc: http://ipc.localhost http://localhost:8000 http://127.0.0.1:*",
+        "frame-src": "'none'",
+        "object-src": "'none'"
+      }
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "category": "Business",
+    "shortDescription": "Simple bookkeeping for independent professionals",
+    "longDescription": "Simple bookkeeping for independent professionals. Invoices, expenses, mileage and tax set-asides in one calm place.",
+    "copyright": "© 2026 Solo. All rights reserved.",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "linux": {
+      "deb": {
+        "depends": []
+      }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDAxMkRFMkE4NDMxMDAwMzIKUldReUFCQkRxT0l0QVQ2S09VdkM4bFR5ZFpzUVF2QjJ2OG4rVFE5WEJZdlk0djRLc3IxZHlxbWYK",
+      "endpoints": [],
+      "requireSignedVersion": true,
+      "windows": {
+        "installMode": "passive"
+      }
+    }
+  }
+}

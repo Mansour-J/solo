@@ -1,0 +1,43 @@
+[package]
+# Technical crate name; the user-facing product name comes from branding/brand.json (npm run brand:sync).
+name = "solo-desktop"
+version = "0.3.0"
+description = "Desktop shell for the bookkeeping app"
+authors = ["Solo"]
+license = "LicenseRef-Proprietary"
+edition = "2024"
+rust-version = "1.94"
+publish = false
+
+[lib]
+# The `_lib` suffix avoids a name clash with the binary on Windows (cargo#8519).
+name = "solo_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-opener = "2"
+tauri-plugin-log = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+log = "0.4"
+# The local server (embedded PostgreSQL and the API), where the books live (ADR 0014).
+solo-local = { path = "../../../services/local" }
+
+# Shutdown signals (SIGTERM, SIGINT, SIGHUP) close the app cleanly, stopping the local database (lib.rs).
+[target.'cfg(unix)'.dependencies]
+tokio = { version = "1.54.1", features = ["signal", "macros"] }
+
+[target.'cfg(any(target_os = "macos", target_os = "windows", target_os = "linux"))'.dependencies]
+# Signed in-app updates from the release feed (updates.rs, ADR 0015).
+tauri-plugin-updater = "2"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true

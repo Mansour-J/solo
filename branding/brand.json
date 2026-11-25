@@ -1,0 +1,35 @@
+{
+  "$comment": "Single source of truth for the product's identity. Change it here (or override with APP_* environment variables, see docs/development/branding.md) and run `npm run brand:sync`. Never hardcode these values elsewhere.",
+  "name": "Solo",
+  "shortName": "Solo",
+  "description": "Simple bookkeeping for independent professionals",
+  "tagline": "Invoices, expenses, mileage and tax set-asides in one calm place.",
+  "colors": {
+    "primary": "#13795b",
+    "secondary": "#c2410c"
+  },
+  "assets": {
+    "logo": "assets/logo.svg",
+    "logoMark": "assets/logo-mark.svg",
+    "favicon": "assets/favicon.svg",
+    "appIcon": "assets/app-icon.svg"
+  },
+  "email": {
+    "senderName": "Solo",
+    "senderAddress": "no-reply@example.com",
+    "supportEmail": "support@example.com"
+  },
+  "urls": {
+    "website": "https://example.com",
+    "app": "http://localhost:8080"
+  },
+  "legal": {
+    "termsUrl": "",
+    "privacyUrl": ""
+  },
+  "identifiers": {
+    "desktop": "nz.solo.app",
+    "mobile": "nz.solo.app"
+  },
+  "copyright": "© 2026 Solo. All rights reserved."
+}

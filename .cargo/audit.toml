@@ -1,0 +1,14 @@
+# cargo audit configuration (CI runs `cargo audit` from the repository root).
+# Every ignored advisory says why it doesn't affect Solo and when to remove it. Review on each
+# dependency upgrade; never ignore an advisory that user input can reach.
+
+[advisories]
+ignore = [
+  # quick-xml < 0.41, via typst 0.15 → hayagriva → citationberg 0.7 (no patched release yet).
+  # Memory and CPU exhaustion when parsing untrusted XML (namespace declarations, duplicate
+  # attributes). Solo parses no user-supplied XML: Typst only reads the CSL styles bundled in
+  # hayagriva, for bibliographies, which the document template doesn't use.
+  # Remove when typst ships a citationberg that depends on quick-xml >= 0.41.
+  "RUSTSEC-2026-0194",
+  "RUSTSEC-2026-0195",
+]

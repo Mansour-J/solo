@@ -1,0 +1,262 @@
+name: CI
+
+# Quality gate on every pull request and push to main. Jobs run in parallel; all must pass to merge.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: '24'
+  CARGO_TERM_COLOR: always
+  # Each integration-test file links into its own binary; without debug info they're a fraction of the
+  # size, so the runner doesn't run out of disk while linking ("ld terminated with signal 7").
+  CARGO_PROFILE_DEV_DEBUG: '0'
+  CARGO_PROFILE_TEST_DEBUG: '0'
+  CARGO_INCREMENTAL: '0'
+  # Builds of the local server download the bundled PostgreSQL from GitHub; a token avoids rate limits.
+  GITHUB_TOKEN: ${{ github.token }}
+
+jobs:
+  api:
+    name: API (fmt, clippy, unit + integration tests)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: solo_test
+          POSTGRES_USER: solo_owner
+          POSTGRES_PASSWORD: ci_owner_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U solo_owner -d solo_test"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 30
+    env:
+      TEST_DATABASE_URL: postgres://solo_app:ci_app_password@localhost:5432/solo_test
+      TEST_OWNER_DATABASE_URL: postgres://solo_owner:ci_owner_password@localhost:5432/solo_test
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            services/api
+            services/local
+      - name: Migrate the test database
+        run: |
+          docker run --rm --network host -v "$PWD/database/migrations:/flyway/migrations:ro" \
+            -e FLYWAY_URL=jdbc:postgresql://localhost:5432/solo_test -e FLYWAY_USER=solo_owner -e FLYWAY_PASSWORD=ci_owner_password \
+            -e FLYWAY_SCHEMAS=solo -e FLYWAY_DEFAULT_SCHEMA=solo -e FLYWAY_LOCATIONS=filesystem:/flyway/migrations \
+            flyway/flyway:11-alpine migrate
+          # The API connects as solo_app (subject to row-level security), never as the owner.
+          docker exec -i "${{ job.services.postgres.id }}" psql -U solo_owner -d solo_test -v ON_ERROR_STOP=1 \
+            -c "ALTER ROLE solo_app LOGIN PASSWORD 'ci_app_password'"
+      - run: cargo fmt --manifest-path services/api/Cargo.toml --check
+      - run: cargo clippy --manifest-path services/api/Cargo.toml --all-targets --locked -- -D warnings
+      - run: cargo test --manifest-path services/api/Cargo.toml --locked
+      # The desktop app's local server: bundled PostgreSQL, migrations and the API (ADR 0014).
+      - run: cargo fmt --manifest-path services/local/Cargo.toml --check
+      - run: cargo clippy --manifest-path services/local/Cargo.toml --all-targets --locked -- -D warnings
+      - run: cargo test --manifest-path services/local/Cargo.toml --locked
+
+  database:
+    name: Database migrations (fresh install and upgrade)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: solo
+          POSTGRES_USER: solo_owner
+          POSTGRES_PASSWORD: ci_owner_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U solo_owner -d solo"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 30
+    steps:
+      - uses: actions/checkout@v5
+      - name: Fresh install, re-run (must be a no-op), validate
+        run: |
+          flyway() {
+            docker run --rm --network host -v "$PWD/database/migrations:/flyway/migrations:ro" \
+              -e FLYWAY_URL="jdbc:postgresql://localhost:5432/$DB" -e FLYWAY_USER=solo_owner -e FLYWAY_PASSWORD=ci_owner_password \
+              -e FLYWAY_SCHEMAS=solo -e FLYWAY_DEFAULT_SCHEMA=solo -e FLYWAY_LOCATIONS=filesystem:/flyway/migrations \
+              -e FLYWAY_VALIDATE_MIGRATION_NAMING=true flyway/flyway:11-alpine "$@"
+          }
+          DB=solo flyway migrate
+          DB=solo flyway migrate | tee second-run.log
+          grep -q "No migration necessary" second-run.log
+          DB=solo flyway validate
+          DB=solo flyway info
+      - name: Upgrade from the previous schema version
+        run: |
+          docker exec -i "${{ job.services.postgres.id }}" psql -U solo_owner -d solo -c "CREATE DATABASE solo_upgrade"
+          latest=$(ls database/migrations | sed -n 's/^V\([0-9]*\)__.*/\1/p' | sort -n | tail -1)
+          previous=$((latest - 1))
+          flyway() {
+            docker run --rm --network host -v "$PWD/database/migrations:/flyway/migrations:ro" \
+              -e FLYWAY_URL=jdbc:postgresql://localhost:5432/solo_upgrade -e FLYWAY_USER=solo_owner -e FLYWAY_PASSWORD=ci_owner_password \
+              -e FLYWAY_SCHEMAS=solo -e FLYWAY_DEFAULT_SCHEMA=solo -e FLYWAY_LOCATIONS=filesystem:/flyway/migrations \
+              flyway/flyway:11-alpine "$@"
+          }
+          flyway migrate -target="$previous"
+          flyway migrate
+          flyway validate
+      - name: Schema integrity and tenant isolation checks
+        run: docker exec -i "${{ job.services.postgres.id }}" psql -U solo_owner -d solo -v ON_ERROR_STOP=1 -f - < database/tests/schema_checks.sql
+
+  web:
+    name: Web client (types, lint, format, tests, build)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run format:check
+      - name: Backlog data is valid
+        run: npm run backlog -- check
+      - run: npm test
+      - run: npm run build
+      - name: Brand configuration is applied to the desktop app
+        run: npm run brand:sync -- --check
+
+  contract:
+    name: API client matches the API
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: services/api
+      - run: npm ci
+      - run: npm run api:client
+      - name: Generated client is committed
+        run: |
+          if ! git diff --exit-code packages/api-client; then
+            echo "::error::packages/api-client is out of date. Run 'npm run api:client' and commit the result."
+            exit 1
+          fi
+
+  e2e:
+    name: End-to-end (local server + Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: services/local
+      - run: npm ci
+      - run: cargo build --manifest-path services/local/Cargo.toml --locked
+      - name: Start the local server (bundled PostgreSQL + API) and the web client
+        run: |
+          services/local/target/debug/solo-local --data-dir "$RUNNER_TEMP/local" --url-file "$RUNNER_TEMP/url.txt" > local.log 2>&1 &
+          for _ in $(seq 120); do [ -f "$RUNNER_TEMP/url.txt" ] && break; sleep 1; done
+          VITE_DEV_API_PROXY=$(cat "$RUNNER_TEMP/url.txt") npm run dev > vite.log 2>&1 &
+          for _ in $(seq 120); do curl -sf -o /dev/null http://localhost:5173 && break; sleep 1; done
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test
+        env:
+          E2E_BASE_URL: http://localhost:5173
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: e2e-report
+          path: |
+            playwright-report
+            test-results
+            local.log
+            vite.log
+          retention-days: 14
+
+  security:
+    name: Dependency audit and secret scanning
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Secret scanning (gitleaks)
+        run: docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:latest git /repo --redact --verbose
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - name: npm audit (production dependencies)
+        run: npm audit --omit=dev --audit-level=high
+      - uses: dtolnay/rust-toolchain@stable
+      - name: cargo audit (RustSec advisories)
+        run: |
+          cargo install cargo-audit --locked --quiet
+          cargo audit --file services/api/Cargo.lock
+          cargo audit --file apps/client/src-tauri/Cargo.lock
+          cargo audit --file services/local/Cargo.lock
+
+  desktop:
+    name: Desktop shell (Rust tests + Linux bundle)
+    if: github.event_name != 'pull_request'
+    needs: web
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+      - name: Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev libssl-dev libxdo-dev patchelf xvfb
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: apps/client/src-tauri
+      - run: npm ci
+      - run: npm run desktop:build -- --bundles deb
+      - run: cargo test --manifest-path apps/client/src-tauri/Cargo.toml
+      - name: Smoke test (launch under a virtual display)
+        run: |
+          binary=$(find apps/client/src-tauri/target/release -maxdepth 1 -type f -name 'solo-desktop' | head -1)
+          code=0
+          xvfb-run -a env WEBKIT_DISABLE_DMABUF_RENDERER=1 timeout 20 "$binary" || code=$?
+          if [ "$code" -ne 124 ]; then echo "::error::The desktop app exited during start-up ($code)"; exit 1; fi

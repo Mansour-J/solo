@@ -1,0 +1,1813 @@
+{
+  "about": [
+    "Fernleaf Consulting, a made-up sole trader, for the year ended 31 March 2026. Every name and amount is invented.",
+    "build.mjs generates this file: it simulates Solo’s posting rules on these records independently of the API and gives each report line in whole dollars, as an accountant’s annual report prints it.",
+    "Entered after fy2025.json in the same business: the opening values come from the year before."
+  ],
+  "year": {
+    "from": "2025-04-01",
+    "to": "2026-03-31"
+  },
+  "categories": [
+    {
+      "name": "Consulting & Accounting",
+      "non_deductible": false
+    },
+    {
+      "name": "Subscriptions",
+      "non_deductible": false
+    }
+  ],
+  "invoices": [
+    {
+      "issue_date": "2025-04-01",
+      "due_date": "2025-04-20",
+      "lines": [
+        {
+          "description": "Contract services, April 2025 (152 hours)",
+          "quantity": "152.00",
+          "unit_price": 9500
+        }
+      ],
+      "payment": {
+        "payment_date": "2025-04-20",
+        "amount": 1660600,
+        "withholding_tax": 288800
+      }
+    },
+    {
+      "issue_date": "2025-05-01",
+      "due_date": "2025-05-20",
+      "lines": [
+        {
+          "description": "Contract services, May 2025 (148.5 hours)",
+          "quantity": "148.50",
+          "unit_price": 9500
+        }
+      ],
+      "payment": {
+        "payment_date": "2025-05-20",
+        "amount": 1622363,
+        "withholding_tax": 282150
+      }
+    },
+    {
+      "issue_date": "2025-06-01",
+      "due_date": "2025-06-20",
+      "lines": [
+        {
+          "description": "Contract services, June 2025 (160.25 hours)",
+          "quantity": "160.25",
+          "unit_price": 9500
+        }
+      ],
+      "payment": {
+        "payment_date": "2025-06-20",
+        "amount": 1750731,
+        "withholding_tax": 304475
+      }
+    },
+    {
+      "issue_date": "2025-07-01",
+      "due_date": "2025-07-20",
+      "lines": [
+        {
+          "description": "Contract services, July 2025 (158.75 hours)",
+          "quantity": "158.75",
+          "unit_price": 9500
+        }
+      ],
+      "payment": {
+        "payment_date": "2025-07-20",
+        "amount": 1734344,
+        "withholding_tax": 301625
+      }
+    },
+    {
+      "issue_date": "2025-08-01",
+      "due_date": "2025-08-20",
+      "lines": [
+        {
+          "description": "Contract services, August 2025 (141 hours)",
+          "quantity": "141.00",
+          "unit_price": 9500
+        }
+      ],
+      "payment": {
+        "payment_date": "2025-08-20",
+        "amount": 1540425,
+        "withholding_tax": 267900
+      }
+    },
+    {
+      "issue_date": "2025-09-01",
+      "due_date": "2025-09-20",
+      "lines": [
+        {
+          "description": "Contract services, September 2025 (155.5 hours)",
+          "quantity": "155.50",
+          "unit_price": 9500
+        }
+      ],
+      "payment": {
+        "payment_date": "2025-09-20",
+        "amount": 1698838,
+        "withholding_tax": 295450
+      }
+    },
+    {
+      "issue_date": "2025-10-01",
+      "due_date": "2025-10-20",
+      "lines": [
+        {
+          "description": "Contract services, October 2025 (162 hours)",
+          "quantity": "162.00",
+          "unit_price": 9500
+        }
+      ],
+      "payment": {
+        "payment_date": "2025-10-20",
+        "amount": 1769850,
+        "withholding_tax": 307800
+      }
+    },
+    {
+      "issue_date": "2025-11-01",
+      "due_date": "2025-11-20",
+      "lines": [
+        {
+          "description": "Contract services, November 2025 (149.25 hours)",
+          "quantity": "149.25",
+          "unit_price": 9500
+        }
+      ],
+      "payment": {
+        "payment_date": "2025-11-20",
+        "amount": 1630556,
+        "withholding_tax": 283575
+      }
+    },
+    {
+      "issue_date": "2025-12-01",
+      "due_date": "2025-12-20",
+      "lines": [
+        {
+          "description": "Contract services, December 2025 (166.75 hours)",
+          "quantity": "166.75",
+          "unit_price": 9500
+        }
+      ],
+      "payment": {
+        "payment_date": "2025-12-20",
+        "amount": 1821744,
+        "withholding_tax": 316825
+      }
+    },
+    {
+      "issue_date": "2026-01-01",
+      "due_date": "2026-01-20",
+      "lines": [
+        {
+          "description": "Contract services, January 2026 (112.5 hours)",
+          "quantity": "112.50",
+          "unit_price": 9500
+        }
+      ],
+      "payment": {
+        "payment_date": "2026-01-20",
+        "amount": 1229063,
+        "withholding_tax": 213750
+      }
+    },
+    {
+      "issue_date": "2026-02-01",
+      "due_date": "2026-02-20",
+      "lines": [
+        {
+          "description": "Contract services, February 2026 (159 hours)",
+          "quantity": "159.00",
+          "unit_price": 9500
+        }
+      ],
+      "payment": {
+        "payment_date": "2026-02-20",
+        "amount": 1737075,
+        "withholding_tax": 302100
+      }
+    },
+    {
+      "issue_date": "2026-03-01",
+      "due_date": "2026-03-20",
+      "lines": [
+        {
+          "description": "Contract services, March 2026 (163.5 hours)",
+          "quantity": "163.50",
+          "unit_price": 9500
+        }
+      ],
+      "payment": {
+        "payment_date": "2026-03-20",
+        "amount": 1786238,
+        "withholding_tax": 310650
+      }
+    }
+  ],
+  "expenses": [
+    {
+      "category": "Bank fees",
+      "supplier": "Bank",
+      "expense_date": "2025-04-28",
+      "gross_amount": 790,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Bank fees",
+      "supplier": "Bank",
+      "expense_date": "2025-05-28",
+      "gross_amount": 790,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Bank fees",
+      "supplier": "Bank",
+      "expense_date": "2025-06-28",
+      "gross_amount": 790,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Bank fees",
+      "supplier": "Bank",
+      "expense_date": "2025-07-28",
+      "gross_amount": 790,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Bank fees",
+      "supplier": "Bank",
+      "expense_date": "2025-08-28",
+      "gross_amount": 790,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Bank fees",
+      "supplier": "Bank",
+      "expense_date": "2025-09-28",
+      "gross_amount": 790,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Bank fees",
+      "supplier": "Bank",
+      "expense_date": "2025-10-28",
+      "gross_amount": 790,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Bank fees",
+      "supplier": "Bank",
+      "expense_date": "2025-11-28",
+      "gross_amount": 790,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Bank fees",
+      "supplier": "Bank",
+      "expense_date": "2025-12-28",
+      "gross_amount": 790,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Bank fees",
+      "supplier": "Bank",
+      "expense_date": "2026-01-28",
+      "gross_amount": 790,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Bank fees",
+      "supplier": "Bank",
+      "expense_date": "2026-02-28",
+      "gross_amount": 790,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Bank fees",
+      "supplier": "Bank",
+      "expense_date": "2026-03-28",
+      "gross_amount": 790,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Interest expense",
+      "supplier": "Bank",
+      "expense_date": "2025-06-30",
+      "gross_amount": 540,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Interest expense",
+      "supplier": "Bank",
+      "expense_date": "2025-09-30",
+      "gross_amount": 540,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Interest expense",
+      "supplier": "Bank",
+      "expense_date": "2025-12-31",
+      "gross_amount": 540,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Interest expense",
+      "supplier": "Bank",
+      "expense_date": "2026-03-31",
+      "gross_amount": 540,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Consulting & Accounting",
+      "supplier": "Accountant",
+      "expense_date": "2025-08-20",
+      "gross_amount": 189750,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Office expenses",
+      "supplier": "Office costs",
+      "expense_date": "2025-05-20",
+      "gross_amount": 91200,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Office expenses",
+      "supplier": "Office costs",
+      "expense_date": "2025-10-14",
+      "gross_amount": 77640,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Office expenses",
+      "supplier": "Office costs",
+      "expense_date": "2026-02-09",
+      "gross_amount": 83150,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Office suite",
+      "expense_date": "2025-04-01",
+      "gross_amount": 2990,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Code hosting",
+      "expense_date": "2025-04-01",
+      "gross_amount": 5800,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "AI assistant",
+      "expense_date": "2025-04-01",
+      "gross_amount": 4900,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Design software",
+      "expense_date": "2025-04-01",
+      "gross_amount": 8750,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Domain and hosting",
+      "expense_date": "2025-04-01",
+      "gross_amount": 3990,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Cloud storage",
+      "expense_date": "2025-04-01",
+      "gross_amount": 1699,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Accounting software",
+      "expense_date": "2025-04-01",
+      "gross_amount": 6500,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Password manager",
+      "expense_date": "2025-04-01",
+      "gross_amount": 1250,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Video calls",
+      "expense_date": "2025-04-01",
+      "gross_amount": 2400,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Office suite",
+      "expense_date": "2025-05-02",
+      "gross_amount": 2990,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Code hosting",
+      "expense_date": "2025-05-02",
+      "gross_amount": 5800,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "AI assistant",
+      "expense_date": "2025-05-02",
+      "gross_amount": 4900,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Design software",
+      "expense_date": "2025-05-02",
+      "gross_amount": 8750,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Domain and hosting",
+      "expense_date": "2025-05-02",
+      "gross_amount": 3990,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Cloud storage",
+      "expense_date": "2025-05-02",
+      "gross_amount": 1699,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Accounting software",
+      "expense_date": "2025-05-02",
+      "gross_amount": 6500,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Password manager",
+      "expense_date": "2025-05-02",
+      "gross_amount": 1250,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Video calls",
+      "expense_date": "2025-05-02",
+      "gross_amount": 2400,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Office suite",
+      "expense_date": "2025-06-03",
+      "gross_amount": 2990,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Code hosting",
+      "expense_date": "2025-06-03",
+      "gross_amount": 5800,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "AI assistant",
+      "expense_date": "2025-06-03",
+      "gross_amount": 4900,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Design software",
+      "expense_date": "2025-06-03",
+      "gross_amount": 8750,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Domain and hosting",
+      "expense_date": "2025-06-03",
+      "gross_amount": 3990,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Cloud storage",
+      "expense_date": "2025-06-03",
+      "gross_amount": 1699,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Accounting software",
+      "expense_date": "2025-06-03",
+      "gross_amount": 6500,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Password manager",
+      "expense_date": "2025-06-03",
+      "gross_amount": 1250,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Video calls",
+      "expense_date": "2025-06-03",
+      "gross_amount": 2400,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Office suite",
+      "expense_date": "2025-07-04",
+      "gross_amount": 2990,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Code hosting",
+      "expense_date": "2025-07-04",
+      "gross_amount": 5800,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "AI assistant",
+      "expense_date": "2025-07-04",
+      "gross_amount": 4900,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Design software",
+      "expense_date": "2025-07-04",
+      "gross_amount": 8750,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Domain and hosting",
+      "expense_date": "2025-07-04",
+      "gross_amount": 3990,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Cloud storage",
+      "expense_date": "2025-07-04",
+      "gross_amount": 1699,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Accounting software",
+      "expense_date": "2025-07-04",
+      "gross_amount": 6500,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Password manager",
+      "expense_date": "2025-07-04",
+      "gross_amount": 1250,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Video calls",
+      "expense_date": "2025-07-04",
+      "gross_amount": 2400,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Office suite",
+      "expense_date": "2025-08-05",
+      "gross_amount": 2990,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Code hosting",
+      "expense_date": "2025-08-05",
+      "gross_amount": 5800,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "AI assistant",
+      "expense_date": "2025-08-05",
+      "gross_amount": 4900,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Design software",
+      "expense_date": "2025-08-05",
+      "gross_amount": 8750,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Domain and hosting",
+      "expense_date": "2025-08-05",
+      "gross_amount": 3990,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Cloud storage",
+      "expense_date": "2025-08-05",
+      "gross_amount": 1699,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Accounting software",
+      "expense_date": "2025-08-05",
+      "gross_amount": 6500,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Password manager",
+      "expense_date": "2025-08-05",
+      "gross_amount": 1250,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Video calls",
+      "expense_date": "2025-08-05",
+      "gross_amount": 2400,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Office suite",
+      "expense_date": "2025-09-06",
+      "gross_amount": 2990,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Code hosting",
+      "expense_date": "2025-09-06",
+      "gross_amount": 5800,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "AI assistant",
+      "expense_date": "2025-09-06",
+      "gross_amount": 4900,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Design software",
+      "expense_date": "2025-09-06",
+      "gross_amount": 8750,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Domain and hosting",
+      "expense_date": "2025-09-06",
+      "gross_amount": 3990,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Cloud storage",
+      "expense_date": "2025-09-06",
+      "gross_amount": 1699,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Accounting software",
+      "expense_date": "2025-09-06",
+      "gross_amount": 6500,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Password manager",
+      "expense_date": "2025-09-06",
+      "gross_amount": 1250,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Video calls",
+      "expense_date": "2025-09-06",
+      "gross_amount": 2400,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Office suite",
+      "expense_date": "2025-10-07",
+      "gross_amount": 2990,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Code hosting",
+      "expense_date": "2025-10-07",
+      "gross_amount": 5800,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "AI assistant",
+      "expense_date": "2025-10-07",
+      "gross_amount": 4900,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Design software",
+      "expense_date": "2025-10-07",
+      "gross_amount": 8750,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Domain and hosting",
+      "expense_date": "2025-10-07",
+      "gross_amount": 3990,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Cloud storage",
+      "expense_date": "2025-10-07",
+      "gross_amount": 1699,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Accounting software",
+      "expense_date": "2025-10-07",
+      "gross_amount": 6500,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Password manager",
+      "expense_date": "2025-10-07",
+      "gross_amount": 1250,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Video calls",
+      "expense_date": "2025-10-07",
+      "gross_amount": 2400,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Office suite",
+      "expense_date": "2025-11-08",
+      "gross_amount": 2990,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Code hosting",
+      "expense_date": "2025-11-08",
+      "gross_amount": 5800,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "AI assistant",
+      "expense_date": "2025-11-08",
+      "gross_amount": 4900,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Design software",
+      "expense_date": "2025-11-08",
+      "gross_amount": 8750,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Domain and hosting",
+      "expense_date": "2025-11-08",
+      "gross_amount": 3990,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Cloud storage",
+      "expense_date": "2025-11-08",
+      "gross_amount": 1699,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Accounting software",
+      "expense_date": "2025-11-08",
+      "gross_amount": 6500,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Password manager",
+      "expense_date": "2025-11-08",
+      "gross_amount": 1250,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Video calls",
+      "expense_date": "2025-11-08",
+      "gross_amount": 2400,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Office suite",
+      "expense_date": "2025-12-09",
+      "gross_amount": 2990,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Code hosting",
+      "expense_date": "2025-12-09",
+      "gross_amount": 5800,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "AI assistant",
+      "expense_date": "2025-12-09",
+      "gross_amount": 4900,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Design software",
+      "expense_date": "2025-12-09",
+      "gross_amount": 8750,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Domain and hosting",
+      "expense_date": "2025-12-09",
+      "gross_amount": 3990,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Cloud storage",
+      "expense_date": "2025-12-09",
+      "gross_amount": 1699,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Accounting software",
+      "expense_date": "2025-12-09",
+      "gross_amount": 6500,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Password manager",
+      "expense_date": "2025-12-09",
+      "gross_amount": 1250,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Video calls",
+      "expense_date": "2025-12-09",
+      "gross_amount": 2400,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Office suite",
+      "expense_date": "2026-01-01",
+      "gross_amount": 2990,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Code hosting",
+      "expense_date": "2026-01-01",
+      "gross_amount": 5800,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "AI assistant",
+      "expense_date": "2026-01-01",
+      "gross_amount": 4900,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Design software",
+      "expense_date": "2026-01-01",
+      "gross_amount": 8750,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Domain and hosting",
+      "expense_date": "2026-01-01",
+      "gross_amount": 3990,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Cloud storage",
+      "expense_date": "2026-01-01",
+      "gross_amount": 1699,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Accounting software",
+      "expense_date": "2026-01-01",
+      "gross_amount": 6500,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Password manager",
+      "expense_date": "2026-01-01",
+      "gross_amount": 1250,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Video calls",
+      "expense_date": "2026-01-01",
+      "gross_amount": 2400,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Office suite",
+      "expense_date": "2026-02-02",
+      "gross_amount": 2990,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Code hosting",
+      "expense_date": "2026-02-02",
+      "gross_amount": 5800,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "AI assistant",
+      "expense_date": "2026-02-02",
+      "gross_amount": 4900,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Design software",
+      "expense_date": "2026-02-02",
+      "gross_amount": 8750,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Domain and hosting",
+      "expense_date": "2026-02-02",
+      "gross_amount": 3990,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Cloud storage",
+      "expense_date": "2026-02-02",
+      "gross_amount": 1699,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Accounting software",
+      "expense_date": "2026-02-02",
+      "gross_amount": 6500,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Password manager",
+      "expense_date": "2026-02-02",
+      "gross_amount": 1250,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Video calls",
+      "expense_date": "2026-02-02",
+      "gross_amount": 2400,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Office suite",
+      "expense_date": "2026-03-03",
+      "gross_amount": 2990,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Code hosting",
+      "expense_date": "2026-03-03",
+      "gross_amount": 5800,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "AI assistant",
+      "expense_date": "2026-03-03",
+      "gross_amount": 4900,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Design software",
+      "expense_date": "2026-03-03",
+      "gross_amount": 8750,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Domain and hosting",
+      "expense_date": "2026-03-03",
+      "gross_amount": 3990,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Cloud storage",
+      "expense_date": "2026-03-03",
+      "gross_amount": 1699,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Accounting software",
+      "expense_date": "2026-03-03",
+      "gross_amount": 6500,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Password manager",
+      "expense_date": "2026-03-03",
+      "gross_amount": 1250,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Subscriptions",
+      "supplier": "Video calls",
+      "expense_date": "2026-03-03",
+      "gross_amount": 2400,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Home Office- Internet",
+      "supplier": "Internet provider",
+      "expense_date": "2025-04-10",
+      "gross_amount": 10499,
+      "gst_treatment": "standard",
+      "payment_method": "personal_funds",
+      "classification": "partial",
+      "business_percentage": "35"
+    },
+    {
+      "category": "Home Office- Internet",
+      "supplier": "Internet provider",
+      "expense_date": "2025-05-10",
+      "gross_amount": 10499,
+      "gst_treatment": "standard",
+      "payment_method": "personal_funds",
+      "classification": "partial",
+      "business_percentage": "35"
+    },
+    {
+      "category": "Home Office- Internet",
+      "supplier": "Internet provider",
+      "expense_date": "2025-06-10",
+      "gross_amount": 10499,
+      "gst_treatment": "standard",
+      "payment_method": "personal_funds",
+      "classification": "partial",
+      "business_percentage": "35"
+    },
+    {
+      "category": "Home Office- Internet",
+      "supplier": "Internet provider",
+      "expense_date": "2025-07-10",
+      "gross_amount": 10499,
+      "gst_treatment": "standard",
+      "payment_method": "personal_funds",
+      "classification": "partial",
+      "business_percentage": "35"
+    },
+    {
+      "category": "Home Office- Internet",
+      "supplier": "Internet provider",
+      "expense_date": "2025-08-10",
+      "gross_amount": 10499,
+      "gst_treatment": "standard",
+      "payment_method": "personal_funds",
+      "classification": "partial",
+      "business_percentage": "35"
+    },
+    {
+      "category": "Home Office- Internet",
+      "supplier": "Internet provider",
+      "expense_date": "2025-09-10",
+      "gross_amount": 10499,
+      "gst_treatment": "standard",
+      "payment_method": "personal_funds",
+      "classification": "partial",
+      "business_percentage": "35"
+    },
+    {
+      "category": "Home Office- Internet",
+      "supplier": "Internet provider",
+      "expense_date": "2025-10-10",
+      "gross_amount": 10499,
+      "gst_treatment": "standard",
+      "payment_method": "personal_funds",
+      "classification": "partial",
+      "business_percentage": "35"
+    },
+    {
+      "category": "Home Office- Internet",
+      "supplier": "Internet provider",
+      "expense_date": "2025-11-10",
+      "gross_amount": 10499,
+      "gst_treatment": "standard",
+      "payment_method": "personal_funds",
+      "classification": "partial",
+      "business_percentage": "35"
+    },
+    {
+      "category": "Home Office- Internet",
+      "supplier": "Internet provider",
+      "expense_date": "2025-12-10",
+      "gross_amount": 10499,
+      "gst_treatment": "standard",
+      "payment_method": "personal_funds",
+      "classification": "partial",
+      "business_percentage": "35"
+    },
+    {
+      "category": "Home Office- Internet",
+      "supplier": "Internet provider",
+      "expense_date": "2026-01-10",
+      "gross_amount": 10499,
+      "gst_treatment": "standard",
+      "payment_method": "personal_funds",
+      "classification": "partial",
+      "business_percentage": "35"
+    },
+    {
+      "category": "Home Office- Internet",
+      "supplier": "Internet provider",
+      "expense_date": "2026-02-10",
+      "gross_amount": 10499,
+      "gst_treatment": "standard",
+      "payment_method": "personal_funds",
+      "classification": "partial",
+      "business_percentage": "35"
+    },
+    {
+      "category": "Home Office- Internet",
+      "supplier": "Internet provider",
+      "expense_date": "2026-03-10",
+      "gross_amount": 10499,
+      "gst_treatment": "standard",
+      "payment_method": "personal_funds",
+      "classification": "partial",
+      "business_percentage": "35"
+    },
+    {
+      "category": "Non deductible penalties",
+      "supplier": "Inland Revenue",
+      "expense_date": "2025-11-30",
+      "gross_amount": 36400,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    }
+  ],
+  "movements": [
+    {
+      "kind": "drawing",
+      "movement_date": "2025-04-25",
+      "amount": 1020000,
+      "description": "Transfer to personal account"
+    },
+    {
+      "kind": "drawing",
+      "movement_date": "2025-05-25",
+      "amount": 1020000,
+      "description": "Transfer to personal account"
+    },
+    {
+      "kind": "drawing",
+      "movement_date": "2025-06-25",
+      "amount": 1020000,
+      "description": "Transfer to personal account"
+    },
+    {
+      "kind": "drawing",
+      "movement_date": "2025-07-25",
+      "amount": 1020000,
+      "description": "Transfer to personal account"
+    },
+    {
+      "kind": "drawing",
+      "movement_date": "2025-08-25",
+      "amount": 1020000,
+      "description": "Transfer to personal account"
+    },
+    {
+      "kind": "drawing",
+      "movement_date": "2025-09-25",
+      "amount": 1020000,
+      "description": "Transfer to personal account"
+    },
+    {
+      "kind": "drawing",
+      "movement_date": "2025-10-25",
+      "amount": 1020000,
+      "description": "Transfer to personal account"
+    },
+    {
+      "kind": "drawing",
+      "movement_date": "2025-11-25",
+      "amount": 1020000,
+      "description": "Transfer to personal account"
+    },
+    {
+      "kind": "drawing",
+      "movement_date": "2025-12-25",
+      "amount": 1020000,
+      "description": "Transfer to personal account"
+    },
+    {
+      "kind": "drawing",
+      "movement_date": "2026-01-25",
+      "amount": 1020000,
+      "description": "Transfer to personal account"
+    },
+    {
+      "kind": "drawing",
+      "movement_date": "2026-02-25",
+      "amount": 1020000,
+      "description": "Transfer to personal account"
+    },
+    {
+      "kind": "drawing",
+      "movement_date": "2026-03-25",
+      "amount": 1020000,
+      "description": "Transfer to personal account"
+    },
+    {
+      "kind": "funds_introduced",
+      "movement_date": "2025-07-03",
+      "amount": 1200000,
+      "description": "Owner contribution"
+    },
+    {
+      "kind": "funds_introduced",
+      "movement_date": "2026-01-19",
+      "amount": 480000,
+      "description": "Owner contribution"
+    },
+    {
+      "kind": "gst_payment",
+      "movement_date": "2025-05-07",
+      "amount": 198400,
+      "description": "GST return, February – March 2025"
+    },
+    {
+      "kind": "gst_payment",
+      "movement_date": "2025-06-28",
+      "amount": 310000,
+      "description": "GST return"
+    },
+    {
+      "kind": "gst_payment",
+      "movement_date": "2025-08-28",
+      "amount": 310000,
+      "description": "GST return"
+    },
+    {
+      "kind": "gst_payment",
+      "movement_date": "2025-10-28",
+      "amount": 310000,
+      "description": "GST return"
+    },
+    {
+      "kind": "gst_payment",
+      "movement_date": "2026-01-15",
+      "amount": 310000,
+      "description": "GST return"
+    },
+    {
+      "kind": "gst_payment",
+      "movement_date": "2026-02-28",
+      "amount": 368744,
+      "description": "GST return"
+    }
+  ],
+  "expected": {
+    "note": "Each report line in whole dollars: [this year, the comparative year], side by side.",
+    "profit_and_loss": {
+      "Sales": [
+        173755,
+        198000
+      ],
+      "Total income": [
+        173755,
+        198000
+      ],
+      "Gross profit": [
+        173755,
+        198000
+      ],
+      "Bank fees": [
+        95,
+        92
+      ],
+      "Interest expense": [
+        22,
+        245
+      ],
+      "Consulting & Accounting": [
+        1650,
+        0
+      ],
+      "Office expenses": [
+        2191,
+        2273
+      ],
+      "Subscriptions": [
+        3994,
+        0
+      ],
+      "Home Office- Internet": [
+        384,
+        235
+      ],
+      "Depreciation": [
+        1043,
+        2206
+      ],
+      "Total expenses": [
+        9378,
+        5050
+      ],
+      "Net profit before adjustments": [
+        164377,
+        192950
+      ],
+      "Non deductible penalties": [
+        364,
+        550
+      ],
+      "Total non-deductible expenses": [
+        364,
+        550
+      ],
+      "Net profit": [
+        164013,
+        192400
+      ]
+    },
+    "balance_sheet": {
+      "Business bank account": [
+        95780,
+        63875
+      ],
+      "Property, plant and equipment": [
+        1090,
+        2133
+      ],
+      "Total assets": [
+        96870,
+        66008
+      ],
+      "GST payable": [
+        8743,
+        1984
+      ],
+      "Net assets": [
+        88127,
+        64024
+      ],
+      "Current year earnings": [
+        164013,
+        192400
+      ],
+      "Drawings": [
+        -360400,
+        -238000
+      ],
+      "Owner funds introduced": [
+        32111,
+        14870
+      ],
+      "Personal accounts": [
+        -3200,
+        -3200
+      ],
+      "Retained earnings": [
+        384654,
+        192254
+      ],
+      "Withholding tax paid": [
+        -129051,
+        -94300
+      ],
+      "Total equity": [
+        88127,
+        64024
+      ]
+    },
+    "equity_changes": {
+      "Opening balance": [
+        64024,
+        50454
+      ],
+      "Profit for the period": [
+        164013,
+        192400
+      ],
+      "Owner funds introduced": [
+        17241,
+        2370
+      ],
+      "Total increases": [
+        181254,
+        194770
+      ],
+      "Drawings": [
+        122400,
+        141600
+      ],
+      "Withholding tax paid": [
+        34751,
+        39600
+      ],
+      "Total decreases": [
+        157151,
+        181200
+      ],
+      "Total equity": [
+        88127,
+        64024
+      ]
+    },
+    "depreciation": {
+      "Laptop": {
+        "cost": 3299,
+        "opening": 825,
+        "depreciation": 412,
+        "closing": 412
+      },
+      "Desktop workstation": {
+        "cost": 2450,
+        "opening": 191,
+        "depreciation": 96,
+        "closing": 96
+      },
+      "Tablet": {
+        "cost": 1499,
+        "opening": 326,
+        "depreciation": 219,
+        "closing": 108
+      },
+      "Camera": {
+        "cost": 2195,
+        "opening": 790,
+        "depreciation": 316,
+        "closing": 474
+      },
+      "Total computer equipment": {
+        "cost": 9443,
+        "opening": 2133,
+        "depreciation": 1043,
+        "closing": 1090
+      }
+    },
+    "checks": {
+      "book_value": 1090,
+      "retained_earnings": 384654,
+      "current_year_earnings": 164013,
+      "home_office_internet_cents": 38352,
+      "home_office_internet": {
+        "monthly_gross": 10499,
+        "business_percentage": 35
+      },
+      "owner_funds_introduced_cents": 1724100,
+      "drawings_cents": 12240000
+    }
+  }
+}

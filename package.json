@@ -1,0 +1,68 @@
+{
+  "name": "solo",
+  "private": true,
+  "version": "0.3.0",
+  "description": "Bookkeeping for independent professionals: Rust API, React web app and Tauri desktop app.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.22.0"
+  },
+  "workspaces": [
+    "apps/client",
+    "packages/api-client"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @solo/client",
+    "build": "npm run build -w @solo/client",
+    "typecheck": "npm run typecheck -w @solo/client && npm run typecheck -w @solo/api-client && tsc -p tsconfig.e2e.json",
+    "lint": "eslint . --max-warnings 0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "npm run test -w @solo/client",
+    "test:e2e": "playwright test",
+    "snap": "node scripts/snap.mjs",
+    "readme:screenshots": "node scripts/readme-screenshots.mjs",
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm run backlog -- check && npm test",
+    "backlog": "node scripts/backlog.mjs",
+    "backlog:publish": "node scripts/backlog-publish.mjs",
+    "api:dev": "node scripts/api-dev.mjs",
+    "api:test": "cargo test --manifest-path services/api/Cargo.toml && cargo test --manifest-path services/local/Cargo.toml",
+    "api:coverage:unit": "node scripts/api-coverage.mjs unit",
+    "api:coverage:integration": "node scripts/api-coverage.mjs integration",
+    "seed:annual": "node scripts/seed-annual.mjs",
+    "api:lint": "cargo fmt --manifest-path services/api/Cargo.toml --check && cargo clippy --manifest-path services/api/Cargo.toml --all-targets -- -D warnings && cargo fmt --manifest-path services/local/Cargo.toml --check && cargo clippy --manifest-path services/local/Cargo.toml --all-targets -- -D warnings",
+    "api:client": "node scripts/generate-api-client.mjs",
+    "desktop:dev": "npm run tauri -w @solo/client -- dev --additional-watch-folders ../../../services/api/src --additional-watch-folders ../../../services/api/assets --additional-watch-folders ../../../services/local/src --additional-watch-folders ../../../database/migrations",
+    "desktop:build": "npm run tauri -w @solo/client -- build",
+    "db:up": "docker compose up -d --wait db",
+    "db:migrate": "docker compose run --rm migrate",
+    "db:info": "docker compose run --rm migrate info",
+    "db:validate": "docker compose run --rm migrate validate",
+    "db:test:prepare": "docker compose run --rm -e FLYWAY_URL=jdbc:postgresql://db:5432/solo_test migrate",
+    "db:reset": "node scripts/db-reset.mjs",
+    "db:psql": "docker compose exec db psql -U solo_owner -d solo",
+    "stack:up": "docker compose up -d --wait",
+    "stack:down": "docker compose down",
+    "brand:sync": "node scripts/brand-sync.mjs",
+    "release:version": "node scripts/release-version.mjs",
+    "release:local": "node scripts/release-local.mjs",
+    "local:serve": "cargo run --manifest-path services/local/Cargo.toml -- --data-dir data/local"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.65.1",
+    "@types/node": "26.6.6",
+    "eslint": "10.15.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "eslint-plugin-react-refresh": "0.5.8",
+    "globals": "17.14.0",
+    "prettier": "3.10.1",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.73.0"
+  },
+  "overrides": {
+    "openapi-typescript": {
+      "typescript": "$typescript"
+    }
+  }
+}

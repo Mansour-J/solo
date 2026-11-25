@@ -1,0 +1,9 @@
+# Text files are stored and checked out with LF line endings on every platform, whatever the local
+# core.autocrlf setting (Prettier, rustfmt and the shell scripts in Docker images expect LF).
+* text=auto eol=lf
+
+# Binary files: never convert or diff as text.
+*.png  binary
+*.ico  binary
+*.icns binary
+*.ttf  binary

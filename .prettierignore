@@ -1,0 +1,13 @@
+node_modules
+dist
+target
+coverage
+playwright-report
+test-results
+package-lock.json
+packages/api-client/openapi.json
+packages/api-client/src/schema.d.ts
+apps/client/src-tauri
+services
+database
+*.md

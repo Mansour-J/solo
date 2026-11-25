@@ -1,0 +1,63 @@
+[package]
+name = "solo-api"
+version = "0.3.0"
+description = "Bookkeeping API: businesses, invoicing, expenses, mileage, allocations and reports"
+edition = "2024"
+rust-version = "1.88"
+license = "LicenseRef-Proprietary"
+publish = false
+default-run = "solo-api"
+
+[dependencies]
+anyhow = "1.0.104"
+async-trait = "0.1.92"
+axum = { version = "0.8.9", features = ["macros", "multipart"] }
+base64 = "0.23.1"
+chrono = { version = "0.4.45", features = ["serde"] }
+chrono-tz = "0.10.4"
+dotenvy = "0.15.7"
+hex = "0.4.3"
+lettre = { version = "0.11.24", default-features = false, features = ["builder", "hostname", "smtp-transport", "tokio1", "tokio1-rustls", "pool", "ring", "webpki-roots"] }
+object_store = { version = "0.14.2", features = ["aws"] }
+rand = "0.10.4"
+rust_decimal = { version = "1.43.0", features = ["serde-with-str", "maths"] }
+rust_xlsxwriter = { version = "0.103.0", default-features = false }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+sha2 = "0.11.1"
+sqlx = { version = "0.9.1", default-features = false, features = ["runtime-tokio", "tls-rustls", "postgres", "uuid", "chrono", "rust_decimal", "macros", "json"] }
+thiserror = "2.0.21"
+time = "0.3"
+tokio = { version = "1.54.1", features = ["full"] }
+tower = "0.5.3"
+tower-http = { version = "0.7.1", features = ["trace", "cors", "request-id", "limit", "timeout", "sensitive-headers", "util"] }
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter", "json"] }
+typst = "0.15.1"
+typst-as-lib = "0.18"
+typst-layout = "0.15.1"
+typst-pdf = "0.15.1"
+url = "2.5.8"
+utoipa = { version = "6.0.0", features = ["axum_extras", "uuid", "chrono", "decimal"] }
+utoipa-axum = "0.3.0"
+utoipa-scalar = { version = "0.4.0", features = ["axum"] }
+uuid = { version = "1.29.3", features = ["v7", "serde"] }
+zip = { version = "2", default-features = false, features = ["deflate"] }
+
+[dev-dependencies]
+http-body-util = "0.1.5"
+rust_decimal_macros = "1.40.0"
+tower = { version = "0.5.3", features = ["util"] }
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+dbg_macro = "deny"
+todo = "deny"
+unwrap_used = "warn"
+
+[profile.release]
+codegen-units = 1
+lto = "thin"
+strip = true

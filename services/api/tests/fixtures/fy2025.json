@@ -1,0 +1,811 @@
+{
+  "about": [
+    "Fernleaf Consulting, a made-up sole trader, for the year ended 31 March 2025. Every name and amount is invented.",
+    "build.mjs generates this file: it simulates Solo’s posting rules on these records independently of the API and gives each report line in whole dollars, as an accountant’s annual report prints it."
+  ],
+  "business": {
+    "name": "Fernleaf Consulting",
+    "gst_registered": true,
+    "gst_number": "49091850",
+    "gst_registered_from": "2019-04-01",
+    "reporting_basis": "accrual"
+  },
+  "year": {
+    "from": "2024-04-01",
+    "to": "2025-03-31"
+  },
+  "opening_balances": {
+    "as_at": "2024-03-31",
+    "bank": 4825000,
+    "gst_payable": 213450,
+    "drawings": -9640000,
+    "funds_introduced": 1250000,
+    "personal_accounts": -320000,
+    "withholding_tax": -5470000,
+    "income_tax": 0
+  },
+  "assets": [
+    {
+      "name": "Laptop",
+      "asset_group": "Computer equipment",
+      "cost": 329900,
+      "acquired_on": "2022-09-12",
+      "method": "dv",
+      "rate": "50",
+      "opening_value": 164950
+    },
+    {
+      "name": "Desktop workstation",
+      "asset_group": "Computer equipment",
+      "cost": 245000,
+      "acquired_on": "2021-03-05",
+      "method": "dv",
+      "rate": "50",
+      "opening_value": 38281
+    },
+    {
+      "name": "Tablet",
+      "asset_group": "Computer equipment",
+      "cost": 149900,
+      "acquired_on": "2023-02-20",
+      "method": "dv",
+      "rate": "67",
+      "opening_value": 98934
+    },
+    {
+      "name": "Camera",
+      "asset_group": "Computer equipment",
+      "cost": 219500,
+      "acquired_on": "2022-12-02",
+      "method": "dv",
+      "rate": "40",
+      "opening_value": 131700
+    }
+  ],
+  "categories": [
+    {
+      "name": "Interest expense",
+      "non_deductible": false
+    },
+    {
+      "name": "Office expenses",
+      "non_deductible": false
+    },
+    {
+      "name": "Home Office- Internet",
+      "non_deductible": false
+    },
+    {
+      "name": "Non deductible penalties",
+      "non_deductible": true
+    }
+  ],
+  "customer": {
+    "name": "Contract client"
+  },
+  "invoices": [
+    {
+      "issue_date": "2024-04-01",
+      "due_date": "2024-04-20",
+      "lines": [
+        {
+          "description": "Contract services, April 2024",
+          "quantity": "1",
+          "unit_price": 1650000
+        }
+      ],
+      "payment": {
+        "payment_date": "2024-04-20",
+        "amount": 1897500,
+        "withholding_tax": 330000
+      }
+    },
+    {
+      "issue_date": "2024-05-01",
+      "due_date": "2024-05-20",
+      "lines": [
+        {
+          "description": "Contract services, May 2024",
+          "quantity": "1",
+          "unit_price": 1650000
+        }
+      ],
+      "payment": {
+        "payment_date": "2024-05-20",
+        "amount": 1897500,
+        "withholding_tax": 330000
+      }
+    },
+    {
+      "issue_date": "2024-06-01",
+      "due_date": "2024-06-20",
+      "lines": [
+        {
+          "description": "Contract services, June 2024",
+          "quantity": "1",
+          "unit_price": 1650000
+        }
+      ],
+      "payment": {
+        "payment_date": "2024-06-20",
+        "amount": 1897500,
+        "withholding_tax": 330000
+      }
+    },
+    {
+      "issue_date": "2024-07-01",
+      "due_date": "2024-07-20",
+      "lines": [
+        {
+          "description": "Contract services, July 2024",
+          "quantity": "1",
+          "unit_price": 1650000
+        }
+      ],
+      "payment": {
+        "payment_date": "2024-07-20",
+        "amount": 1897500,
+        "withholding_tax": 330000
+      }
+    },
+    {
+      "issue_date": "2024-08-01",
+      "due_date": "2024-08-20",
+      "lines": [
+        {
+          "description": "Contract services, August 2024",
+          "quantity": "1",
+          "unit_price": 1650000
+        }
+      ],
+      "payment": {
+        "payment_date": "2024-08-20",
+        "amount": 1897500,
+        "withholding_tax": 330000
+      }
+    },
+    {
+      "issue_date": "2024-09-01",
+      "due_date": "2024-09-20",
+      "lines": [
+        {
+          "description": "Contract services, September 2024",
+          "quantity": "1",
+          "unit_price": 1650000
+        }
+      ],
+      "payment": {
+        "payment_date": "2024-09-20",
+        "amount": 1897500,
+        "withholding_tax": 330000
+      }
+    },
+    {
+      "issue_date": "2024-10-01",
+      "due_date": "2024-10-20",
+      "lines": [
+        {
+          "description": "Contract services, October 2024",
+          "quantity": "1",
+          "unit_price": 1650000
+        }
+      ],
+      "payment": {
+        "payment_date": "2024-10-20",
+        "amount": 1897500,
+        "withholding_tax": 330000
+      }
+    },
+    {
+      "issue_date": "2024-11-01",
+      "due_date": "2024-11-20",
+      "lines": [
+        {
+          "description": "Contract services, November 2024",
+          "quantity": "1",
+          "unit_price": 1650000
+        }
+      ],
+      "payment": {
+        "payment_date": "2024-11-20",
+        "amount": 1897500,
+        "withholding_tax": 330000
+      }
+    },
+    {
+      "issue_date": "2024-12-01",
+      "due_date": "2024-12-20",
+      "lines": [
+        {
+          "description": "Contract services, December 2024",
+          "quantity": "1",
+          "unit_price": 1650000
+        }
+      ],
+      "payment": {
+        "payment_date": "2024-12-20",
+        "amount": 1897500,
+        "withholding_tax": 330000
+      }
+    },
+    {
+      "issue_date": "2025-01-01",
+      "due_date": "2025-01-20",
+      "lines": [
+        {
+          "description": "Contract services, January 2025",
+          "quantity": "1",
+          "unit_price": 1650000
+        }
+      ],
+      "payment": {
+        "payment_date": "2025-01-20",
+        "amount": 1897500,
+        "withholding_tax": 330000
+      }
+    },
+    {
+      "issue_date": "2025-02-01",
+      "due_date": "2025-02-20",
+      "lines": [
+        {
+          "description": "Contract services, February 2025",
+          "quantity": "1",
+          "unit_price": 1650000
+        }
+      ],
+      "payment": {
+        "payment_date": "2025-02-20",
+        "amount": 1897500,
+        "withholding_tax": 330000
+      }
+    },
+    {
+      "issue_date": "2025-03-01",
+      "due_date": "2025-03-20",
+      "lines": [
+        {
+          "description": "Contract services, March 2025",
+          "quantity": "1",
+          "unit_price": 1650000
+        }
+      ],
+      "payment": {
+        "payment_date": "2025-03-20",
+        "amount": 1897500,
+        "withholding_tax": 330000
+      }
+    }
+  ],
+  "expenses": [
+    {
+      "category": "Bank fees",
+      "supplier": "Bank",
+      "expense_date": "2024-04-28",
+      "gross_amount": 750,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Bank fees",
+      "supplier": "Bank",
+      "expense_date": "2024-05-28",
+      "gross_amount": 750,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Bank fees",
+      "supplier": "Bank",
+      "expense_date": "2024-06-28",
+      "gross_amount": 750,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Bank fees",
+      "supplier": "Bank",
+      "expense_date": "2024-07-28",
+      "gross_amount": 750,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Bank fees",
+      "supplier": "Bank",
+      "expense_date": "2024-08-28",
+      "gross_amount": 750,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Bank fees",
+      "supplier": "Bank",
+      "expense_date": "2024-09-28",
+      "gross_amount": 750,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Bank fees",
+      "supplier": "Bank",
+      "expense_date": "2024-10-28",
+      "gross_amount": 780,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Bank fees",
+      "supplier": "Bank",
+      "expense_date": "2024-11-28",
+      "gross_amount": 780,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Bank fees",
+      "supplier": "Bank",
+      "expense_date": "2024-12-28",
+      "gross_amount": 780,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Bank fees",
+      "supplier": "Bank",
+      "expense_date": "2025-01-28",
+      "gross_amount": 780,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Bank fees",
+      "supplier": "Bank",
+      "expense_date": "2025-02-28",
+      "gross_amount": 780,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Bank fees",
+      "supplier": "Bank",
+      "expense_date": "2025-03-28",
+      "gross_amount": 780,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Interest expense",
+      "supplier": "Bank",
+      "expense_date": "2024-06-30",
+      "gross_amount": 6120,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Interest expense",
+      "supplier": "Bank",
+      "expense_date": "2024-09-30",
+      "gross_amount": 6120,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Interest expense",
+      "supplier": "Bank",
+      "expense_date": "2024-12-31",
+      "gross_amount": 6120,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Interest expense",
+      "supplier": "Bank",
+      "expense_date": "2025-03-31",
+      "gross_amount": 6120,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Office expenses",
+      "supplier": "Office costs",
+      "expense_date": "2024-06-15",
+      "gross_amount": 64400,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Office expenses",
+      "supplier": "Office costs",
+      "expense_date": "2024-09-15",
+      "gross_amount": 71250,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Office expenses",
+      "supplier": "Office costs",
+      "expense_date": "2024-12-15",
+      "gross_amount": 58990,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Office expenses",
+      "supplier": "Office costs",
+      "expense_date": "2025-03-15",
+      "gross_amount": 66730,
+      "gst_treatment": "standard",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Home Office- Internet",
+      "supplier": "Internet provider",
+      "expense_date": "2024-04-10",
+      "gross_amount": 8999,
+      "gst_treatment": "standard",
+      "payment_method": "personal_funds",
+      "classification": "partial",
+      "business_percentage": "25"
+    },
+    {
+      "category": "Home Office- Internet",
+      "supplier": "Internet provider",
+      "expense_date": "2024-05-10",
+      "gross_amount": 8999,
+      "gst_treatment": "standard",
+      "payment_method": "personal_funds",
+      "classification": "partial",
+      "business_percentage": "25"
+    },
+    {
+      "category": "Home Office- Internet",
+      "supplier": "Internet provider",
+      "expense_date": "2024-06-10",
+      "gross_amount": 8999,
+      "gst_treatment": "standard",
+      "payment_method": "personal_funds",
+      "classification": "partial",
+      "business_percentage": "25"
+    },
+    {
+      "category": "Home Office- Internet",
+      "supplier": "Internet provider",
+      "expense_date": "2024-07-10",
+      "gross_amount": 8999,
+      "gst_treatment": "standard",
+      "payment_method": "personal_funds",
+      "classification": "partial",
+      "business_percentage": "25"
+    },
+    {
+      "category": "Home Office- Internet",
+      "supplier": "Internet provider",
+      "expense_date": "2024-08-10",
+      "gross_amount": 8999,
+      "gst_treatment": "standard",
+      "payment_method": "personal_funds",
+      "classification": "partial",
+      "business_percentage": "25"
+    },
+    {
+      "category": "Home Office- Internet",
+      "supplier": "Internet provider",
+      "expense_date": "2024-09-10",
+      "gross_amount": 8999,
+      "gst_treatment": "standard",
+      "payment_method": "personal_funds",
+      "classification": "partial",
+      "business_percentage": "25"
+    },
+    {
+      "category": "Home Office- Internet",
+      "supplier": "Internet provider",
+      "expense_date": "2024-10-10",
+      "gross_amount": 8999,
+      "gst_treatment": "standard",
+      "payment_method": "personal_funds",
+      "classification": "partial",
+      "business_percentage": "25"
+    },
+    {
+      "category": "Home Office- Internet",
+      "supplier": "Internet provider",
+      "expense_date": "2024-11-10",
+      "gross_amount": 8999,
+      "gst_treatment": "standard",
+      "payment_method": "personal_funds",
+      "classification": "partial",
+      "business_percentage": "25"
+    },
+    {
+      "category": "Home Office- Internet",
+      "supplier": "Internet provider",
+      "expense_date": "2024-12-10",
+      "gross_amount": 8999,
+      "gst_treatment": "standard",
+      "payment_method": "personal_funds",
+      "classification": "partial",
+      "business_percentage": "25"
+    },
+    {
+      "category": "Home Office- Internet",
+      "supplier": "Internet provider",
+      "expense_date": "2025-01-10",
+      "gross_amount": 8999,
+      "gst_treatment": "standard",
+      "payment_method": "personal_funds",
+      "classification": "partial",
+      "business_percentage": "25"
+    },
+    {
+      "category": "Home Office- Internet",
+      "supplier": "Internet provider",
+      "expense_date": "2025-02-10",
+      "gross_amount": 8999,
+      "gst_treatment": "standard",
+      "payment_method": "personal_funds",
+      "classification": "partial",
+      "business_percentage": "25"
+    },
+    {
+      "category": "Home Office- Internet",
+      "supplier": "Internet provider",
+      "expense_date": "2025-03-10",
+      "gross_amount": 8999,
+      "gst_treatment": "standard",
+      "payment_method": "personal_funds",
+      "classification": "partial",
+      "business_percentage": "25"
+    },
+    {
+      "category": "Non deductible penalties",
+      "supplier": "Inland Revenue",
+      "expense_date": "2024-07-31",
+      "gross_amount": 27500,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    },
+    {
+      "category": "Non deductible penalties",
+      "supplier": "Inland Revenue",
+      "expense_date": "2025-01-31",
+      "gross_amount": 27500,
+      "gst_treatment": "exempt",
+      "payment_method": "business_account",
+      "classification": "business"
+    }
+  ],
+  "movements": [
+    {
+      "kind": "drawing",
+      "movement_date": "2024-04-25",
+      "amount": 1180000,
+      "description": "Transfer to personal account"
+    },
+    {
+      "kind": "drawing",
+      "movement_date": "2024-05-25",
+      "amount": 1180000,
+      "description": "Transfer to personal account"
+    },
+    {
+      "kind": "drawing",
+      "movement_date": "2024-06-25",
+      "amount": 1180000,
+      "description": "Transfer to personal account"
+    },
+    {
+      "kind": "drawing",
+      "movement_date": "2024-07-25",
+      "amount": 1180000,
+      "description": "Transfer to personal account"
+    },
+    {
+      "kind": "drawing",
+      "movement_date": "2024-08-25",
+      "amount": 1180000,
+      "description": "Transfer to personal account"
+    },
+    {
+      "kind": "drawing",
+      "movement_date": "2024-09-25",
+      "amount": 1180000,
+      "description": "Transfer to personal account"
+    },
+    {
+      "kind": "drawing",
+      "movement_date": "2024-10-25",
+      "amount": 1180000,
+      "description": "Transfer to personal account"
+    },
+    {
+      "kind": "drawing",
+      "movement_date": "2024-11-25",
+      "amount": 1180000,
+      "description": "Transfer to personal account"
+    },
+    {
+      "kind": "drawing",
+      "movement_date": "2024-12-25",
+      "amount": 1180000,
+      "description": "Transfer to personal account"
+    },
+    {
+      "kind": "drawing",
+      "movement_date": "2025-01-25",
+      "amount": 1180000,
+      "description": "Transfer to personal account"
+    },
+    {
+      "kind": "drawing",
+      "movement_date": "2025-02-25",
+      "amount": 1180000,
+      "description": "Transfer to personal account"
+    },
+    {
+      "kind": "drawing",
+      "movement_date": "2025-03-25",
+      "amount": 1180000,
+      "description": "Transfer to personal account"
+    },
+    {
+      "kind": "funds_introduced",
+      "movement_date": "2024-08-12",
+      "amount": 210000,
+      "description": "Owner contribution"
+    },
+    {
+      "kind": "gst_payment",
+      "movement_date": "2024-05-28",
+      "amount": 213450,
+      "description": "GST return"
+    },
+    {
+      "kind": "gst_payment",
+      "movement_date": "2024-07-28",
+      "amount": 520000,
+      "description": "GST return"
+    },
+    {
+      "kind": "gst_payment",
+      "movement_date": "2024-09-28",
+      "amount": 520000,
+      "description": "GST return"
+    },
+    {
+      "kind": "gst_payment",
+      "movement_date": "2024-11-28",
+      "amount": 520000,
+      "description": "GST return"
+    },
+    {
+      "kind": "gst_payment",
+      "movement_date": "2025-01-28",
+      "amount": 520000,
+      "description": "GST return"
+    },
+    {
+      "kind": "gst_payment",
+      "movement_date": "2025-03-28",
+      "amount": 653981,
+      "description": "GST return"
+    }
+  ],
+  "expected": {
+    "note": "Each report line in whole dollars.",
+    "profit_and_loss": {
+      "Sales": 198000,
+      "Total income": 198000,
+      "Gross profit": 198000,
+      "Bank fees": 92,
+      "Interest expense": 245,
+      "Office expenses": 2273,
+      "Home Office- Internet": 235,
+      "Depreciation": 2206,
+      "Total expenses": 5050,
+      "Net profit before adjustments": 192950,
+      "Non deductible penalties": 550,
+      "Total non-deductible expenses": 550,
+      "Net profit": 192400
+    },
+    "balance_sheet": {
+      "Business bank account": 63875,
+      "Property, plant and equipment": 2133,
+      "Total assets": 66008,
+      "GST payable": 1984,
+      "Net assets": 64024,
+      "Current year earnings": 192400,
+      "Drawings": -238000,
+      "Owner funds introduced": 14870,
+      "Personal accounts": -3200,
+      "Retained earnings": 192254,
+      "Withholding tax paid": -94300,
+      "Total equity": 64024
+    },
+    "balance_sheet_2024": {
+      "Business bank account": 48250,
+      "Property, plant and equipment": 4339,
+      "Total assets": 52589,
+      "GST payable": 2135,
+      "Net assets": 50454,
+      "Drawings": -96400,
+      "Owner funds introduced": 12500,
+      "Personal accounts": -3200,
+      "Withholding tax paid": -54700,
+      "Total equity": 50454,
+      "retained_and_current": 192254
+    },
+    "equity_changes": {
+      "Opening balance": 50454,
+      "Profit for the period": 192400,
+      "Owner funds introduced": 2370,
+      "Total increases": 194770,
+      "Drawings": 141600,
+      "Withholding tax paid": 39600,
+      "Total decreases": 181200,
+      "Total equity": 64024
+    },
+    "depreciation": {
+      "Laptop": {
+        "cost": 3299,
+        "opening": 1650,
+        "depreciation": 825,
+        "closing": 825
+      },
+      "Desktop workstation": {
+        "cost": 2450,
+        "opening": 383,
+        "depreciation": 191,
+        "closing": 191
+      },
+      "Tablet": {
+        "cost": 1499,
+        "opening": 989,
+        "depreciation": 663,
+        "closing": 326
+      },
+      "Camera": {
+        "cost": 2195,
+        "opening": 1317,
+        "depreciation": 527,
+        "closing": 790
+      },
+      "Total computer equipment": {
+        "cost": 9443,
+        "opening": 4339,
+        "depreciation": 2206,
+        "closing": 2133
+      }
+    },
+    "checks": {
+      "book_value": 2133,
+      "opening_retained_earnings": 192254,
+      "opening_fixed_assets": 4339,
+      "opening_fixed_assets_cents": 433865,
+      "depreciation_cents": 220582,
+      "net_assets_csv": "64024.22"
+    }
+  }
+}

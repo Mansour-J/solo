@@ -1,0 +1,11 @@
+**/node_modules
+**/target
+**/dist
+apps/client/src-tauri/gen
+playwright-report
+test-results
+data
+.git
+# Never send local secrets to the Docker build context.
+.env
+.env.*

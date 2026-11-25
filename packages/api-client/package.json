@@ -1,0 +1,22 @@
+{
+  "name": "@solo/api-client",
+  "private": true,
+  "version": "0.3.0",
+  "description": "Typed client for the REST API, generated from its OpenAPI document. Run `npm run api:client` from the repository root after changing the API.",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "openapi-fetch": "0.17.0"
+  },
+  "devDependencies": {
+    "openapi-typescript": "7.13.0",
+    "typescript": "6.0.3"
+  }
+}

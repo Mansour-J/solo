@@ -1,0 +1,102 @@
+/*
+ * Design tokens, defined per colour scheme explicitly: postcss-preset-mantine rewrites light-dark()
+ * into selectors that cannot match on :root, so tokens must not use it.
+ */
+:root {
+  --app-surface-muted: var(--mantine-color-gray-0);
+  --app-surface-raised: var(--mantine-color-white);
+  --app-border: var(--mantine-color-gray-2);
+  --app-border-strong: var(--mantine-color-gray-3);
+  --app-sidebar-bg: #fbfbfc;
+  --app-auth-panel: var(--mantine-color-brand-9);
+  --app-safe-top: env(safe-area-inset-top, 0px);
+  --app-safe-bottom: env(safe-area-inset-bottom, 0px);
+  /* Chart series, validated for colour-vision deficiency and contrast (dataviz validator):
+     income = blue, expenses = orange; never brand green vs orange (fails protan separation). */
+  --app-income: #2a78d6;
+  /* Single-series charts (validated categorical slot 1; same hue as income). */
+  --app-series-1: #2a78d6;
+  --app-expense: #eb6834;
+  --app-series-neutral: #adb5bd;
+}
+
+:root[data-mantine-color-scheme='dark'] {
+  --app-surface-muted: var(--mantine-color-dark-7);
+  --app-surface-raised: var(--mantine-color-dark-6);
+  --app-border: var(--mantine-color-dark-4);
+  --app-border-strong: var(--mantine-color-dark-3);
+  --app-sidebar-bg: var(--mantine-color-dark-8);
+  --app-auth-panel: var(--mantine-color-brand-9);
+  --app-income: #3987e5;
+  --app-series-1: #3987e5;
+  --app-expense: #d95926;
+  --app-series-neutral: #5c5f66;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv11', 'ss01';
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: var(--mantine-color-brand-2);
+}
+
+:root[data-mantine-color-scheme='dark'] ::selection {
+  background: var(--mantine-color-brand-8);
+}
+
+@media (hover: hover) {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--app-border-strong);
+    border-radius: 10px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+/* Numbers in tables and totals line up. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.clamp-1 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Two of a three-column SimpleGrid's columns, only where the grid has three (Mantine's lg, 75em).
+   An inline `grid-column: span 2` on a one-column phone grid adds an implicit column and the page
+   overflows sideways. */
+@media (min-width: 75em) {
+  .span-2-lg {
+    grid-column: span 2;
+  }
+}

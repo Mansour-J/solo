@@ -1,0 +1,3403 @@
+<!doctype html>
+<html lang="en-NZ">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Solo backlog</title>
+    <!--
+      Solo's backlog: the items that deliver the roadmap, with status, priority and acceptance criteria.
+      An item's status lives only here. Open this file in a browser to filter, group and read items.
+
+      THE DATA is the JSON block with id="backlog-data" near the end of this file. Edit only that block
+      (one object per item), then run `npm run backlog -- check`. How to add and update items:
+      .claude/skills/backlog/SKILL.md. The page below the data never needs to change for new items.
+    -->
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: light-dark(#f7f7f5, #141517);
+        --panel: light-dark(#ffffff, #1c1d20);
+        --panel-2: light-dark(#f1f1ee, #232428);
+        --border: light-dark(#e2e2dd, #2f3035);
+        --text: light-dark(#1d1e20, #e8e8ea);
+        --muted: light-dark(#6b6d72, #9a9ca3);
+        --accent: light-dark(#1c64d6, #6ea6ff);
+        --accent-soft: light-dark(#e6efff, #1d2a42);
+        --focus: light-dark(#1c64d6, #8db8ff);
+        --shadow: light-dark(0 8px 30px rgb(0 0 0 / 0.12), 0 8px 30px rgb(0 0 0 / 0.5));
+
+        --s-idea: light-dark(#8a8d93, #8f9299);
+        --s-ready: light-dark(#1c64d6, #5f9bff);
+        --s-in-progress: light-dark(#c77700, #f0a43a);
+        --s-in-review: light-dark(#7b4fd6, #a988ff);
+        --s-blocked: light-dark(#cc2f2f, #ff6b6b);
+        --s-parked: light-dark(#8a6a4a, #c19d78);
+        --s-done: light-dark(#23894a, #4cc27a);
+        --s-dropped: light-dark(#b9bbc0, #55575d);
+
+        --radius: 10px;
+        --mono: ui-monospace, 'SF Mono', Consolas, 'Cascadia Mono', monospace;
+        font-family:
+          Inter,
+          'Segoe UI',
+          system-ui,
+          -apple-system,
+          sans-serif;
+        font-size: 15px;
+        line-height: 1.5;
+        background: var(--bg);
+        color: var(--text);
+      }
+      :root[data-theme='light'] {
+        color-scheme: light;
+      }
+      :root[data-theme='dark'] {
+        color-scheme: dark;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+      }
+      button,
+      input,
+      select {
+        font: inherit;
+        color: inherit;
+      }
+      :focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+      }
+      code,
+      .id {
+        font-variant-ligatures: none;
+      }
+      code {
+        font-family: var(--mono);
+        font-size: 0.86em;
+        background: var(--panel-2);
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        padding: 0 0.3em;
+        overflow-wrap: anywhere;
+      }
+      a {
+        color: var(--accent);
+      }
+      [hidden] {
+        display: none !important;
+      }
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+      }
+
+      /* Header */
+      header.top {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        background: color-mix(in srgb, var(--bg) 88%, transparent);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--border);
+      }
+      .top-inner {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 12px 20px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px 16px;
+      }
+      .brand {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        margin-right: auto;
+      }
+      .brand h1 {
+        font-size: 1.2rem;
+        margin: 0;
+      }
+      .brand span {
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+      .search {
+        position: relative;
+        flex: 1 1 260px;
+        max-width: 420px;
+      }
+      .search input {
+        width: 100%;
+        padding: 8px 12px 8px 34px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--panel);
+      }
+      .search svg {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--muted);
+      }
+      .search kbd {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-family: var(--mono);
+        font-size: 0.75rem;
+        color: var(--muted);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 0 5px;
+      }
+      .tabs {
+        display: inline-flex;
+        background: var(--panel-2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 2px;
+      }
+      .tabs button {
+        border: 0;
+        background: none;
+        padding: 5px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        color: var(--muted);
+      }
+      .tabs button[aria-pressed='true'] {
+        background: var(--panel);
+        color: var(--text);
+        box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
+      }
+      .icon-btn {
+        white-space: nowrap;
+        border: 1px solid var(--border);
+        background: var(--panel);
+        border-radius: 8px;
+        padding: 6px 9px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      /* Layout */
+      .layout {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 16px 20px 60px;
+        display: grid;
+        grid-template-columns: 250px minmax(0, 1fr);
+        gap: 20px;
+        align-items: start;
+      }
+      aside.filters {
+        position: sticky;
+        top: 76px;
+        max-height: calc(100vh - 92px);
+        overflow: auto;
+        padding-right: 4px;
+      }
+      .filters-toggle {
+        display: none;
+      }
+      .facet {
+        margin-bottom: 16px;
+      }
+      .facet h2 {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        margin: 0 0 6px;
+        display: flex;
+        justify-content: space-between;
+      }
+      .facet h2 button {
+        border: 0;
+        background: none;
+        color: var(--accent);
+        cursor: pointer;
+        font-size: 0.72rem;
+        text-transform: none;
+        letter-spacing: 0;
+        padding: 0;
+      }
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid var(--border);
+        background: var(--panel);
+        border-radius: 999px;
+        padding: 3px 10px;
+        cursor: pointer;
+        font-size: 0.85rem;
+      }
+      .chip {
+        text-align: left;
+      }
+      .chip .n {
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+        font-size: 0.78rem;
+      }
+      .chip[aria-pressed='true'] {
+        background: var(--accent-soft);
+        border-color: var(--accent);
+      }
+      .chip[data-empty='true'] {
+        opacity: 0.45;
+      }
+      .dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        flex: none;
+        background: var(--c, var(--muted));
+      }
+      .switch {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        margin-bottom: 8px;
+      }
+      .controls {
+        display: grid;
+        gap: 8px;
+      }
+      .controls label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+      }
+      .controls select {
+        padding: 4px 8px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--panel);
+      }
+      .reset {
+        width: 100%;
+        margin-top: 4px;
+        justify-content: center;
+      }
+
+      /* Summary */
+      .summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+      .stat {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 10px 14px;
+      }
+      .stat b {
+        display: block;
+        font-size: 1.5rem;
+        font-variant-numeric: tabular-nums;
+        line-height: 1.2;
+      }
+      .stat span {
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+      .sections-bars {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 12px 14px;
+        margin-bottom: 14px;
+      }
+      .sections-bars h2 {
+        font-size: 0.9rem;
+        margin: 0 0 8px;
+      }
+      .sbar {
+        display: grid;
+        grid-template-columns: minmax(120px, 230px) 1fr 70px;
+        gap: 10px;
+        align-items: center;
+        width: 100%;
+        border: 0;
+        background: none;
+        padding: 4px 6px;
+        border-radius: 6px;
+        cursor: pointer;
+        text-align: left;
+      }
+      .sbar:hover {
+        background: var(--panel-2);
+      }
+      .sbar[aria-pressed='true'] {
+        background: var(--accent-soft);
+      }
+      .sbar .label {
+        font-size: 0.88rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .sbar .count {
+        text-align: right;
+        font-size: 0.8rem;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+      .stack {
+        display: flex;
+        height: 10px;
+        border-radius: 5px;
+        overflow: hidden;
+        background: var(--panel-2);
+        gap: 1px;
+      }
+      .stack i {
+        display: block;
+        background: var(--c);
+      }
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 14px;
+        margin-top: 8px;
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+      .legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      /* List */
+      .result-line {
+        color: var(--muted);
+        font-size: 0.85rem;
+        margin: 4px 2px 10px;
+      }
+      .group {
+        margin-bottom: 18px;
+      }
+      .group-head {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        margin: 0 2px 6px;
+      }
+      .group-head h2 {
+        font-size: 1rem;
+        margin: 0;
+      }
+      .group-head .n {
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+      .group-intro {
+        color: var(--muted);
+        font-size: 0.86rem;
+        margin: -2px 2px 8px;
+        max-width: 80ch;
+      }
+      .rows {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+      }
+      .row {
+        display: grid;
+        grid-template-columns: 68px minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: center;
+        width: 100%;
+        text-align: left;
+        border: 0;
+        border-top: 1px solid var(--border);
+        background: none;
+        padding: 9px 14px;
+        cursor: pointer;
+      }
+      .row:first-child {
+        border-top: 0;
+      }
+      .row:hover {
+        background: var(--panel-2);
+      }
+      .row[aria-current='true'] {
+        background: var(--accent-soft);
+      }
+      .row.dropped .title {
+        text-decoration: line-through;
+        color: var(--muted);
+      }
+      .id {
+        font-family: var(--mono);
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+      .title {
+        font-weight: 500;
+        min-width: 0;
+      }
+      .title small {
+        display: block;
+        font-weight: 400;
+        color: var(--muted);
+        font-size: 0.8rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .meta {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.76rem;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 1px 7px;
+        white-space: nowrap;
+        background: var(--panel);
+      }
+      .badge.status {
+        border-color: color-mix(in srgb, var(--c) 45%, transparent);
+        background: color-mix(in srgb, var(--c) 12%, var(--panel));
+      }
+      .badge.p0 {
+        border-color: var(--s-blocked);
+        color: var(--s-blocked);
+        font-weight: 600;
+      }
+      .badge.p1 {
+        font-weight: 600;
+      }
+      .badge.label {
+        border-style: dashed;
+      }
+      .progress {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.76rem;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+      .progress .bar {
+        width: 38px;
+        height: 5px;
+        border-radius: 3px;
+        background: var(--panel-2);
+        overflow: hidden;
+      }
+      .progress .bar i {
+        display: block;
+        height: 100%;
+        background: var(--s-done);
+      }
+      .empty {
+        text-align: center;
+        color: var(--muted);
+        padding: 40px 20px;
+        background: var(--panel);
+        border: 1px dashed var(--border);
+        border-radius: var(--radius);
+      }
+
+      /* Board */
+      .board {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(230px, 1fr);
+        gap: 12px;
+        overflow-x: auto;
+        padding-bottom: 8px;
+      }
+      .col {
+        background: var(--panel-2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 8px;
+        min-height: 120px;
+      }
+      .col h2 {
+        font-size: 0.85rem;
+        margin: 2px 4px 8px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+      }
+      .col h2 .n {
+        color: var(--muted);
+        font-weight: 400;
+      }
+      .card {
+        display: block;
+        width: 100%;
+        text-align: left;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--c);
+        border-radius: 8px;
+        padding: 8px 10px;
+        margin-bottom: 7px;
+        cursor: pointer;
+      }
+      .card:hover {
+        box-shadow: var(--shadow);
+      }
+      .card .title {
+        display: block;
+        font-size: 0.9rem;
+        margin: 2px 0 6px;
+      }
+      .card .meta {
+        justify-content: flex-start;
+      }
+
+      /* Guide */
+      .guide {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 8px 24px 20px;
+        max-width: 900px;
+      }
+      .guide h2 {
+        font-size: 1.05rem;
+        margin: 22px 0 8px;
+      }
+      .guide table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 0.9rem;
+      }
+      .guide th,
+      .guide td {
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+        padding: 6px 8px;
+        vertical-align: top;
+      }
+      .guide th {
+        color: var(--muted);
+        font-weight: 500;
+      }
+      .guide pre {
+        background: var(--panel-2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 12px;
+        overflow: auto;
+        font-size: 0.82rem;
+      }
+
+      /* Detail drawer */
+      .scrim {
+        position: fixed;
+        inset: 0;
+        background: rgb(0 0 0 / 0.3);
+        z-index: 20;
+      }
+      .drawer {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: min(640px, 100vw);
+        background: var(--panel);
+        border-left: 1px solid var(--border);
+        box-shadow: var(--shadow);
+        z-index: 21;
+        display: flex;
+        flex-direction: column;
+      }
+      .drawer[hidden],
+      .scrim[hidden] {
+        display: none;
+      }
+      .drawer-head {
+        padding: 14px 18px 12px;
+        border-bottom: 1px solid var(--border);
+      }
+      .drawer-nav {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .drawer-nav .id {
+        margin-right: auto;
+        font-size: 0.9rem;
+      }
+      .drawer h2 {
+        margin: 0 0 8px;
+        font-size: 1.25rem;
+        line-height: 1.3;
+      }
+      .drawer-body {
+        padding: 6px 18px 30px;
+        overflow: auto;
+      }
+      .drawer h3 {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        margin: 18px 0 6px;
+      }
+      .drawer p {
+        margin: 0 0 8px;
+      }
+      .status-note {
+        margin-top: 8px;
+        font-size: 0.88rem;
+        color: var(--muted);
+      }
+      ul.criteria {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      ul.criteria li {
+        display: grid;
+        grid-template-columns: 22px 1fr;
+        gap: 6px;
+        padding: 5px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      ul.criteria li:last-child {
+        border-bottom: 0;
+      }
+      .tick {
+        width: 18px;
+        height: 18px;
+        border-radius: 5px;
+        border: 1.5px solid var(--muted);
+        display: grid;
+        place-items: center;
+        margin-top: 2px;
+        font-size: 12px;
+        color: #fff;
+      }
+      .tick.on {
+        background: var(--s-done);
+        border-color: var(--s-done);
+      }
+      .links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .link-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid var(--border);
+        background: var(--panel-2);
+        border-radius: 8px;
+        padding: 4px 9px;
+        cursor: pointer;
+        font-size: 0.84rem;
+        text-align: left;
+      }
+      a.sl {
+        font-family: var(--mono);
+        font-size: 0.9em;
+      }
+
+      .layout.wide {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .layout.wide aside.filters {
+        display: none;
+      }
+      @media (max-width: 860px) {
+        header.top {
+          position: static;
+        }
+        .summary {
+          grid-template-columns: repeat(3, 1fr);
+          gap: 6px;
+        }
+        .stat {
+          padding: 6px 10px;
+        }
+        .stat b {
+          font-size: 1.2rem;
+        }
+        .stat span {
+          font-size: 0.75rem;
+        }
+        .drawer-nav {
+          flex-wrap: wrap;
+        }
+        .drawer-nav .id {
+          flex-basis: 100%;
+          order: 5;
+        }
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        aside.filters {
+          position: static;
+          max-height: none;
+          display: none;
+        }
+        aside.filters.open {
+          display: block;
+        }
+        .filters-toggle {
+          display: inline-flex;
+        }
+        .row {
+          grid-template-columns: 56px minmax(0, 1fr);
+        }
+        .row .meta {
+          grid-column: 2;
+          justify-content: flex-start;
+        }
+        .sbar {
+          grid-template-columns: 1fr 90px;
+        }
+        .sbar .stack {
+          grid-column: 1 / -1;
+          grid-row: 2;
+        }
+        .brand span {
+          display: none;
+        }
+        .search kbd {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="top">
+      <div class="top-inner">
+        <div class="brand">
+          <h1>Solo backlog</h1>
+          <span>Items that deliver the roadmap · status lives only here</span>
+        </div>
+        <label class="search">
+          <span class="visually-hidden">Search items</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-3.5-3.5" />
+          </svg>
+          <input id="q" type="search" placeholder="Search IDs, titles, criteria, code…" autocomplete="off" />
+          <kbd>/</kbd>
+        </label>
+        <div class="tabs" role="group" aria-label="View">
+          <button type="button" data-view="list">List</button>
+          <button type="button" data-view="board">Board</button>
+          <button type="button" data-view="guide">Guide</button>
+        </div>
+        <button type="button" class="icon-btn filters-toggle" id="filters-toggle" aria-expanded="false">Filters</button>
+        <button type="button" class="icon-btn" id="theme" title="Switch light or dark">◐</button>
+      </div>
+    </header>
+
+    <div class="layout" id="layout">
+      <aside class="filters" id="filters" aria-label="Filters"></aside>
+      <main id="main"></main>
+    </div>
+
+    <div class="scrim" id="scrim" hidden></div>
+    <section class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title" hidden></section>
+
+    <!-- BACKLOG DATA: edit here (see the comment at the top of this file). -->
+    <script type="application/json" id="backlog-data">
+      {
+        "title": "Solo backlog",
+        "guide": {
+          "about": [
+            "The work that delivers the [roadmap](../product/roadmap.md) and the [specification](../product/specification.md), as items with a status, priority and acceptance criteria. **An item’s status lives only here**; the roadmap gives the phase overview.",
+            "IDs are `SL-<phase><two digits>` (phase 0 = foundation follow-ups). They are never reused; a new item takes the next free number in its section.",
+            "**Definition of done** for every feature: [CONTRIBUTING.md](../../CONTRIBUTING.md) (UI, API, migration, validation on both sides, tenant isolation with a cross-tenant test, audit, states, light/dark/phone screenshots, an E2E journey, docs). No dead UI, no fake data."
+          ],
+          "editing": [
+            "The data is the JSON block `<script type=\"application/json\" id=\"backlog-data\">` at the end of `docs/backlog/backlog.html`. Edit only that block: the page renders whatever it holds. The `backlog` skill (`.claude/skills/backlog/SKILL.md`) describes every field and the rules.",
+            "Run `npm run backlog -- next <section>` for the next free ID, `npm run backlog -- show SL-123` to read an item, and `npm run backlog -- check` after every edit (it is part of `npm run check`).",
+            "Text fields take inline Markdown: `code`, **bold**, *italic*, [links](../product/roadmap.md) (relative to `docs/backlog/`) and item IDs such as SL-005, which become links. Separate paragraphs with a blank line (`\n\n`)."
+          ],
+          "example": {
+            "id": "SL-123",
+            "title": "Short imperative title",
+            "section": "phase-1",
+            "status": "Ready",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "M",
+            "dependsOn": ["SL-101"],
+            "summary": "One or two sentences: the problem and the outcome.",
+            "criteria": [
+              {
+                "done": false,
+                "text": "Acceptance criterion, verifiable by a test or a demo"
+              }
+            ],
+            "code": "`paths/that/change`",
+            "notes": "Decisions, links, open questions"
+          }
+        },
+        "statuses": [
+          {
+            "name": "Idea",
+            "description": "Not refined yet"
+          },
+          {
+            "name": "Ready",
+            "description": "Refined; criteria and dependencies known"
+          },
+          {
+            "name": "In progress",
+            "description": "Being built"
+          },
+          {
+            "name": "In review",
+            "description": "Built, waiting for review or merge"
+          },
+          {
+            "name": "Blocked",
+            "description": "Can’t move; `statusNote` or `notes` say why"
+          },
+          {
+            "name": "Parked",
+            "description": "Work exists but is paused by decision; say where it is"
+          },
+          {
+            "name": "Done",
+            "description": "Every criterion ticked and verified"
+          },
+          {
+            "name": "Dropped",
+            "description": "No longer wanted; `statusNote` says why"
+          }
+        ],
+        "types": [
+          {
+            "name": "Feature",
+            "description": "User-visible"
+          },
+          {
+            "name": "Tech",
+            "description": "Technical work users don’t see directly"
+          },
+          {
+            "name": "Decision",
+            "description": "Produces an ADR in `docs/decisions/`"
+          },
+          {
+            "name": "Spike",
+            "description": "Time-boxed research"
+          },
+          {
+            "name": "Chore",
+            "description": "Upkeep: dependencies, CI, releases"
+          }
+        ],
+        "priorities": [
+          {
+            "name": "P0",
+            "description": "Blocks the phase"
+          },
+          {
+            "name": "P1",
+            "description": "Needed for the phase"
+          },
+          {
+            "name": "P2",
+            "description": "Should have"
+          },
+          {
+            "name": "P3",
+            "description": "Nice to have"
+          }
+        ],
+        "sizes": [
+          {
+            "name": "S",
+            "description": "≤ 1 day"
+          },
+          {
+            "name": "M",
+            "description": "2–3 days"
+          },
+          {
+            "name": "L",
+            "description": "A week"
+          },
+          {
+            "name": "XL",
+            "description": "Too big: split it"
+          }
+        ],
+        "labels": [
+          {
+            "name": "Third-party integration",
+            "description": "Needs an outside provider, service or account (and usually a decision on which) before it can be built"
+          }
+        ],
+        "sections": [
+          {
+            "id": "foundation",
+            "phase": "0–2",
+            "title": "Foundation follow-ups",
+            "idPrefix": "0",
+            "intro": []
+          },
+          {
+            "id": "phase-3",
+            "phase": "3",
+            "title": "Mileage",
+            "idPrefix": "3",
+            "intro": [
+              "**Merged 2026-11-20, not yet released.** Built on branch `phase-3-mileage` (migration V10, API, client, ADR 0009, E2E journey), parked, then reviewed and merged. The review fixed a collision between the Mileage claims account code and expense category codes, and the trip preview for an edited trip whose vehicle or rate has since been archived. The phase ends with a release (`/release`)."
+            ]
+          },
+          {
+            "id": "phase-4",
+            "phase": "4",
+            "title": "Allocations",
+            "idPrefix": "4",
+            "intro": [
+              "Planning where income should go. **Allocations are bookkeeping and planning only: Solo never transfers money**, and the UI must never say or imply that it does."
+            ]
+          },
+          {
+            "id": "phase-5",
+            "phase": "5",
+            "title": "Reports",
+            "idPrefix": "5",
+            "intro": ["Every figure comes from the journal (`repositories/reports.rs`), with the basis labelled."]
+          },
+          {
+            "id": "phase-6",
+            "phase": "6",
+            "title": "Insights",
+            "idPrefix": "6",
+            "intro": [
+              "Deterministic, explainable rules; no AI provider. Never shown when there isn't enough data, and forecasts are always labelled as estimates."
+            ]
+          },
+          {
+            "id": "phase-7",
+            "phase": "7",
+            "title": "Improvements and integrations",
+            "idPrefix": "7",
+            "intro": []
+          },
+          {
+            "id": "phase-8",
+            "phase": "8",
+            "title": "Tax (last priority)",
+            "idPrefix": "8",
+            "intro": [
+              "Only after the core product is stable. Rules and rates are versioned data; estimates are never presented as tax advice."
+            ]
+          }
+        ],
+        "items": [
+          {
+            "id": "SL-001",
+            "title": "Review the Dependabot pull requests",
+            "section": "foundation",
+            "status": "Parked",
+            "type": "Chore",
+            "priority": "P2",
+            "size": "M",
+            "dependsOn": [],
+            "summary": "Dependabot opened upgrade PRs, several of them major versions (TypeScript 7, jsdom 31, `actions/setup-node` 7, `docker/build-push-action` 7, `docker/metadata-action` 6). They failed CI before the audit fix reached `main`.",
+            "criteria": [
+              {
+                "done": false,
+                "text": "Each PR is rebased on `main`; patch and minor upgrades merge when CI is green."
+              },
+              {
+                "done": false,
+                "text": "Major upgrades are checked against their changelogs (type errors, test environment, workflow inputs) before merging, one at a time."
+              }
+            ],
+            "code": "`package.json`, `.github/workflows/*.yml`",
+            "notes": "Parked by decision (2026-11-20): PRs #1 – #9 were closed unmerged and Dependabot was switched off (`.github/dependabot.yml` removed; restore it from git history, with the TypeScript-major ignore rule, to resume). Upgrade by hand meanwhile; TypeScript 7 waits for typescript-eslint and openapi-typescript."
+          },
+          {
+            "id": "SL-002",
+            "title": "Remove the quick-xml audit exception",
+            "section": "foundation",
+            "status": "Blocked",
+            "type": "Chore",
+            "priority": "P2",
+            "size": "S",
+            "dependsOn": [],
+            "summary": "`cargo audit` ignores RUSTSEC-2026-0194 and -0195 (quick-xml < 0.41 via typst 0.15 → hayagriva → citationberg 0.7). Solo parses no user-supplied XML, so it isn't reachable, but the exception should go as soon as a fixed version exists.",
+            "criteria": [
+              {
+                "done": false,
+                "text": "typst (or citationberg) depends on quick-xml ≥ 0.41; `cargo update` picks it up."
+              },
+              {
+                "done": false,
+                "text": "Both IDs are removed from `.cargo/audit.toml` and CI's audit job passes."
+              }
+            ],
+            "code": "`.cargo/audit.toml`, `services/api/Cargo.toml`",
+            "notes": "blocked on upstream."
+          },
+          {
+            "id": "SL-003",
+            "title": "Let the desktop app choose its server",
+            "section": "foundation",
+            "status": "Dropped",
+            "statusNote": "the app is desktop-only with no server to choose: ADR 0016",
+            "type": "Feature",
+            "priority": "P2",
+            "size": "M",
+            "dependsOn": [],
+            "summary": "Installers compile in `DESKTOP_API_BASE_URL` (falling back to `http://localhost:8000`), so a release without that repository variable only works with a self-hosted API on the same machine.",
+            "criteria": [
+              {
+                "done": false,
+                "text": "The desktop sign-in screen offers \"Server address\" (defaulting to the compiled value), validated with `/health/ready`, stored per device."
+              },
+              {
+                "done": false,
+                "text": "Tauri CSP and capabilities allow only the chosen origin."
+              }
+            ],
+            "code": "`apps/client/src/services/api/client.ts`, `apps/client/src-tauri/`",
+            "notes": "decide whether a hosted API exists first."
+          },
+          {
+            "id": "SL-004",
+            "title": "Sign the desktop installers",
+            "section": "foundation",
+            "status": "Blocked",
+            "type": "Chore",
+            "priority": "P3",
+            "size": "S",
+            "dependsOn": [],
+            "summary": "Installers are unsigned, so Windows SmartScreen and macOS Gatekeeper warn users.",
+            "criteria": [
+              {
+                "done": false,
+                "text": "Apple Developer ID and a Windows code-signing certificate exist as repository secrets (see `docs/deployment/release-process.md`)."
+              },
+              {
+                "done": false,
+                "text": "A release produces signed, notarised installers."
+              }
+            ],
+            "notes": "needs a decision and paid certificates from the owner."
+          },
+          {
+            "id": "SL-005",
+            "title": "Credit notes and overpayments",
+            "section": "foundation",
+            "status": "Parked",
+            "type": "Feature",
+            "priority": "P2",
+            "size": "L",
+            "dependsOn": [],
+            "summary": "Payments can't exceed an invoice's balance, and corrections are edits or cancellations. Customers sometimes overpay or need part of an invoice credited.",
+            "criteria": [
+              {
+                "done": false,
+                "text": "A credit note against an issued invoice (lines or an amount) posts the reversing ledger entry on both bases and reduces the balance."
+              },
+              {
+                "done": false,
+                "text": "An overpayment becomes a customer credit that can be applied to another invoice or refunded (recorded, not paid out)."
+              },
+              {
+                "done": false,
+                "text": "Statements of account (SL-505) show credits."
+              }
+            ],
+            "code": "`services/api/src/services/invoices.rs`, `domain/ledger.rs`, `features/invoices/`",
+            "statusNote": "by the owner (2026-11-25): a large piece of work, for after the current features are proven"
+          },
+          {
+            "id": "SL-006",
+            "title": "Foreign-currency invoices",
+            "section": "foundation",
+            "status": "Parked",
+            "type": "Feature",
+            "priority": "P3",
+            "size": "XL",
+            "dependsOn": [],
+            "summary": "Documents use the business's currency. Invoicing in another currency needs exchange rates in the ledger (rate on issue, realised gain or loss on payment).",
+            "criteria": [],
+            "notes": "split into an ADR plus slices before starting.",
+            "statusNote": "avoided for now: a business works in one currency (owner's decision, 2026-11-25)"
+          },
+          {
+            "id": "SL-007",
+            "title": "Calculate the expense preview on the server",
+            "section": "foundation",
+            "status": "Done",
+            "type": "Tech",
+            "priority": "P2",
+            "size": "S",
+            "dependsOn": [],
+            "summary": "The expense form previews the GST and the business/private split in the browser (15% hard-coded), which goes against \"clients never compute figures\" and would be wrong for a 12.5% period.",
+            "criteria": [
+              {
+                "done": true,
+                "text": "`POST /expenses/calculate` returns the GST, split and deductible amounts the save would produce (one shared function for both; `ird_rules::the_expense_preview_is_what_saving_books`)."
+              },
+              {
+                "done": true,
+                "text": "The form shows that response (debounced, like the invoice editor); `expenseMath.ts` is reduced to parsing helpers."
+              },
+              {
+                "done": true,
+                "text": "Editing keeps GST typed in from a receipt: the API marks it (`gst_entered`, from the dated rate), instead of the form comparing with a hard-coded 15%."
+              }
+            ],
+            "code": "`services/api/src/services/expenses.rs` (`amounts`, `calculate`), `apps/client/src/features/expenses/useExpenseCalculation.ts`, `ExpenseFormModal.tsx`"
+          },
+          {
+            "id": "SL-008",
+            "title": "Build the Docker images behind TLS inspection",
+            "section": "foundation",
+            "status": "Dropped",
+            "statusNote": "there are no Docker images any more: ADR 0016",
+            "type": "Chore",
+            "priority": "P3",
+            "size": "S",
+            "dependsOn": [],
+            "summary": "On networks that inspect TLS, `cargo` inside the API image build can't verify crates.io (\"unable to get local issuer certificate\"). CI is unaffected.",
+            "criteria": [
+              {
+                "done": false,
+                "text": "An optional build argument adds a corporate CA bundle to the build stage, documented in `docs/development/`."
+              }
+            ],
+            "code": "`infra/docker/api.Dockerfile`"
+          },
+          {
+            "id": "SL-009",
+            "title": "Protect `main`",
+            "section": "foundation",
+            "status": "Blocked",
+            "type": "Chore",
+            "priority": "P3",
+            "size": "S",
+            "dependsOn": [],
+            "summary": "Branch rules need GitHub Pro (or a public repository) for private repos, so `main` accepts direct pushes.",
+            "criteria": [
+              {
+                "done": false,
+                "text": "`main` requires a pull request and passing checks."
+              }
+            ],
+            "notes": "owner's decision on the plan."
+          },
+          {
+            "id": "SL-010",
+            "title": "Ship releases",
+            "section": "foundation",
+            "status": "In progress",
+            "type": "Chore",
+            "priority": "P1",
+            "size": "S",
+            "dependsOn": [],
+            "criteria": [
+              {
+                "done": true,
+                "text": "The release workflow builds images and installers from an annotated `vX.Y.Z` tag (docs fixed: lightweight tags aren't pushed by `--follow-tags`)."
+              },
+              {
+                "done": true,
+                "text": "The repository is public (2026-11-26; the private history is `solo-old`), so CI runs on every push and pull request and tags start the release workflow at no cost; `npm run release:local` remains a Windows-only fallback."
+              },
+              {
+                "done": false,
+                "text": "The next version released from the public repository."
+              },
+              {
+                "done": false,
+                "text": "Each later phase ends with a release (`/release`)."
+              }
+            ],
+            "code": "`.github/workflows/release.yml`, `docs/deployment/release-process.md`, `scripts/release-local.mjs`",
+            "notes": "v0.2.0 and v0.3.0 are on `solo-old`. The updater key isn't on this machine and the new repository has no `TAURI_SIGNING_*` secrets: recover the key or generate a new pair before switching on the feed."
+          },
+          {
+            "id": "SL-011",
+            "title": "Pages overflow on a phone",
+            "section": "foundation",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "S",
+            "dependsOn": [],
+            "summary": "On a phone (Pixel 7) the invoice page was wider than the screen. The cause was a column spanning two columns of a grid that has one on a phone (the browser adds a column), and the page header's actions that couldn't shrink, so they never wrapped (the customer page was 124px too wide).",
+            "criteria": [
+              {
+                "done": true,
+                "text": "The actions wrap (or collapse into the menu) and nothing scrolls sideways except the line table's own scroll container."
+              },
+              {
+                "done": true,
+                "text": "Checked with `npm run snap -- --mobile /invoices/{invoice}` and the quote page, which shares the layout; the dashboard and customer page had the same faults and are fixed too."
+              },
+              {
+                "done": true,
+                "text": "`npm run snap` now reports any page wider than the screen, so this can't come back unnoticed (18 pages checked at phone width)."
+              }
+            ],
+            "code": "`apps/client/src/components/Page.tsx`, `apps/client/src/theme/global.css` (`.span-2-lg`), `features/invoices/DocumentDetail.tsx`, `features/dashboard/DashboardPage.tsx`, `scripts/snap.mjs`"
+          },
+          {
+            "id": "SL-012",
+            "title": "Local-first desktop app with a cloud option",
+            "section": "foundation",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "L",
+            "dependsOn": [],
+            "summary": "Installing Solo meant running Docker. The desktop app now keeps the books on the user's computer by default and can connect to a cloud server instead.",
+            "criteria": [
+              {
+                "done": true,
+                "text": "The desktop app runs PostgreSQL (bundled, 18.7), the migrations and the API in its own process, in the local app-data folder, on 127.0.0.1 only; it stops the database cleanly on exit and recovers a database left running by a killed app."
+              },
+              {
+                "done": true,
+                "text": "Migrations embedded in the API and applied as Flyway does (same history and checksums; edited, failed or newer histories refused); `solo-api migrate`."
+              },
+              {
+                "done": true,
+                "text": "Settings › Where your books are: this computer or a cloud server's address; switching restarts the app. Shown at start-up too when the local server can't start."
+              },
+              {
+                "done": true,
+                "text": "A local server has no mail server: accounts count as confirmed, `/meta` reports it, and sending documents, password resets and email changes are hidden (the API refuses to pretend to send)."
+              },
+              {
+                "done": true,
+                "text": "Tests: the migration runner against real PostgreSQL, local-mode API behaviour, the local server's lifecycle (first start, restart, killed app), the shell's connection handling, the client's start-up and connection form; the Playwright journeys pass against the local server except the three that are about server email."
+              }
+            ],
+            "code": "`services/local/`, `services/api/src/migrations.rs`, `services/api/build.rs`, `apps/client/src-tauri/src/backend.rs`, `apps/client/src/features/connection/`. Decision: [ADR 0014](../decisions/0014-local-first-desktop.md)."
+          },
+          {
+            "id": "SL-013",
+            "title": "Back up and restore the books on this computer",
+            "section": "foundation",
+            "status": "Idea",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "M",
+            "dependsOn": ["SL-012"],
+            "summary": "A one-click backup of the local database (a dump to a file the user chooses) and a restore, with a reminder when the last backup is old. Today the copy is the JSON export.",
+            "criteria": []
+          },
+          {
+            "id": "SL-014",
+            "title": "Move books between this computer and a cloud server",
+            "section": "foundation",
+            "status": "Dropped",
+            "statusNote": "no cloud server: ADR 0016",
+            "type": "Feature",
+            "priority": "P2",
+            "size": "L",
+            "dependsOn": ["SL-012", "SL-013"],
+            "summary": "Upload the local books to a new cloud account, or bring a cloud account's books onto this computer.",
+            "criteria": []
+          },
+          {
+            "id": "SL-015",
+            "title": "Email from the desktop app",
+            "section": "foundation",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P2",
+            "size": "M",
+            "dependsOn": ["SL-012"],
+            "summary": "The owner's own email account (SMTP), saved in Settings › Email, so the desktop app can email invoices and quotes; plus Settings › System status, which checks each part of the app and says what to fix.",
+            "criteria": [
+              {
+                "done": true,
+                "text": "**Settings › Email**: server, port, security, user name, password (never returned; empty keeps it), send-from address and name, with **Fill in for** Gmail, Outlook, iCloud and Yahoo; on/off switch; remove (V27 `email_settings`)."
+              },
+              {
+                "done": true,
+                "text": "**Send test email** sends through the saved settings and keeps the result; a failure shows the mail server's own words and what to check."
+              },
+              {
+                "done": true,
+                "text": "Sending an invoice or quote uses the saved account when the server has no mail server of its own; `/meta` `email_enabled` follows it, so **Send** appears (checked end to end with Mailpit: test email and an invoice with its PDF)."
+              },
+              {
+                "done": true,
+                "text": "**Settings › System status**: database, receipts and files, PDF documents, email and (desktop) updates, each Working / Check this / Not working with what to do and a link (`GET /users/me/system-status`; `tests/system.rs`)."
+              }
+            ],
+            "code": "`services/api/src/services/email_settings.rs`, `services/api/src/services/system_status.rs`, `apps/client/src/features/settings/EmailSettings.tsx`, `apps/client/src/features/settings/SystemStatus.tsx`",
+            "notes": "The password is stored in the local database on the owner's computer (like the books themselves). Keeping it in the operating system's credential store instead is a possible later hardening."
+          },
+          {
+            "id": "SL-016",
+            "title": "Recover a local account without email",
+            "section": "foundation",
+            "status": "Dropped",
+            "statusNote": "there are no accounts or passwords: SL-018",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "S",
+            "dependsOn": ["SL-012"],
+            "summary": "A forgotten password on a local server can't be reset by email: offer a recovery code at registration, or reset from the operating system's account.",
+            "criteria": []
+          },
+          {
+            "id": "SL-017",
+            "title": "Check for updates and update from the desktop app",
+            "section": "foundation",
+            "status": "In review",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "M",
+            "dependsOn": ["SL-012"],
+            "summary": "Fixes reached desktop users only if they downloaded a new installer. Settings › Updates checks for a newer version and installs it and restarts, keeping the books.",
+            "criteria": [
+              {
+                "done": true,
+                "text": "Settings › Updates (desktop only): the version, *Check for updates*, \"up to date\" or the new version with its notes, *Update and restart* with download progress, and errors the user can act on."
+              },
+              {
+                "done": true,
+                "text": "Updates are signed and verified against the public key in `tauri.conf.json`; the key pair exists and the signing secrets are set on the repository."
+              },
+              {
+                "done": true,
+                "text": "Installing stops the local database first (Windows installers close the app; elsewhere the app restarts itself)."
+              },
+              {
+                "done": true,
+                "text": "Release builds sign update packages and upload `latest.json` when the key secret exists; local and CI builds don't need the key."
+              },
+              {
+                "done": true,
+                "text": "A build without a feed address doesn't show the entry (no dead UI). Tests: the shell's feed and error handling, the settings page and menu."
+              },
+              {
+                "done": false,
+                "text": "Publish installers and `latest.json` publicly, set `UPDATER_ENDPOINT` and release, then update a real installed app end to end."
+              }
+            ],
+            "code": "`apps/client/src-tauri/src/updates.rs`, `apps/client/src/features/updates/`, `.github/workflows/release.yml`. Decision: [ADR 0015](../decisions/0015-desktop-updates.md)."
+          },
+          {
+            "id": "SL-018",
+            "title": "One person, no sign-in",
+            "section": "foundation",
+            "status": "Done",
+            "type": "Decision",
+            "priority": "P1",
+            "size": "L",
+            "dependsOn": ["SL-012"],
+            "summary": "Solo is for one person on their own computer, so registering, confirming an email, a password and signing in and out only got in the way. The app now opens straight into the books.",
+            "criteria": [
+              {
+                "done": true,
+                "text": "No registration, sign-in, sign-out, password reset, email confirmation, device list or account deletion; migration V14 drops sessions, tokens, passwords and emails, keeping the first user as the owner."
+              },
+              {
+                "done": true,
+                "text": "Every request acts as the owner; no roles or permission checks. Row-level security still scopes each business."
+              },
+              {
+                "done": true,
+                "text": "The local server answers only its own window (a per-start `x-api-key`); the cloud option, the Docker images and the server deployment are gone."
+              },
+              {
+                "done": true,
+                "text": "Tests: integration tests per owner, the local server with its key, the client start-up, and the end-to-end journeys against the local server."
+              }
+            ],
+            "code": "`services/api/src/context.rs`, `services/api/src/services/users.rs`, `services/local/`, `apps/client/src-tauri/src/backend.rs`. Decision: [ADR 0016](../decisions/0016-one-person-no-sign-in.md)."
+          },
+          {
+            "id": "SL-019",
+            "title": "GST returns: each period, its due date and what to pay IRD",
+            "section": "foundation",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "M",
+            "dependsOn": [],
+            "criteria": [
+              {
+                "done": true,
+                "text": "Settings › Business details: how often GST is filed (monthly, two-monthly, six-monthly) and a month a period ends in."
+              },
+              {
+                "done": true,
+                "text": "The **GST** page: each period with IRD's due date (28th of the next month; 7 May for March, 15 January for November; weekends move to the Monday), GST collected and claimable on the business's GST basis, what was paid, what is left, and a status (in progress, to file, overdue, paid, refund due, refunded, nil)."
+              },
+              {
+                "done": true,
+                "text": "**To pay IRD now**, what is overdue, refunds due, and the next return. GST payments settle the oldest return first, starting with GST brought forward in the opening balances. **Record payment** on a return records the GST payment."
+              },
+              {
+                "done": true,
+                "text": "Tests: periods, due dates and settlement (unit); hand-worked returns on the invoice and payments bases, opening balances, settings and isolation (integration); the page (client)."
+              },
+              {
+                "done": true,
+                "text": "Public holidays in due dates (national holidays, `domain::nz_calendar`)."
+              },
+              {
+                "done": false,
+                "text": "Filing the return with IRD itself (gateway services)."
+              }
+            ],
+            "code": "`services/api/src/domain/gst_returns.rs`, `services/api/src/services/gst_returns.rs`, `apps/client/src/features/gst/`."
+          },
+          {
+            "id": "SL-020",
+            "title": "Zoom with Ctrl + and Ctrl −",
+            "section": "foundation",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P2",
+            "size": "S",
+            "dependsOn": [],
+            "criteria": [
+              {
+                "done": true,
+                "text": "The desktop app zooms like a browser: Ctrl + / Ctrl − / Ctrl 0 (`zoomHotkeysEnabled`; on Linux and macOS with the `core:webview:allow-set-webview-zoom` permission)."
+              }
+            ]
+          },
+          {
+            "id": "SL-021",
+            "title": "Download everything, and upload it again",
+            "section": "foundation",
+            "status": "Parked",
+            "statusNote": "until the tool has settled (owner's decision, 2026-11-25)",
+            "type": "Feature",
+            "priority": "P2",
+            "size": "L",
+            "dependsOn": [],
+            "summary": "**Settings › Your data › Download data** should give a complete copy of everything in Solo, and a later **Upload** should bring that copy back: onto a new computer, after a reinstall, or to restore a business.\n\nToday the download is a JSON file with the profile and, per business, its details, settings, records (every table in `services/hooks.rs`) and activity log. It leaves out receipt files and the logo (they live in file storage, not the database), caps the activity log at 10,000 entries, and nothing can read it back.",
+            "criteria": [
+              {
+                "done": false,
+                "text": "The download holds everything: every business with its details, settings and records, receipts and logos as files, the full activity log and the profile, in one file (e.g. a zip with the JSON and the files) with a format version."
+              },
+              {
+                "done": false,
+                "text": "A test proves it's complete: every table with a `business_id` and every stored file appears in the export (a new table without an export entry fails the test)."
+              },
+              {
+                "done": false,
+                "text": "Upload restores a download: as a new business (new IDs, with references between records kept) or replacing one, inside one transaction, after a preview of what it contains; the books balance and the reports match the original."
+              },
+              {
+                "done": false,
+                "text": "Upload refuses a file it can't read (wrong format or newer version, damaged, from a different currency than the business) with a message saying why, and changes nothing."
+              },
+              {
+                "done": false,
+                "text": "The guide's “Keep a copy of your records” step covers uploading (update-guide skill)."
+              }
+            ],
+            "code": "`services/api/src/services/users.rs` (`export`), `services/api/src/services/businesses.rs` (`export_business`), `services/api/src/services/hooks.rs` (`export_records`), `services/api/src/services/storage.rs`, `apps/client/src/features/settings/AccountSettings.tsx`",
+            "notes": "Related to SL-013 (a database backup and restore of the whole computer's books). This item is the portable, readable copy that also moves single businesses; decide together whether SL-013's restore reuses this upload."
+          },
+          {
+            "id": "SL-301",
+            "title": "Manage vehicles",
+            "section": "phase-3",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "M",
+            "dependsOn": [],
+            "criteria": [
+              {
+                "done": true,
+                "text": "Name, registration, make, model, year, type, fuel, default rate, default vehicle, notes; several vehicles; archive and restore."
+              },
+              {
+                "done": true,
+                "text": "Settings › Mileage lists vehicles; accountants are read-only."
+              },
+              {
+                "done": true,
+                "text": "Reviewed and merged."
+              }
+            ],
+            "code": "`services/api/src/services/mileage.rs`, `features/mileage/VehicleFormModal.tsx`, `MileageSettings.tsx`"
+          },
+          {
+            "id": "SL-302",
+            "title": "Mileage rates with dated versions",
+            "section": "phase-3",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P0",
+            "size": "M",
+            "dependsOn": [],
+            "criteria": [
+              {
+                "done": true,
+                "text": "Rates are the user's own figures (no government rate shipped); each has versions by effective date."
+              },
+              {
+                "done": true,
+                "text": "A trip uses the version in force on its date and keeps it; editing a rate never changes recorded claims."
+              },
+              {
+                "done": true,
+                "text": "Reviewed and merged."
+              }
+            ],
+            "notes": "ADR 0009 on the branch."
+          },
+          {
+            "id": "SL-303",
+            "title": "Record trips",
+            "section": "phase-3",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P0",
+            "size": "M",
+            "dependsOn": ["SL-301", "SL-302"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "Date, vehicle, from, to, purpose, odometer readings or distance, business share, rate (vehicle's, another, or entered for the trip), notes."
+              },
+              {
+                "done": true,
+                "text": "The claim (business km × rate) is calculated by the API as the form is filled in."
+              },
+              {
+                "done": true,
+                "text": "Reviewed and merged."
+              }
+            ]
+          },
+          {
+            "id": "SL-304",
+            "title": "Post mileage claims to the ledger",
+            "section": "phase-3",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P0",
+            "size": "S",
+            "dependsOn": ["SL-303"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "Dr Mileage claims (system expense account) · Cr Owner funds, both bases; edits and deletions reverse."
+              },
+              {
+                "done": true,
+                "text": "Claims appear in expenses, profit and the dashboard's spending by category."
+              },
+              {
+                "done": true,
+                "text": "Reviewed and merged."
+              }
+            ]
+          },
+          {
+            "id": "SL-305",
+            "title": "Mileage report and dashboard card",
+            "section": "phase-3",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "M",
+            "dependsOn": ["SL-303"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "Total, business and personal km, claims, trips; by month (chart and table) and by vehicle; any period."
+              },
+              {
+                "done": true,
+                "text": "Dashboard \"Record mileage\" quick action and a mileage card."
+              },
+              {
+                "done": true,
+                "text": "Reviewed and merged."
+              }
+            ]
+          },
+          {
+            "id": "SL-306",
+            "title": "Export trips to CSV",
+            "section": "phase-3",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "S",
+            "dependsOn": ["SL-303"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "UTF-8 CSV with a byte-order mark (opens in Excel), formula-like text neutralised, oldest trip first."
+              },
+              {
+                "done": true,
+                "text": "Reviewed and merged."
+              }
+            ]
+          },
+          {
+            "id": "SL-307",
+            "title": "IRD two-tier kilometre rates",
+            "section": "phase-3",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P2",
+            "size": "M",
+            "dependsOn": ["SL-302"],
+            "summary": "IRD's kilometre rates have a tier 1 rate for the first 14,000 km of a vehicle's total travel in the year (business and private) and a tier 2 rate after it (2025-26: petrol $1.20 / $0.37, diesel $1.30 / $0.38, petrol hybrid $0.90 / $0.24, electric $1.22 / $0.23, [IRD](https://www.ird.govt.nz/income-tax/income-tax-for-businesses-and-organisations/types-of-business-expenses/claiming-vehicle-expenses/kilometre-rates-2025-2026)). Done: each rate version can carry a tier 1 limit and tier 2 rate; trips split by the vehicle's recorded travel in the financial year and reprice when earlier trips change. Also: without a logbook, running costs are limited to 25%; a 90-day logbook sets the business share for up to three years.",
+            "criteria": [],
+            "notes": "model tiers as data (threshold per version), never constants."
+          },
+          {
+            "id": "SL-308",
+            "title": "GST on mileage claims",
+            "section": "phase-3",
+            "status": "Done",
+            "statusNote": "decided by IRD: \"When self-employed people use kilometre rates, they do not need to consider GST\"; Solo claims none, tested in `ird_rules::kilometre_rate_mileage_claims_carry_no_gst`",
+            "type": "Decision",
+            "priority": "P3",
+            "size": "S",
+            "dependsOn": ["SL-304"],
+            "summary": "Whether and how a GST-registered business claims GST on kilometre-rate claims. Tax rule: decide with an accountant before building.",
+            "criteria": []
+          },
+          {
+            "id": "SL-309",
+            "title": "Frequent and return trips",
+            "section": "phase-3",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P3",
+            "size": "S",
+            "dependsOn": ["SL-303"],
+            "summary": "Trips made often are quick to record, and a return trip is entered one way.",
+            "criteria": [
+              {
+                "done": true,
+                "text": "**Return trip (there and back)**: the distance is entered one way and the API counts it twice (migration V22); not with odometer readings, which already cover the whole trip (field error); editing shows the distance one way."
+              },
+              {
+                "done": true,
+                "text": "**Frequent trips**: routes recorded at least twice in the last year (`GET /mileage/frequent-trips`, most often first) fill in a new trip's vehicle, route, purpose, distance and share; the date stays today's."
+              },
+              {
+                "done": true,
+                "text": "Tests: `ird_rules::return_trips_count_both_ways_and_frequent_routes_are_offered`, `mileage::tripForm.test`; the guide's trip step covers both."
+              }
+            ],
+            "code": "`database/migrations/V22__add_return_trips.sql`, `services/api/src/services/mileage.rs`, `services/api/src/repositories/mileage.rs` (`frequent_trips`), `apps/client/src/features/mileage/TripFormModal.tsx`, `tripForm.ts`",
+            "notes": "No separate template records: frequent routes come from the trips themselves, so there's nothing to keep up to date."
+          },
+          {
+            "id": "SL-310",
+            "title": "GPS tracking and automatic trip detection",
+            "section": "phase-3",
+            "status": "Dropped",
+            "statusNote": "not needed: trips are recorded by hand (owner's decision, 2026-11-25)",
+            "type": "Spike",
+            "priority": "P3",
+            "size": "L",
+            "dependsOn": ["SL-303"],
+            "summary": "From the spec's future enhancements; must not block manual entry. Needs a mobile app (SL-708).",
+            "criteria": []
+          },
+          {
+            "id": "SL-401",
+            "title": "Allocation destinations",
+            "section": "phase-4",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P0",
+            "size": "M",
+            "dependsOn": [],
+            "criteria": [
+              {
+                "done": true,
+                "text": "Defaults per business: income tax, GST and ACC reserves, savings, emergency fund, KiwiSaver, investment, mortgage, personal spending; custom destinations; rename, reorder, archive."
+              },
+              {
+                "done": true,
+                "text": "Migration with tenant isolation and a cross-tenant test."
+              }
+            ]
+          },
+          {
+            "id": "SL-402",
+            "title": "Percentage and fixed-amount rules with priority",
+            "section": "phase-4",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P0",
+            "size": "M",
+            "dependsOn": ["SL-401"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "Rules allocate a percentage or a fixed amount, applied in priority order to what remains; rounding in `domain::money` so parts always add up to the amount received."
+              },
+              {
+                "done": true,
+                "text": "Unit tests with worked examples (remainders, fixed amounts larger than the receipt)."
+              }
+            ]
+          },
+          {
+            "id": "SL-403",
+            "title": "Rule conditions",
+            "section": "phase-4",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "M",
+            "dependsOn": ["SL-402"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "Conditions on income source (invoice payment, other income type), customer, payment date and an applicable period."
+              },
+              {
+                "done": true,
+                "text": "Weekly, fortnightly, monthly and custom periods."
+              }
+            ]
+          },
+          {
+            "id": "SL-404",
+            "title": "Caps, minimums and targets",
+            "section": "phase-4",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "M",
+            "dependsOn": ["SL-402"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "Maximum per allocation, weekly and monthly caps, minimum balances and targets; progress against targets."
+              }
+            ]
+          },
+          {
+            "id": "SL-405",
+            "title": "Allocate on payment or income, with review",
+            "section": "phase-4",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P0",
+            "size": "L",
+            "dependsOn": ["SL-402"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "Recording income or an invoice payment calculates the planned allocations (server-side) and shows amount received, planned allocations and the remainder."
+              },
+              {
+                "done": true,
+                "text": "The user reviews and confirms (or adjusts) before they are recorded."
+              }
+            ]
+          },
+          {
+            "id": "SL-406",
+            "title": "Allocation balances and history with corrections",
+            "section": "phase-4",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P0",
+            "size": "L",
+            "dependsOn": ["SL-405"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "Balances per destination; a traceable history of every allocation."
+              },
+              {
+                "done": true,
+                "text": "Editing or deleting a payment reverses its allocations without duplicating or corrupting balances (tests for each correction path)."
+              }
+            ],
+            "notes": "decided in [ADR 0010](../decisions/0010-allocations.md): a separate append-only ledger of allocation entries, outside the journal."
+          },
+          {
+            "id": "SL-407",
+            "title": "Allocations screen and dashboard balances",
+            "section": "phase-4",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "M",
+            "dependsOn": ["SL-406"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "An Allocations page (destinations, rules, balances, history) in the navigation; dashboard allocation balances and distribution chart (with legend and table view)."
+              }
+            ],
+            "code": "(SL-401 – SL-407) migration V11, `domain/allocations.rs`, `services/allocations.rs` (receipt hooks in `services/hooks.rs`), `api/allocations.rs`, `tests/allocations.rs`; client `features/allocations/`, `e2e/allocations.spec.ts`."
+          },
+          {
+            "id": "SL-408",
+            "title": "Spend from an allocation",
+            "section": "phase-4",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P2",
+            "size": "M",
+            "dependsOn": ["SL-406"],
+            "summary": "Record that money set aside was used (e.g. a GST payment to IRD), reducing the balance. Recorded, never paid by Solo.",
+            "criteria": [
+              {
+                "done": true,
+                "text": "**Allocations › Spending**: record money used from a destination (date, amount, what for), never more than it holds; delete with a reason (it stays in the history). Recorded only: Solo never moves money."
+              },
+              {
+                "done": true,
+                "text": "Balances everywhere (allocations, the dashboard, insights) are set aside less spent; the allocations report has *Spent in the period* and a Spending section (migration V23)."
+              },
+              {
+                "done": true,
+                "text": "Tests: `allocations::money_received_before_the_rules_can_be_allocated_and_set_aside_money_spent` (with a cross-tenant check), `allocations::spending.test`."
+              }
+            ],
+            "code": "`database/migrations/V23__create_allocation_spending.sql`, `services/api/src/services/allocations.rs`, `apps/client/src/features/allocations/SpendingPanel.tsx`"
+          },
+          {
+            "id": "SL-409",
+            "title": "Allocate money received before rules existed",
+            "section": "phase-4",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P3",
+            "size": "S",
+            "dependsOn": ["SL-405"],
+            "summary": "Receipts recorded while a business has no active rules get no allocation. Offer to open allocations for receipts in a chosen period (once each), for users who set up rules part-way through a year.",
+            "criteria": [
+              {
+                "done": true,
+                "text": "**Allocate earlier payments** (on *To review*, when a rule is active): every invoice payment and income in a chosen period that never had an allocation gets one to review, once each; write-offs are left out."
+              },
+              {
+                "done": true,
+                "text": "Refused without an active rule; tested with the spending test above and `allocations::spending.test`."
+              }
+            ],
+            "code": "`services/api/src/services/allocations.rs` (`backfill`), `services/api/src/repositories/allocations.rs` (`receipts_without_allocation`)"
+          },
+          {
+            "id": "SL-501",
+            "title": "Reporting framework: filters, basis, exports",
+            "section": "phase-5",
+            "status": "Done",
+            "type": "Tech",
+            "priority": "P0",
+            "size": "L",
+            "dependsOn": [],
+            "criteria": [
+              {
+                "done": true,
+                "text": "A Reports area with shared filters (current/previous month and financial year, custom range, customer, category, status) and cash/accrual basis."
+              },
+              {
+                "done": true,
+                "text": "Exports from one shared layer: PDF (Typst template, branded), CSV and Excel (`.xlsx`)."
+              },
+              {
+                "done": true,
+                "text": "Report queries reusable by insights and the dashboard (no duplicate calculations)."
+              }
+            ]
+          },
+          {
+            "id": "SL-502",
+            "title": "Profit and loss",
+            "section": "phase-5",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P0",
+            "size": "M",
+            "dependsOn": ["SL-501"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "Revenue, other income, expenses by category, gross and net profit; comparison with a previous period. Totals checked by hand against a realistic multi-month data set."
+              }
+            ]
+          },
+          {
+            "id": "SL-503",
+            "title": "Income summary",
+            "section": "phase-5",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "M",
+            "dependsOn": ["SL-501"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "By month, customer, source and financial year; paid versus outstanding invoices."
+              }
+            ]
+          },
+          {
+            "id": "SL-504",
+            "title": "Expense summary",
+            "section": "phase-5",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "M",
+            "dependsOn": ["SL-501"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "By category, month and supplier; GST breakdown; business versus personal."
+              }
+            ]
+          },
+          {
+            "id": "SL-505",
+            "title": "Statement of account",
+            "section": "phase-5",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "M",
+            "dependsOn": ["SL-501"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "Per customer: invoices, payments, outstanding invoices, credit balances and payment history; PDF to send to the customer."
+              }
+            ]
+          },
+          {
+            "id": "SL-506",
+            "title": "Accounts receivable and ageing",
+            "section": "phase-5",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "M",
+            "dependsOn": ["SL-501"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "Outstanding and overdue invoices, ageing buckets (current, 1–30, 31–60, 61–90, 90+ days), balances by customer."
+              }
+            ]
+          },
+          {
+            "id": "SL-507",
+            "title": "Financial statement",
+            "section": "phase-5",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P2",
+            "size": "M",
+            "dependsOn": ["SL-502"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "Monthly income and expenses, net position and the financial year summary, suitable for a bank or broker."
+              }
+            ]
+          },
+          {
+            "id": "SL-508",
+            "title": "Mileage report in Reports",
+            "section": "phase-5",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P2",
+            "size": "S",
+            "dependsOn": ["SL-501", "SL-305"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "The mileage report with the shared filters and PDF/CSV/Excel exports."
+              }
+            ]
+          },
+          {
+            "id": "SL-509",
+            "title": "Allocation report",
+            "section": "phase-5",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P2",
+            "size": "S",
+            "dependsOn": ["SL-501", "SL-406"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "Rules, allocated amounts, current balances, history and progress against targets."
+              }
+            ]
+          },
+          {
+            "id": "SL-510",
+            "title": "GST summary",
+            "section": "phase-5",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "M",
+            "dependsOn": ["SL-501"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "GST collected and claimable by period and basis, with the records behind each figure; labelled as informational, not a filed return."
+              }
+            ],
+            "code": "(SL-501 – SL-510) `domain/reports.rs` (report shape, previous period, ageing buckets), `repositories/reports.rs`, `services/reports.rs`, `services/report_export.rs`, `assets/templates/report.typ`, `api/reports.rs`, `tests/reports.rs` (hand-checked data set); client `features/reports/`, `e2e/reports.spec.ts`. Decision: [ADR 0011](../decisions/0011-reports.md)."
+          },
+          {
+            "id": "SL-511",
+            "title": "Accountant export pack",
+            "section": "phase-5",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P2",
+            "size": "M",
+            "dependsOn": ["SL-502", "SL-503", "SL-504", "SL-505", "SL-506", "SL-507", "SL-508", "SL-509", "SL-510"],
+            "summary": "One download (zip) with the year's reports, the journal and receipts, for an accountant.",
+            "criteria": [
+              {
+                "done": true,
+                "text": "**Accountant pack for last year (.zip)** on Reports › Export: every report for the financial year as PDF and Excel, the general journal (every line, CSV), the mileage log and the year's expense receipts, with a README (`GET /reports/accountant-pack?year_end=…`)."
+              },
+              {
+                "done": true,
+                "text": "Receipt file names are made safe; a receipt that can't be read is listed in the README rather than failing the pack; only a financial year's last day is accepted (`bookkeeping::the_accountant_pack_has_the_years_reports_journal_and_receipts`)."
+              }
+            ],
+            "code": "`services/api/src/services/accountant_pack.rs`, `apps/client/src/features/reports/ReportsPage.tsx`"
+          },
+          {
+            "id": "SL-512",
+            "title": "Cost of sales and a true gross profit",
+            "section": "phase-5",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P3",
+            "size": "M",
+            "dependsOn": ["SL-502"],
+            "summary": "Mark expense categories as cost of sales, so profit and loss shows gross profit after direct costs (today it equals sales revenue, and says so).",
+            "criteria": [
+              {
+                "done": true,
+                "text": "**Settings › Expenses**: a category can be marked **Cost of sales** (not together with *Not deductible for tax*; migration V24)."
+              },
+              {
+                "done": true,
+                "text": "The profit and loss shows a *Cost of sales* section before *Expenses*, and gross profit is sales less cost of sales; net profit is unchanged (`ird_rules::cost_of_sales_comes_before_gross_profit`; the FY2025–26 annual reports still match)."
+              }
+            ],
+            "code": "`database/migrations/V24__add_cost_of_sales.sql`, `services/api/src/services/reports.rs` (profit and loss), `apps/client/src/features/expenses/ExpenseCategoriesSettings.tsx`"
+          },
+          {
+            "id": "SL-513",
+            "title": "Email a statement to the customer",
+            "section": "phase-5",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P2",
+            "size": "S",
+            "dependsOn": ["SL-505"],
+            "summary": "Send the statement PDF from the app, logged like invoice emails, with the business's contact details on the statement.",
+            "criteria": [
+              {
+                "done": true,
+                "text": "Customer › More actions › **Email statement**: period (financial year to date by default), address, subject and message; the statement PDF attached and the amount owing in the email (`POST /customers/{id}/statement-emails`)."
+              },
+              {
+                "done": true,
+                "text": "Each send is logged like invoice emails (V28 allows `statement` in `email_logs`) and listed under **Statements emailed**; successful sends are audited."
+              },
+              {
+                "done": true,
+                "text": "The statement shows the business's email, phone and address under the customer's name (`bookkeeping::a_statement_is_emailed_to_the_customer_with_its_pdf_and_logged`)."
+              }
+            ],
+            "code": "`services/api/src/services/statements.rs`, `apps/client/src/features/customers/StatementEmail.tsx`"
+          },
+          {
+            "id": "SL-514",
+            "title": "Withholding tax on payments",
+            "section": "phase-5",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "S",
+            "dependsOn": ["SL-502"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "A payment records tax the customer withheld (schedular payments); the bank gets the net, the withholding tax account the rest, on both bases."
+              },
+              {
+                "done": true,
+                "text": "Validated (zero to less than the amount) and shown on the payment form."
+              }
+            ]
+          },
+          {
+            "id": "SL-515",
+            "title": "Money in and out",
+            "section": "phase-5",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "M",
+            "dependsOn": ["SL-502"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "Drawings, funds introduced, GST and income tax payments and refunds: recorded, edited, deleted with a reason, filtered and paged on the Year end page, posted to the journal."
+              }
+            ]
+          },
+          {
+            "id": "SL-516",
+            "title": "Fixed assets and depreciation",
+            "section": "phase-5",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "L",
+            "dependsOn": ["SL-502"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "Assets bought in the app or brought forward at their book value; diminishing value or straight line at the user's rate; months owned in the year bought; private use to drawings."
+              },
+              {
+                "done": true,
+                "text": "Depreciation posted, re-posted or removed per financial year, with conflicts for missing years and for editing an asset with posted depreciation."
+              }
+            ]
+          },
+          {
+            "id": "SL-517",
+            "title": "Opening balances",
+            "section": "phase-5",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "M",
+            "dependsOn": ["SL-516"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "Balances from the accountant's last balance sheet, with retained earnings as the balancing figure and brought-forward assets included."
+              }
+            ]
+          },
+          {
+            "id": "SL-518",
+            "title": "Balance sheet, changes in equity, depreciation schedule; non-deductible adjustments",
+            "section": "phase-5",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "M",
+            "dependsOn": ["SL-514", "SL-515", "SL-516", "SL-517"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "Three new reports with PDF, CSV and Excel export; profit and loss shows non-deductible categories as adjustments below net profit before adjustments."
+              }
+            ]
+          },
+          {
+            "id": "SL-519",
+            "title": "Annual accounts as the test oracle, and coverage gates",
+            "section": "phase-5",
+            "status": "Done",
+            "type": "Tech",
+            "priority": "P1",
+            "size": "M",
+            "dependsOn": ["SL-518"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "FY2025 (year to 31 March 2025) entered through the API matches every figure of its annual report (`tests/annual_reports.rs`, `npm run seed:annual`). The public fixtures are a made-up business (ADR 0013)."
+              },
+              {
+                "done": true,
+                "text": "Unit (domain) and integration (whole crate) coverage each at least 90% of lines, enforced by `npm run api:coverage:unit` and `api:coverage:integration`."
+              }
+            ],
+            "code": "(SL-514 – SL-519) V13, `domain/depreciation.rs`, `domain/ledger.rs`, `repositories/annual.rs`, `services/annual.rs`, `api/annual.rs`, `services/reports.rs`; tests `annual.rs`, `annual_reports.rs`, `maintenance.rs`; client `features/yearend/`, `e2e/year-end.spec.ts`. Decision: [ADR 0013](../decisions/0013-annual-accounts.md)."
+          },
+          {
+            "id": "SL-521",
+            "title": "A second year: FY2026",
+            "section": "phase-5",
+            "status": "Done",
+            "type": "Tech",
+            "priority": "P1",
+            "size": "M",
+            "dependsOn": ["SL-519"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "FY2026 entered after FY2025 in the same business matches every figure of its annual report, with FY2025 as the comparative: profit and loss, balance sheet, changes in equity and the depreciation schedule carried on from FY2025's closing values."
+              },
+              {
+                "done": true,
+                "text": "Fixtures built and checked by `tests/fixtures/build.mjs`, which simulates the posting rules and works out every printed figure independently of the API; `npm run seed:annual` loads both years."
+              },
+              {
+                "done": true,
+                "text": "Fixed: a partly private expense paid from personal funds recorded the whole bill as funds introduced and the private share as drawings. Only the business share is funds introduced now, and nothing is a drawing."
+              },
+              {
+                "done": true,
+                "text": "Changes in equity shows increases and decreases with their own totals, as the accountant presents it."
+              }
+            ]
+          },
+          {
+            "id": "SL-520",
+            "title": "Asset disposals",
+            "section": "phase-5",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P3",
+            "size": "M",
+            "dependsOn": ["SL-516"],
+            "summary": "Record selling or scrapping an asset: depreciation recovered or loss on sale, and the schedule's disposals column.",
+            "criteria": [
+              {
+                "done": true,
+                "text": "**Sell or scrap** on an asset: the date and what was received (with GST for a registered business); no depreciation in the year of sale; the sale against the value at the start of that year gives depreciation recovered (taxable, up to cost), a loss on disposal (deductible) or a capital gain (not taxable), with the private-use share kept with the owner (migration V25)."
+              },
+              {
+                "done": true,
+                "text": "The depreciation schedule's disposals column; an earlier year's depreciation can't change under a recorded sale; **Undo sale** reverses it."
+              },
+              {
+                "done": true,
+                "text": "An asset with GST change-of-use reviews gets IRD's final adjustment on sale (IR375's Melissa example, $1,350)."
+              },
+              {
+                "done": true,
+                "text": "Tests: `depreciation::tests::*`, `change_of_use::tests::irds_final_adjustment_on_disposal`, `ird_rules::selling_an_asset_recovers_depreciation_or_records_a_loss`, `yearend::disposal.test`."
+              }
+            ],
+            "code": "`database/migrations/V25__create_asset_disposals.sql`, `services/api/src/domain/depreciation.rs` (`disposal`), `services/api/src/services/disposals.rs`, `apps/client/src/features/yearend/AssetDisposal.tsx`"
+          },
+          {
+            "id": "SL-601",
+            "title": "Financial performance",
+            "section": "phase-6",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "M",
+            "dependsOn": ["SL-501"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "Revenue and expense growth (three months against the three before), month-on-month comparisons and the financial year against last year."
+              },
+              {
+                "done": true,
+                "text": "Profit trend over six months and the average month's revenue and expenses, only with enough months of records."
+              }
+            ]
+          },
+          {
+            "id": "SL-602",
+            "title": "Business health",
+            "section": "phase-6",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "M",
+            "dependsOn": ["SL-501"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "Revenue concentration with top customers, customers with overdue balances, average invoice value and time to be paid (at least three records), unpaid invoices over six months, expenses against revenue."
+              }
+            ]
+          },
+          {
+            "id": "SL-603",
+            "title": "Spending insights",
+            "section": "phase-6",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P2",
+            "size": "M",
+            "dependsOn": ["SL-504"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "Biggest and growing categories, unusual increases against the usual month, the monthly pattern and recurring commitments, each with explicit thresholds and worked unit tests."
+              }
+            ]
+          },
+          {
+            "id": "SL-604",
+            "title": "Cash flow insights",
+            "section": "phase-6",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P2",
+            "size": "M",
+            "dependsOn": ["SL-506", "SL-406"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "Receivables, money received this month, planned allocations, expected payments and estimated available funds, with estimates flagged and explained."
+              }
+            ]
+          },
+          {
+            "id": "SL-605",
+            "title": "Helpful notifications",
+            "section": "phase-6",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P2",
+            "size": "M",
+            "dependsOn": ["SL-601"],
+            "criteria": [
+              {
+                "done": true,
+                "text": "Plain-language notices (overdue invoices, allocations to review, revenue against last month, a category that rose, the top category this month, no expenses yet this month) on the dashboard and the Insights page."
+              },
+              {
+                "done": true,
+                "text": "Dismissible per person; a notice returns when its facts change (migration V12)."
+              }
+            ],
+            "code": "(SL-601 – SL-605) `domain/insights.rs`, `repositories/insights.rs`, `services/insights.rs`, `api/insights.rs`, `tests/insights.rs`; client `features/insights/`, `e2e/insights.spec.ts`. Decision: [ADR 0012](../decisions/0012-insights.md)."
+          },
+          {
+            "id": "SL-606",
+            "title": "Email notices",
+            "section": "phase-6",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P3",
+            "size": "S",
+            "dependsOn": ["SL-605"],
+            "summary": "An optional weekly email with the notices a person hasn't dismissed, with an opt-out in account settings.",
+            "criteria": [
+              {
+                "done": true,
+                "text": "Settings › Email › **Weekly notices email**: off by default; **Email me my notices each week**, an optional **Send to** (defaults to the send-from address) and **Send now** (V29 columns on `users`)."
+              },
+              {
+                "done": true,
+                "text": "When the app opens and a week has passed, one email lists the notices not dismissed in every business; a week with none sends nothing and waits another week."
+              },
+              {
+                "done": true,
+                "text": "Opt-out: turning the switch off stops it; the email says where (`bookkeeping::the_weekly_notices_email_goes_once_a_week_when_turned_on`; checked with Mailpit)."
+              }
+            ],
+            "code": "`services/api/src/services/notices_email.rs`, `apps/client/src/features/settings/NoticesEmail.tsx`",
+            "notes": "Sent when the desktop app is open, like reminders: if it's closed all week, the email goes the next time it opens."
+          },
+          {
+            "id": "SL-607",
+            "title": "Key dates on the dashboard",
+            "section": "phase-6",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "S",
+            "dependsOn": ["SL-805"],
+            "summary": "A row of boxes under the dashboard's charts with the next GST returns, provisional and terminal tax, the income tax return (IR3) and the end of the financial year, each with the days left, so a sole trader sees what's coming before it's due.",
+            "criteria": [
+              {
+                "done": true,
+                "text": "`GET /key-dates` lists them from the GST and income tax services (the same dates as those pages), overdue first, then by date, at most six (`ird_rules::the_dashboard_lists_upcoming_key_dates_with_the_days_left`)"
+              },
+              {
+                "done": true,
+                "text": "Each box shows the days left in words, the date, any amount owing and links to the page that deals with it; overdue and due-soon dates are marked (`dashboard::keyDates.test`)"
+              }
+            ],
+            "code": "`services/api/src/services/key_dates.rs`, `apps/client/src/features/dashboard/KeyDates.tsx`"
+          },
+          {
+            "id": "SL-701",
+            "title": "Recurring invoices",
+            "section": "phase-7",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "L",
+            "dependsOn": [],
+            "summary": "Schedules (weekly to yearly) that repeat an invoice, creating drafts or issuing them as they come due.",
+            "criteria": [
+              {
+                "done": true,
+                "text": "**Repeat this invoice** (More actions on an invoice) makes a schedule from its customer, lines, prices, reference, notes and payment terms: how often (weekly, fortnightly, monthly, quarterly, yearly), the next date, an optional last date, and whether to issue straight away (migration V26)."
+              },
+              {
+                "done": true,
+                "text": "When the app opens, each schedule creates the invoices that have come due (catching up, at most 24 at a time), moves to its next date (monthly keeps to the day; the 31st becomes the month's last day) and stops after its last date; problems are shown, not hidden."
+              },
+              {
+                "done": true,
+                "text": "**Invoices › Recurring** lists the schedules to edit, stop or restart."
+              },
+              {
+                "done": true,
+                "text": "Tests: `recurring::tests::*`, `ird_rules::recurring_invoices_repeat_an_invoice_on_schedule` (with a cross-tenant check), `invoices::recurring.test`."
+              }
+            ],
+            "code": "`database/migrations/V26__create_recurring_invoices.sql`, `services/api/src/domain/recurring.rs`, `services/api/src/services/recurring.rs`, `apps/client/src/features/invoices/Recurring.tsx`",
+            "notes": "There's no background job in a desktop app: due invoices are created when the app opens (`RecurringRunner`), and it catches up on any it missed while closed. Emailing them waits for email (SL-015)."
+          },
+          {
+            "id": "SL-702",
+            "title": "Invoice reminders",
+            "section": "phase-7",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "M",
+            "dependsOn": [],
+            "summary": "Opt-in reminder emails before and after the due date, with history and per-customer opt-out.",
+            "criteria": [
+              {
+                "done": true,
+                "text": "Settings › Invoices & payments › **Reminders**: off by default; a reminder some days before the due date and up to six after (V28 settings columns)."
+              },
+              {
+                "done": true,
+                "text": "When the app opens, the latest reminder reached is emailed once per invoice with the PDF attached, while it's unpaid; one more than a week late is skipped, so turning reminders on never sends a burst (`domain::reminders`, unit tested)."
+              },
+              {
+                "done": true,
+                "text": "History: reminders are logged with the invoice's **Emails** (subject shown), a unique index keeps each one to a single send, and each send is audited."
+              },
+              {
+                "done": true,
+                "text": "Per-customer opt-out: **Send invoice reminders** on the customer page (`customers.send_reminders`); checked end to end with Mailpit (`bookkeeping::reminders_go_once_for_the_reminder_due_and_respect_the_customers_choice`)."
+              }
+            ],
+            "code": "`services/api/src/services/reminders.rs`, `services/api/src/domain/reminders.rs`, `apps/client/src/features/invoices/Reminders.tsx`",
+            "notes": "Reminders go when the desktop app is open (it has no background service); a reminder whose day passed while the app was closed for over a week is skipped and the next one catches up."
+          },
+          {
+            "id": "SL-703",
+            "title": "Import tools",
+            "section": "phase-7",
+            "status": "Parked",
+            "type": "Feature",
+            "priority": "P2",
+            "size": "L",
+            "dependsOn": [],
+            "summary": "CSV import of customers, expenses and opening balances, with a preview and per-row errors.",
+            "criteria": [],
+            "statusNote": "by the owner (2026-11-25): a large piece of work, for after the current features are proven"
+          },
+          {
+            "id": "SL-704",
+            "title": "Advanced exports",
+            "section": "phase-7",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P3",
+            "size": "M",
+            "dependsOn": ["SL-501"],
+            "summary": "Exports in formats accounting packages import (e.g. Xero CSV).",
+            "criteria": [
+              {
+                "done": true,
+                "text": "Reports › Export › **Xero sales invoices (CSV)** and **Xero bills from expenses (CSV)** for the period: Xero's import columns, GST-exclusive amounts with Xero's tax types (15% GST on Income/Expenses, zero-rated, exempt, no GST); bills carry the business share and the category's account code."
+              },
+              {
+                "done": true,
+                "text": "Each invoice line's amount is exported as one unit so Xero's totals match exactly (`bookkeeping::invoices_and_expenses_export_in_xeros_import_format`)."
+              }
+            ],
+            "code": "`services/api/src/services/xero_export.rs`, `apps/client/src/features/reports/ReportsPage.tsx`",
+            "notes": "Other packages (MYOB) can follow the same shape if needed."
+          },
+          {
+            "id": "SL-705",
+            "title": "Receipt OCR",
+            "section": "phase-7",
+            "status": "Parked",
+            "type": "Spike",
+            "priority": "P2",
+            "size": "M",
+            "dependsOn": [],
+            "summary": "Suggest supplier, date, amount and GST from a receipt; the user confirms. Decision on provider and privacy first.",
+            "criteria": [],
+            "statusNote": "a third-party integration that needs a provider or account first (owner's decision, 2026-11-25)",
+            "labels": ["Third-party integration"]
+          },
+          {
+            "id": "SL-706",
+            "title": "Bank feeds",
+            "section": "phase-7",
+            "status": "Parked",
+            "type": "Decision",
+            "priority": "P2",
+            "size": "XL",
+            "dependsOn": [],
+            "summary": "Connect bank accounts (e.g. Akahu in NZ) and match transactions to records. Separate service, per the architecture; needs a provider decision.",
+            "criteria": [],
+            "statusNote": "a third-party integration that needs a provider or account first (owner's decision, 2026-11-25)",
+            "labels": ["Third-party integration"]
+          },
+          {
+            "id": "SL-707",
+            "title": "Online invoice payments",
+            "section": "phase-7",
+            "status": "Parked",
+            "type": "Decision",
+            "priority": "P3",
+            "size": "L",
+            "dependsOn": [],
+            "summary": "A \"Pay now\" link on invoices through a payment provider, recording the payment automatically.",
+            "criteria": [],
+            "statusNote": "a third-party integration that needs a provider or account first (owner's decision, 2026-11-25)",
+            "labels": ["Third-party integration"]
+          },
+          {
+            "id": "SL-708",
+            "title": "Mobile app",
+            "section": "phase-7",
+            "status": "Parked",
+            "type": "Spike",
+            "priority": "P3",
+            "size": "XL",
+            "dependsOn": [],
+            "summary": "Tauri mobile or a native shell for receipts on the go and mileage tracking (SL-310).",
+            "criteria": [],
+            "statusNote": "a third-party integration that needs a provider or account first (owner's decision, 2026-11-25)",
+            "labels": ["Third-party integration"]
+          },
+          {
+            "id": "SL-801",
+            "title": "Income tax and ACC estimates",
+            "section": "phase-8",
+            "status": "In progress",
+            "statusNote": "income tax done; ACC levies to do",
+            "type": "Feature",
+            "priority": "P2",
+            "size": "L",
+            "dependsOn": ["SL-502"],
+            "summary": "Estimated income tax and ACC levies for the year from recorded profit, with versioned rates and clear \"estimate\" labelling; feeds the income-tax reserve allocation.",
+            "criteria": [
+              {
+                "done": true,
+                "text": "Rates as dated data: from 1 April 2025, 10.5% to $15,600, 17.5% to $53,500, 30% to $78,100, 33% to $180,000, 39% above; 2024-25's composite rates for the 31 July 2024 change ([IRD](https://www.ird.govt.nz/income-tax/income-tax-for-individuals/tax-codes-and-tax-rates-for-individuals/tax-rates-for-individuals))."
+              },
+              {
+                "done": true,
+                "text": "Residual income tax: tax on the year's profit less withholding tax credits (schedular payments already recorded). The **Income tax** page."
+              },
+              {
+                "done": false,
+                "text": "ACC levies (earners' levy, work levy) for self-employed people."
+              },
+              {
+                "done": true,
+                "text": "Tests against IRD's worked examples; see `docs/product/ird-rules.md`."
+              }
+            ]
+          },
+          {
+            "id": "SL-802",
+            "title": "GST return preparation",
+            "section": "phase-8",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P2",
+            "size": "L",
+            "dependsOn": ["SL-510"],
+            "summary": "The figures for each GST period's return, by basis and filing frequency, ready to copy into myIR.",
+            "criteria": [
+              {
+                "done": true,
+                "text": "**Return figures** on each GST return: boxes 5 to 15 of IRD's GST return (GST101A) on the business's GST basis: sales including GST (exempt left out) and zero-rated supplies, GST on sales, purchases with GST claimed and their GST, and debit and credit adjustments (entertainment, change of use, bad debts written off, the final adjustment on an asset sale)."
+              },
+              {
+                "done": true,
+                "text": "Box 15 always equals the GST page's figure for the period (`ird_rules::the_gst_return_boxes_add_up_to_what_is_paid`, on the payments and invoice bases, every box hand-checked); `gst::returnFigures.test`."
+              }
+            ],
+            "code": "`services/api/src/services/gst_returns.rs` (`boxes`), `services/api/src/repositories/reports.rs` (`gst_box_entries`, `untaxed_sales`), `apps/client/src/features/gst/ReturnFigures.tsx`"
+          },
+          {
+            "id": "SL-803",
+            "title": "Income tax return preparation",
+            "section": "phase-8",
+            "status": "Parked",
+            "type": "Feature",
+            "priority": "P3",
+            "size": "L",
+            "dependsOn": ["SL-801"],
+            "summary": "The figures for an individual's return (IR3) from the year's records.",
+            "criteria": [],
+            "statusNote": "by the owner (2026-11-25): a large piece of work, for after the current features are proven"
+          },
+          {
+            "id": "SL-804",
+            "title": "Filing integrations",
+            "section": "phase-8",
+            "status": "Parked",
+            "type": "Decision",
+            "priority": "P3",
+            "size": "XL",
+            "dependsOn": ["SL-802"],
+            "summary": "Explore IRD gateway services for filing directly. Needs IRD onboarding and legal review.",
+            "criteria": [],
+            "statusNote": "a third-party integration that needs a provider or account first (owner's decision, 2026-11-25)",
+            "labels": ["Third-party integration"]
+          },
+          {
+            "id": "SL-805",
+            "title": "Provisional tax",
+            "section": "phase-8",
+            "status": "Done",
+            "statusNote": "standard option",
+            "type": "Feature",
+            "priority": "P1",
+            "size": "M",
+            "dependsOn": ["SL-801"],
+            "summary": "Who pays (residual income tax over $5,000), how much and when, so the instalments aren't a surprise.",
+            "criteria": [
+              {
+                "done": true,
+                "text": "Standard option: last year's RIT + 5% (or two years ago + 10% when last year's return isn't filed), in three instalments on 28 August, 15 January and 7 May for a March balance date, or two (28 October, 7 May) for six-monthly GST filers ([IRD](https://www.ird.govt.nz/income-tax/provisional-tax/paying-your-provisional-tax/payment-dates-for-provisional-tax))."
+              },
+              {
+                "done": false,
+                "text": "Estimation option from SL-801's estimate; a reminder when the estimate falls short."
+              },
+              {
+                "done": true,
+                "text": "Payments recorded as income tax payments settle instalments; terminal tax due 7 February (7 April with a tax agent)."
+              },
+              {
+                "done": true,
+                "text": "The $60,000 safe harbour explained (no use-of-money interest before the terminal tax date under the standard option)."
+              }
+            ]
+          },
+          {
+            "id": "SL-806",
+            "title": "Entertainment at 50%",
+            "section": "phase-8",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P2",
+            "size": "S",
+            "dependsOn": [],
+            "summary": "IRD allows half of most business entertainment: a category flag \"50% deductible (entertainment)\" posts half as non-deductible and adds the yearly GST adjustment (15% of the non-deductible GST-exclusive amount) to the GST return ([IR268](https://www.ird.govt.nz/-/media/project/ir/home/documents/forms-and-guides/ir200---ir299/ir268/ir268-2024.pdf)). Done: an expense's deductible share below its business share (e.g. 50%) moves the rest to non-deductible in the profit and loss and the income tax estimate, and the GST page adds the yearly adjustment.",
+            "criteria": []
+          },
+          {
+            "id": "SL-807",
+            "title": "Write off a bad debt",
+            "section": "phase-8",
+            "status": "Done",
+            "statusNote": "write-offs; corrections to filed periods still change the filed period",
+            "type": "Feature",
+            "priority": "P2",
+            "size": "M",
+            "dependsOn": [],
+            "summary": "Write off an issued invoice's unpaid balance on a date: a bad-debt expense and, on the invoice or hybrid basis, a GST credit adjustment of 3/23 of the amount in that period (none on the payments basis) (IR375, \"Bad debts written off\"). Also: corrections to periods already filed should land in the current period, not change the filed one (today cancelling an unpaid invoice reverses its GST on the original date).",
+            "criteria": []
+          },
+          {
+            "id": "SL-808",
+            "title": "GST registration reminder",
+            "section": "phase-8",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P2",
+            "size": "S",
+            "dependsOn": [],
+            "summary": "An insight for a business not registered for GST when sales pass $60,000 in the last 12 months (registration is due within 21 days) ([IRD](https://www.ird.govt.nz/gst/registering-for-gst)).",
+            "criteria": []
+          },
+          {
+            "id": "SL-809",
+            "title": "GST adjustments: secondhand goods and change of use",
+            "section": "phase-8",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P3",
+            "size": "M",
+            "dependsOn": [],
+            "summary": "A secondhand purchase from someone not registered claims 3/23 of the price paid; goods over $10,000 bought for mixed use need change-of-use adjustments over IRD's adjustment periods (IR375).",
+            "criteria": [
+              {
+                "done": true,
+                "text": "Secondhand goods: 3/23 of the price, the same as a 15% inclusive price, recorded that way (`ird_rules::secondhand_goods_from_someone_not_registered_claim_3_23_of_the_price`)"
+              },
+              {
+                "done": true,
+                "text": "Assets over $10,000 (excluding GST) get 2, 5 or 10 adjustment periods by cost, the first ending at the first balance date"
+              },
+              {
+                "done": true,
+                "text": "Actual use is measured from acquisition, weighted by months, and compared with the intended or last adjusted use; no adjustment under 10 points and $1,000 (IR375's boat and car examples, `change_of_use::tests::*`)"
+              },
+              {
+                "done": true,
+                "text": "Adjustments post to GST at the balance date and land in that period's return; removing a review reverses it (`ird_rules::an_asset_over_10000_gets_change_of_use_adjustments_at_balance_date`)"
+              },
+              {
+                "done": true,
+                "text": "Year end › Assets › GST change of use: a business-use entry per period, with the adjustment shown (`yearend::changeOfUse.test`)"
+              }
+            ],
+            "code": "`database/migrations/V21__create_asset_use_reviews.sql`, `services/api/src/domain/change_of_use.rs`, `services/api/src/services/change_of_use.rs`, `apps/client/src/features/yearend/ChangeOfUse.tsx`",
+            "notes": "The GST on an asset's purchase now counts as claimable in GST returns too (it was posted to the GST account but left out of the returns). A claim credits owner funds; GST paid back for private use is drawings, like the private share of depreciation. Not yet: the wash-up rule for a permanent change, the final adjustment on disposal (with SL-520), and choosing a first period ending at least 12 months after purchase."
+          },
+          {
+            "id": "SL-810",
+            "title": "Home office by the square metre rate",
+            "section": "phase-8",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P2",
+            "size": "S",
+            "dependsOn": [],
+            "summary": "A yearly home office claim by IRD's square metre option: (mortgage interest + rates + rent) × business area ÷ total area, plus business area × the year's rate ($57.30 for 2025-26, $55.60 for 2024-25), as dated data ([IRD](https://www.ird.govt.nz/home-office-expenses)). Using it rules out claiming other home costs.",
+            "criteria": []
+          },
+          {
+            "id": "SL-811",
+            "title": "Low-value assets",
+            "section": "phase-8",
+            "status": "Done",
+            "type": "Feature",
+            "priority": "P3",
+            "size": "S",
+            "dependsOn": [],
+            "summary": "When adding an asset costing $1,000 or less (GST-exclusive), offer to deduct it in full in the year bought instead of depreciating it ([IR260](https://www.ird.govt.nz/-/media/project/ir/home/documents/forms-and-guides/ir200---ir299/ir260/ir260.pdf)).",
+            "criteria": []
+          }
+        ]
+      }
+    </script>
+
+    <script>
+      (() => {
+        'use strict';
+        const DATA = JSON.parse(document.getElementById('backlog-data').textContent);
+        const STATUS_KEYS = DATA.statuses.map((s) => s.name);
+        const SECTION_BY_ID = new Map(DATA.sections.map((s) => [s.id, s]));
+        const ITEM_BY_ID = new Map(DATA.items.map((i) => [i.id, i]));
+        const CLOSED = new Set(['Done', 'Dropped']);
+        // Inside a frame (the published copy) a copied URL wouldn't reopen the item, so there's no Copy link.
+        const EMBEDDED = window.self !== window.top;
+        const NEEDED_BY = new Map();
+        for (const item of DATA.items)
+          for (const dep of item.dependsOn) {
+            if (!NEEDED_BY.has(dep)) NEEDED_BY.set(dep, []);
+            NEEDED_BY.get(dep).push(item.id);
+          }
+
+        const FACETS = [
+          { key: 'status', label: 'Status', values: STATUS_KEYS },
+          { key: 'priority', label: 'Priority', values: DATA.priorities.map((p) => p.name) },
+          { key: 'type', label: 'Type', values: DATA.types.map((t) => t.name) },
+          { key: 'size', label: 'Size', values: DATA.sizes.map((s) => s.name) },
+          { key: 'section', label: 'Phase', values: DATA.sections.map((s) => s.id) },
+          { key: 'label', label: 'Label', values: (DATA.labels || []).map((l) => l.name) },
+        ];
+        /** Whether an item has a facet value (labels are a list; the rest one value each). */
+        const hasValue = (item, key, value) => (key === 'label' ? (item.labels || []).includes(value) : item[key] === value);
+        const GROUPS = { section: 'Phase', status: 'Status', priority: 'Priority', type: 'Type', size: 'Size', none: 'No grouping' };
+        const SORTS = { id: 'ID', priority: 'Priority', status: 'Status', progress: 'Criteria left' };
+
+        const state = {
+          q: '',
+          status: new Set(),
+          priority: new Set(),
+          type: new Set(),
+          size: new Set(),
+          section: new Set(),
+          label: new Set(),
+          open: false,
+          group: 'section',
+          sort: 'id',
+          view: 'list',
+          item: null,
+        };
+
+        // ---------- helpers ----------
+        const $ = (sel) => document.querySelector(sel);
+        const esc = (s) =>
+          String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+        const statusVar = (s) => `var(--s-${s.toLowerCase().replace(/\s+/g, '-')})`;
+        const idNum = (id) => Number(id.slice(3));
+        const sectionOrder = new Map(DATA.sections.map((s, i) => [s.id, i]));
+        const sectionLabel = (id) => {
+          const s = SECTION_BY_ID.get(id);
+          return s ? (s.phase.includes('–') ? s.title : `Phase ${s.phase} · ${s.title}`) : id;
+        };
+        const shortSection = (id) => {
+          const s = SECTION_BY_ID.get(id);
+          return s ? (s.phase.includes('–') ? 'Foundation' : `Phase ${s.phase}`) : id;
+        };
+        const valueLabel = (key, v) => (key === 'section' ? sectionLabel(v) : v);
+
+        /** Inline Markdown: `code`, [text](url), **bold**, *italic*, and SL-123 links. */
+        function inline(text) {
+          const parts = String(text).split(/(`[^`]*`)/g);
+          return parts
+            .map((part) => {
+              if (part.startsWith('`') && part.endsWith('`') && part.length > 1) return `<code>${esc(part.slice(1, -1))}</code>`;
+              let h = esc(part);
+              h = h.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, t, u) => {
+                const external = /^https?:/.test(u);
+                return `<a href="${u}"${external ? ' target="_blank" rel="noopener"' : ''}>${t}</a>`;
+              });
+              h = h.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+              h = h.replace(/(^|[^*\w])\*([^*\s][^*]*)\*(?!\w)/g, '$1<em>$2</em>');
+              h = h.replace(/(^|[^\w/#-])(SL-\d{3})\b/g, (m, pre, id) =>
+                ITEM_BY_ID.has(id) ? `${pre}<a class="sl" href="#item=${id}" data-item="${id}">${id}</a>` : m,
+              );
+              return h;
+            })
+            .join('');
+        }
+        const paragraphs = (text) =>
+          String(text || '')
+            .split(/\n\s*\n/)
+            .filter((p) => p.trim())
+            .map((p) => `<p>${inline(p.trim())}</p>`)
+            .join('');
+        const plain = (text) =>
+          String(text || '')
+            .replace(/[`*]/g, '')
+            .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+
+        function criteriaProgress(item) {
+          const total = item.criteria.length;
+          const done = item.criteria.filter((c) => c.done).length;
+          return { total, done };
+        }
+
+        // ---------- filtering ----------
+        function haystack(item) {
+          return [
+            item.id,
+            item.title,
+            item.status,
+            item.statusNote,
+            item.type,
+            item.priority,
+            item.summary,
+            item.code,
+            item.notes,
+            sectionLabel(item.section),
+            ...item.criteria.map((c) => c.text),
+            ...(item.labels || []),
+            ...item.dependsOn,
+          ]
+            .join(' ')
+            .toLowerCase();
+        }
+        const HAY = new Map(DATA.items.map((i) => [i.id, haystack(i)]));
+
+        function matches(item, except) {
+          if (state.open && CLOSED.has(item.status)) return false;
+          for (const f of FACETS) {
+            if (f.key === except) continue;
+            const set = state[f.key];
+            if (set.size && ![...set].some((v) => hasValue(item, f.key, v))) return false;
+          }
+          const terms = state.q.toLowerCase().split(/\s+/).filter(Boolean);
+          const hay = HAY.get(item.id);
+          return terms.every((t) => hay.includes(t));
+        }
+
+        function compare(a, b) {
+          const byId = sectionOrder.get(a.section) - sectionOrder.get(b.section) || idNum(a.id) - idNum(b.id);
+          if (state.sort === 'priority') return a.priority.localeCompare(b.priority) || byId;
+          if (state.sort === 'status') return STATUS_KEYS.indexOf(a.status) - STATUS_KEYS.indexOf(b.status) || byId;
+          if (state.sort === 'progress') {
+            const pa = criteriaProgress(a);
+            const pb = criteriaProgress(b);
+            return pb.total - pb.done - (pa.total - pa.done) || byId;
+          }
+          return byId;
+        }
+
+        const filtered = () => DATA.items.filter((i) => matches(i)).sort(compare);
+
+        // ---------- URL state ----------
+        function readHash() {
+          const p = new URLSearchParams(location.hash.slice(1));
+          state.q = p.get('q') || '';
+          for (const f of FACETS) state[f.key] = new Set((p.get(f.key) || '').split(',').filter((v) => f.values.includes(v)));
+          state.open = p.get('open') === '1';
+          state.group = GROUPS[p.get('group')] ? p.get('group') : 'section';
+          state.sort = SORTS[p.get('sort')] ? p.get('sort') : 'id';
+          state.view = ['list', 'board', 'guide'].includes(p.get('view')) ? p.get('view') : 'list';
+          state.item = ITEM_BY_ID.has(p.get('item')) ? p.get('item') : null;
+        }
+        function writeHash() {
+          const p = new URLSearchParams();
+          if (state.q) p.set('q', state.q);
+          for (const f of FACETS) if (state[f.key].size) p.set(f.key, [...state[f.key]].join(','));
+          if (state.open) p.set('open', '1');
+          if (state.group !== 'section') p.set('group', state.group);
+          if (state.sort !== 'id') p.set('sort', state.sort);
+          if (state.view !== 'list') p.set('view', state.view);
+          if (state.item) p.set('item', state.item);
+          const next = p.toString().replace(/%2C/g, ',');
+          if (location.hash.slice(1) === next) return;
+          try {
+            history.replaceState(null, '', next ? `#${next}` : location.pathname + location.search);
+          } catch {
+            /* a sandboxed frame (the published copy) may refuse history changes */
+          }
+        }
+
+        // ---------- rendering ----------
+        function badges(item, { section = false } = {}) {
+          const { total, done } = criteriaProgress(item);
+          const pct = total ? Math.round((done / total) * 100) : 0;
+          return `
+            <span class="badge status" style="--c:${statusVar(item.status)}"><span class="dot"></span>${esc(item.status)}</span>
+            <span class="badge ${item.priority.toLowerCase()}" title="Priority">${item.priority}</span>
+            <span class="badge" title="Type">${esc(item.type)}</span>
+            <span class="badge" title="Size">${esc(item.size)}</span>
+            ${section ? `<span class="badge" title="Phase">${esc(sectionLabel(item.section))}</span>` : ''}
+            ${(item.labels || []).map((l) => `<span class="badge label" title="Label">${esc(l)}</span>`).join('')}
+            ${
+              total
+                ? `<span class="progress" title="${done} of ${total} acceptance criteria met"><span class="bar"><i style="width:${pct}%"></i></span>${done}/${total}</span>`
+                : ''
+            }`;
+        }
+
+        function renderFilters() {
+          const html = FACETS.map((f) => {
+            const chips = f.values
+              .map((v) => {
+                const n = DATA.items.filter((i) => hasValue(i, f.key, v) && matches(i, f.key)).length;
+                const on = state[f.key].has(v);
+                const dot = f.key === 'status' ? `<span class="dot" style="--c:${statusVar(v)}"></span>` : '';
+                const desc = describe(f.key, v);
+                return `<button type="button" class="chip" data-facet="${f.key}" data-value="${esc(v)}" aria-pressed="${on}" data-empty="${n === 0 && !on}" ${desc ? `title="${esc(desc)}"` : ''}>${dot}${esc(valueLabel(f.key, v))}<span class="n">${n}</span></button>`;
+              })
+              .join('');
+            const clear = state[f.key].size ? `<button type="button" data-clear="${f.key}">Clear</button>` : '';
+            return `<div class="facet"><h2>${f.label}${clear}</h2><div class="chips">${chips}</div></div>`;
+          }).join('');
+          const opt = (obj, cur) =>
+            Object.entries(obj)
+              .map(([k, v]) => `<option value="${k}" ${k === cur ? 'selected' : ''}>${v}</option>`)
+              .join('');
+          $('#filters').innerHTML = `
+            <div class="facet">
+              <label class="switch"><input type="checkbox" id="open-only" ${state.open ? 'checked' : ''}/> Hide done and dropped</label>
+              <div class="controls">
+                <label>Group by <select id="group">${opt(GROUPS, state.group)}</select></label>
+                <label>Sort by <select id="sort">${opt(SORTS, state.sort)}</select></label>
+              </div>
+            </div>
+            ${html}
+            <button type="button" class="icon-btn reset" id="reset">Reset filters</button>`;
+        }
+
+        function describe(key, value) {
+          const list = { status: DATA.statuses, priority: DATA.priorities, type: DATA.types, size: DATA.sizes, label: DATA.labels }[key];
+          return list ? (list.find((x) => x.name === value) || {}).description || '' : '';
+        }
+
+        function renderSummary(items) {
+          const all = DATA.items;
+          const count = (pred) => all.filter(pred).length;
+          const stats = [
+            [count((i) => !CLOSED.has(i.status) && i.status !== 'Parked'), 'open items'],
+            [count((i) => i.status === 'Ready'), 'ready to start'],
+            [count((i) => i.status === 'In progress' || i.status === 'In review'), 'in progress or review'],
+            [count((i) => i.status === 'Blocked' || i.status === 'Parked'), 'blocked or parked'],
+            [count((i) => i.status === 'Done'), 'done'],
+          ];
+          const bars = DATA.sections
+            .map((s) => {
+              const its = all.filter((i) => i.section === s.id);
+              const done = its.filter((i) => i.status === 'Done').length;
+              const segs = STATUS_KEYS.map((st) => {
+                const n = its.filter((i) => i.status === st).length;
+                return n ? `<i style="--c:${statusVar(st)};flex:${n}" title="${esc(st)}: ${n}"></i>` : '';
+              }).join('');
+              const on = state.section.size === 1 && state.section.has(s.id);
+              return `<button type="button" class="sbar" data-section="${s.id}" aria-pressed="${on}" title="Show only this phase">
+                <span class="label">${esc(sectionLabel(s.id))}</span>
+                <span class="stack" role="img" aria-label="${STATUS_KEYS.map((st) => `${st} ${its.filter((i) => i.status === st).length}`).join(', ')}">${segs}</span>
+                <span class="count">${done}/${its.length} done</span>
+              </button>`;
+            })
+            .join('');
+          const legend = STATUS_KEYS.map((st) => `<span><span class="dot" style="--c:${statusVar(st)}"></span>${esc(st)}</span>`).join('');
+          return `
+            <div class="summary">${stats.map(([n, l]) => `<div class="stat"><b>${n}</b><span>${l}</span></div>`).join('')}</div>
+            <div class="sections-bars"><h2>Progress by phase</h2>${bars}<div class="legend">${legend}</div></div>
+            <div class="result-line" aria-live="polite">${items.length === all.length ? `All ${all.length} items` : `${items.length} of ${all.length} items match`}</div>`;
+        }
+
+        function groupItems(items) {
+          if (state.group === 'none') return [{ key: 'all', title: 'All items', items }];
+          const key = state.group;
+          const order = key === 'section' ? DATA.sections.map((s) => s.id) : FACETS.find((f) => f.key === key).values;
+          return order
+            .map((k) => ({
+              key: k,
+              title: valueLabel(key, k),
+              intro: key === 'section' ? SECTION_BY_ID.get(k).intro : describe(key, k),
+              items: items.filter((i) => i[key] === k),
+            }))
+            .filter((g) => g.items.length);
+        }
+
+        function rowHtml(item) {
+          const sub = plain(item.statusNote ? `${item.status}: ${item.statusNote}` : item.summary || (item.criteria[0] || {}).text || '');
+          return `<button type="button" class="row ${item.status === 'Dropped' ? 'dropped' : ''}" data-item="${item.id}" aria-current="${state.item === item.id}">
+            <span class="id">${item.id}</span>
+            <span class="title">${inline(item.title)}${sub ? `<small>${esc(sub)}</small>` : ''}</span>
+            <span class="meta">${badges(item, { section: state.group !== 'section' })}</span>
+          </button>`;
+        }
+
+        function renderList(items) {
+          if (!items.length)
+            return `<div class="empty">No items match these filters. <button type="button" class="icon-btn" data-action="reset">Reset filters</button></div>`;
+          return groupItems(items)
+            .map(
+              (g) => `<section class="group">
+                <div class="group-head"><h2>${esc(g.title)}</h2><span class="n">${g.items.length} item${g.items.length === 1 ? '' : 's'}</span></div>
+                ${g.intro ? (Array.isArray(g.intro) ? g.intro.map((p) => `<div class="group-intro">${inline(p)}</div>`).join('') : `<div class="group-intro">${esc(g.intro)}</div>`) : ''}
+                <div class="rows">${g.items.map(rowHtml).join('')}</div>
+              </section>`,
+            )
+            .join('');
+        }
+
+        function renderBoard(items) {
+          const cols = STATUS_KEYS.filter((s) => !(state.open && CLOSED.has(s)) && (!state.status.size || state.status.has(s)));
+          return `<div class="board">${cols
+            .map((st) => {
+              const its = items.filter((i) => i.status === st);
+              return `<section class="col"><h2><span class="dot" style="--c:${statusVar(st)}"></span>${esc(st)} <span class="n">${its.length}</span></h2>
+                ${its
+                  .map(
+                    (i) => `<button type="button" class="card" style="--c:${statusVar(st)}" data-item="${i.id}">
+                      <span class="id">${i.id} · ${esc(shortSection(i.section))}</span>
+                      <span class="title">${inline(i.title)}</span>
+                      <span class="meta"><span class="badge ${i.priority.toLowerCase()}">${i.priority}</span><span class="badge">${esc(i.type)}</span><span class="badge">${esc(i.size)}</span>${
+                        i.criteria.length ? `<span class="progress">${criteriaProgress(i).done}/${i.criteria.length}</span>` : ''
+                      }</span>
+                    </button>`,
+                  )
+                  .join('')}</section>`;
+            })
+            .join('')}</div>`;
+        }
+
+        function nextFreeId(section) {
+          const nums = DATA.items.filter((i) => i.section === section.id).map((i) => idNum(i.id));
+          const base = Number(section.idPrefix) * 100;
+          const next = Math.max(base, ...nums) + 1;
+          return `SL-${String(next).padStart(3, '0')}`;
+        }
+
+        function renderGuide() {
+          const table = (rows, head) =>
+            `<table><thead><tr>${head.map((h) => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+          const g = DATA.guide;
+          return `<article class="guide">
+            <h2>How this backlog works</h2>
+            ${g.about.map((p) => `<p>${inline(p)}</p>`).join('')}
+            <h2>Status</h2>${table(
+              DATA.statuses.map((s) => [
+                `<span class="badge status" style="--c:${statusVar(s.name)}"><span class="dot"></span>${esc(s.name)}</span>`,
+                inline(s.description),
+              ]),
+              ['Status', 'Meaning'],
+            )}
+            <h2>Type</h2>${table(
+              DATA.types.map((t) => [esc(t.name), inline(t.description)]),
+              ['Type', 'Meaning'],
+            )}
+            <h2>Priority</h2>${table(
+              DATA.priorities.map((t) => [esc(t.name), inline(t.description)]),
+              ['Priority', 'Meaning'],
+            )}
+            <h2>Size</h2>${table(
+              DATA.sizes.map((t) => [esc(t.name), inline(t.description)]),
+              ['Size', 'Meaning'],
+            )}
+            <h2>Phases and the next free ID</h2>${table(
+              DATA.sections.map((s) => [esc(sectionLabel(s.id)), `<code>${esc(s.id)}</code>`, `<code>${nextFreeId(s)}</code>`]),
+              ['Phase', 'Section id', 'Next free ID'],
+            )}
+            <h2>Adding or updating an item</h2>
+            ${g.editing.map((p) => `<p>${inline(p)}</p>`).join('')}
+            <pre>${esc(JSON.stringify(g.example, null, 2))}</pre>
+          </article>`;
+        }
+
+        function renderDrawer() {
+          const drawer = $('#drawer');
+          const scrim = $('#scrim');
+          const item = state.item && ITEM_BY_ID.get(state.item);
+          if (!item) {
+            drawer.hidden = true;
+            scrim.hidden = true;
+            return;
+          }
+          const list = filtered();
+          const idx = list.findIndex((i) => i.id === item.id);
+          const prev = idx > 0 ? list[idx - 1].id : null;
+          const next = idx >= 0 && idx < list.length - 1 ? list[idx + 1].id : null;
+          const linkChip = (id) => {
+            const it = ITEM_BY_ID.get(id);
+            if (!it) return `<span class="link-chip">${esc(id)} (missing)</span>`;
+            return `<button type="button" class="link-chip" data-item="${id}"><span class="dot" style="--c:${statusVar(it.status)}" title="${esc(it.status)}"></span><span class="id">${id}</span>${inline(it.title)}</button>`;
+          };
+          const neededBy = NEEDED_BY.get(item.id) || [];
+          const { total, done } = criteriaProgress(item);
+          drawer.innerHTML = `
+            <div class="drawer-head">
+              <div class="drawer-nav">
+                <span class="id">${item.id} · ${esc(sectionLabel(item.section))}</span>
+                <button type="button" class="icon-btn" data-nav="${prev || ''}" ${prev ? '' : 'disabled'} title="Previous (k)" aria-label="Previous item">↑</button>
+                <button type="button" class="icon-btn" data-nav="${next || ''}" ${next ? '' : 'disabled'} title="Next (j)" aria-label="Next item">↓</button>
+                ${EMBEDDED ? '' : '<button type="button" class="icon-btn" id="copy-link" title="Copy a link to this item">Copy link</button>'}
+                <button type="button" class="icon-btn" id="close" title="Close (Esc)" aria-label="Close">✕</button>
+              </div>
+              <h2 id="drawer-title">${inline(item.title)}</h2>
+              <div class="meta" style="justify-content:flex-start">${badges(item)}</div>
+              ${item.statusNote ? `<div class="status-note">${esc(item.status)}: ${inline(item.statusNote)}</div>` : ''}
+            </div>
+            <div class="drawer-body">
+              ${item.summary ? `<h3>Summary</h3>${paragraphs(item.summary)}` : ''}
+              ${
+                total
+                  ? `<h3>Acceptance criteria · ${done} of ${total}</h3><ul class="criteria">${item.criteria
+                      .map(
+                        (c) =>
+                          `<li><span class="tick ${c.done ? 'on' : ''}" aria-label="${c.done ? 'Met' : 'Not met'}">${c.done ? '✓' : ''}</span><span>${inline(c.text)}</span></li>`,
+                      )
+                      .join('')}</ul>`
+                  : ''
+              }
+              ${item.code ? `<h3>Code</h3><p>${inline(item.code)}</p>` : ''}
+              ${item.notes ? `<h3>Notes</h3>${paragraphs(item.notes)}` : ''}
+              <h3>Depends on</h3>${item.dependsOn.length ? `<div class="links">${item.dependsOn.map(linkChip).join('')}</div>` : '<p class="status-note">Nothing</p>'}
+              ${neededBy.length ? `<h3>Needed by</h3><div class="links">${neededBy.map(linkChip).join('')}</div>` : ''}
+            </div>`;
+          const wasHidden = drawer.hidden;
+          drawer.hidden = false;
+          scrim.hidden = false;
+          if (wasHidden) $('#close').focus();
+        }
+
+        function render() {
+          for (const b of document.querySelectorAll('[data-view]')) b.setAttribute('aria-pressed', String(b.dataset.view === state.view));
+          if ($('#q').value !== state.q) $('#q').value = state.q;
+          renderFilters();
+          const items = filtered();
+          const main = $('#main');
+          $('#layout').classList.toggle('wide', state.view === 'guide');
+          $('#filters-toggle').hidden = state.view === 'guide';
+          if (state.view === 'guide') main.innerHTML = renderGuide();
+          else main.innerHTML = renderSummary(items) + (state.view === 'board' ? renderBoard(items) : renderList(items));
+          renderDrawer();
+          writeHash();
+        }
+
+        function resetFilters() {
+          state.q = '';
+          for (const f of FACETS) state[f.key].clear();
+          state.open = false;
+          render();
+        }
+
+        // ---------- events ----------
+        document.addEventListener('click', (e) => {
+          const t = e.target.closest('button, a');
+          if (!t) return;
+          if (t.dataset.view) {
+            state.view = t.dataset.view;
+            return render();
+          }
+          if (t.dataset.facet) {
+            const set = state[t.dataset.facet];
+            set.has(t.dataset.value) ? set.delete(t.dataset.value) : set.add(t.dataset.value);
+            return render();
+          }
+          if (t.dataset.clear) {
+            state[t.dataset.clear].clear();
+            return render();
+          }
+          if (t.dataset.section) {
+            const on = state.section.size === 1 && state.section.has(t.dataset.section);
+            state.section = on ? new Set() : new Set([t.dataset.section]);
+            return render();
+          }
+          if (t.dataset.item) {
+            e.preventDefault();
+            state.item = t.dataset.item;
+            return render();
+          }
+          if (t.dataset.nav) {
+            state.item = t.dataset.nav;
+            return render();
+          }
+          if (t.id === 'close') return closeDrawer();
+          if (t.id === 'reset' || t.dataset.action === 'reset') return resetFilters();
+          if (t.id === 'copy-link') {
+            navigator.clipboard
+              ?.writeText(location.href)
+              .then(() => {
+                t.textContent = 'Copied';
+                setTimeout(() => (t.textContent = 'Copy link'), 1500);
+              })
+              .catch(() => {
+                t.textContent = 'Copy failed';
+              });
+            return;
+          }
+          if (t.id === 'theme') {
+            const root = document.documentElement;
+            const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+            root.dataset.theme = dark ? 'light' : 'dark';
+            try {
+              localStorage.setItem('solo-backlog-theme', root.dataset.theme);
+            } catch {
+              /* storage unavailable on file:// in some browsers */
+            }
+            return;
+          }
+          if (t.id === 'filters-toggle') {
+            const open = $('#filters').classList.toggle('open');
+            t.setAttribute('aria-expanded', String(open));
+          }
+        });
+        $('#scrim').addEventListener('click', () => closeDrawer());
+        document.addEventListener('change', (e) => {
+          if (e.target.id === 'open-only') state.open = e.target.checked;
+          else if (e.target.id === 'group') state.group = e.target.value;
+          else if (e.target.id === 'sort') state.sort = e.target.value;
+          else return;
+          render();
+        });
+        let typing;
+        $('#q').addEventListener('input', (e) => {
+          clearTimeout(typing);
+          typing = setTimeout(() => {
+            state.q = e.target.value.trim();
+            render();
+          }, 120);
+        });
+        function closeDrawer() {
+          const id = state.item;
+          state.item = null;
+          render();
+          document.querySelector(`[data-item="${id}"]`)?.focus();
+        }
+        document.addEventListener('keydown', (e) => {
+          const inField = /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName);
+          if (e.key === 'Escape') {
+            if (state.item) return closeDrawer();
+            if (inField) e.target.blur();
+            return;
+          }
+          if (inField || e.ctrlKey || e.metaKey || e.altKey) return;
+          if (e.key === '/') {
+            e.preventDefault();
+            $('#q').focus();
+          } else if (state.item && (e.key === 'j' || e.key === 'k')) {
+            const list = filtered();
+            const idx = list.findIndex((i) => i.id === state.item);
+            const target = idx < 0 ? null : list[idx + (e.key === 'j' ? 1 : -1)];
+            if (target) {
+              state.item = target.id;
+              render();
+            }
+          }
+        });
+        window.addEventListener('hashchange', () => {
+          readHash();
+          render();
+        });
+
+        try {
+          const saved = localStorage.getItem('solo-backlog-theme');
+          if (saved) document.documentElement.dataset.theme = saved;
+        } catch {
+          /* ignore */
+        }
+        readHash();
+        render();
+      })();
+    </script>
+  </body>
+</html>
