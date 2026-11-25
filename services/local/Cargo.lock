@@ -3712,7 +3712,7 @@ dependencies = [
 
 [[package]]
 name = "solo-api"
-version = "0.4.0"
+version = "0.4.1"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3752,7 +3752,7 @@ dependencies = [
 
 [[package]]
 name = "solo-local"
-version = "0.4.0"
+version = "0.4.1"
 dependencies = [
  "anyhow",
  "axum",

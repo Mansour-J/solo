@@ -5,6 +5,13 @@ versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html), and 
 release's section from the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) merged
 since the one before (see `docs/deployment/release-process.md`).
 
+## [0.4.1](https://github.com/Mansour-J/solo/compare/v0.4.0...v0.4.1) (2026-11-25)
+
+
+### Dependencies
+
+* **desktop:** anyhow 1.0.105, cc 1.11.3, crc32fast 1.5.6 and constant_time_eq 0.6.2 ([2c8280e](https://github.com/Mansour-J/solo/commit/2c8280e8132e7ef68fa266954c3fe3da52c5f551))
+
 ## [0.4.0](https://github.com/Mansour-J/solo/releases/tag/v0.4.0) (2026-11-26)
 
 The first release from the public repository. Solo is now free software under the GNU Affero General
