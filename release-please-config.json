@@ -9,7 +9,6 @@
       "release-type": "node",
       "package-name": "solo",
       "changelog-path": "CHANGELOG.md",
-      "release-as": "0.4.0",
       "bump-minor-pre-major": true,
       "bump-patch-for-minor-pre-major": false,
       "draft": true,
