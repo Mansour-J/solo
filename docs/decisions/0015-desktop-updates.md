@@ -65,6 +65,7 @@ downloaded anonymously, and a token can't be built into the app. Hermes Hub solv
 The repository is now public (the private one, with the full history, is `solo-old`), so its releases
 can serve the feed directly: `UPDATER_ENDPOINT` =
 `https://github.com/Mansour-J/solo/releases/latest/download/latest.json`. The release workflow runs
-on tags again (hosted runners are free on public repositories), and every release is built there. The updater's private key wasn't carried over (repository secrets can't be read
-back, and it isn't in `~/.tauri/` on the maintainer's machine): recover it, or generate a new pair
-before any installed app has a feed, then set the `TAURI_SIGNING_*` secrets.
+on tags again (hosted runners are free on public repositories), and every release is built there. The first updater key was lost (repository secrets can't be read back), before any
+installed app had a feed, so a new pair was generated on 2026-11-26: its public key is in
+`tauri.conf.json`, the private key and password are in the `TAURI_SIGNING_*` secrets and in
+`~/.tauri/solo-updater.key*` on the maintainer's machine. v0.4.0 is the first release with the feed.

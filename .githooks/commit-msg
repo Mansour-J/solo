@@ -1,0 +1,4 @@
+#!/bin/sh
+# Conventional Commits check (scripts/commit-check.mjs). Installed by `npm install` (the prepare script
+# sets core.hooksPath to .githooks).
+exec node "$(git rev-parse --show-toplevel)/scripts/commit-check.mjs" --file "$1"
