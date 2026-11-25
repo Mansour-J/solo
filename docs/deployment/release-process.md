@@ -52,7 +52,5 @@ Desktop apps update themselves from Settings › Updates ([ADR 0015](../decision
 
 ## Costs
 
-The repository is public, so GitHub-hosted runners are free (macOS and Windows included). The private
-repository it replaced (`solo-old`) paid for minutes, which is why `npm run release:local` exists: it
-builds the Windows installers on a Windows machine and publishes the release with `gh`, without Actions
-(`-- --dry-run` builds without publishing). Use it only if the workflow can't run.
+The repository is public, so GitHub-hosted runners are free, macOS and Windows included. Every build and
+release runs on GitHub; nothing is built for release on a maintainer's machine.

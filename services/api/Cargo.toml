@@ -4,7 +4,7 @@ version = "0.3.0"
 description = "Bookkeeping API: businesses, invoicing, expenses, mileage, allocations and reports"
 edition = "2024"
 rust-version = "1.88"
-license = "LicenseRef-Proprietary"
+license = "AGPL-3.0-only"
 publish = false
 default-run = "solo-api"
 

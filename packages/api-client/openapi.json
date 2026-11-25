@@ -4,8 +4,8 @@
     "title": "Solo API",
     "description": "REST API for bookkeeping, for one person: businesses, invoicing, expenses, mileage, allocations and reports. Money amounts are integers in the currency's minor unit (cents). Dates are ISO 8601. There is no sign-in: every request acts as the owner. Every state-changing request must send         `x-client-kind: web|desktop|mobile`, and the desktop app's local server also requires its `x-api-key`.",
     "license": {
-      "name": "LicenseRef-Proprietary",
-      "identifier": "LicenseRef-Proprietary"
+      "name": "AGPL-3.0-only",
+      "identifier": "AGPL-3.0-only"
     },
     "version": "0.3.0"
   },

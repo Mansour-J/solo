@@ -1243,7 +1243,7 @@
               },
               {
                 "done": true,
-                "text": "The repository is public (2026-11-26; the private history is `solo-old`), so CI runs on every push and pull request and tags start the release workflow at no cost; `npm run release:local` remains a Windows-only fallback."
+                "text": "The repository is public (2026-11-26; the private history is `solo-old`), so CI runs on every push and pull request and tags start the release workflow at no cost; GitHub does all building and releasing (`release:local` removed)."
               },
               {
                 "done": false,
@@ -1254,7 +1254,7 @@
                 "text": "Each later phase ends with a release (`/release`)."
               }
             ],
-            "code": "`.github/workflows/release.yml`, `docs/deployment/release-process.md`, `scripts/release-local.mjs`",
+            "code": "`.github/workflows/release.yml`, `docs/deployment/release-process.md`",
             "notes": "v0.2.0 and v0.3.0 are on `solo-old`. The updater key isn't on this machine and the new repository has no `TAURI_SIGNING_*` secrets: recover the key or generate a new pair before switching on the feed."
           },
           {

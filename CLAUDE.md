@@ -20,7 +20,6 @@ npm run test:e2e                      # Playwright vs Vite on http://localhost:5
 npm run brand:sync                    # after editing branding/brand.json
 npm run readme:screenshots            # regenerate docs/screenshots for the README (update-readme skill)
 npm run backlog -- list open          # backlog items (also show SL-123, next phase-7, check)
-npm run release:local                 # fallback: build the Windows installers here and publish the release (see below)
 ```
 
 Cargo is in `~/.cargo/bin`. Integration tests read `TEST_DATABASE_URL`
@@ -89,8 +88,8 @@ so never make it public or copy from its history.
   repository. Still run `/check` before committing.
 - **Releases:** `npm run release:version -- X.Y.Z`, commit, then push an annotated tag `vX.Y.Z`:
   `release.yml` builds Linux, Windows and macOS installers and publishes the release
-  (`docs/deployment/release-process.md`). `npm run release:local` (`scripts/release-local.mjs`) is a
-  Windows-only fallback that builds here and publishes with `gh`.
+  (`docs/deployment/release-process.md`). GitHub does all building and releasing; nothing is built
+  for release on this machine.
 - **Updates:** the `TAURI_SIGNING_*` secrets aren't set on the new repository (the old one's can't be
   read back, and the key isn't on this machine). Recover the key or generate a new pair before switching
   on the feed (`UPDATER_ENDPOINT`, ADR 0015).

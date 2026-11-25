@@ -4,7 +4,7 @@ version = "0.3.0"
 description = "Solo on the user's own computer: an embedded PostgreSQL, the schema migrations and the API, in one process"
 edition = "2024"
 rust-version = "1.94"
-license = "LicenseRef-Proprietary"
+license = "AGPL-3.0-only"
 publish = false
 
 [dependencies]

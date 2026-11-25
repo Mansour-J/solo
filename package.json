@@ -2,6 +2,7 @@
   "name": "solo",
   "private": true,
   "version": "0.3.0",
+  "license": "AGPL-3.0-only",
   "description": "Bookkeeping for independent professionals: Rust API, React web app and Tauri desktop app.",
   "type": "module",
   "engines": {
@@ -45,7 +46,6 @@
     "stack:down": "docker compose down",
     "brand:sync": "node scripts/brand-sync.mjs",
     "release:version": "node scripts/release-version.mjs",
-    "release:local": "node scripts/release-local.mjs",
     "local:serve": "cargo run --manifest-path services/local/Cargo.toml -- --data-dir data/local"
   },
   "devDependencies": {

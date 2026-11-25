@@ -196,3 +196,9 @@ Mantine 9 · TanStack Query · Tauri 2 · embedded PostgreSQL · GitHub Actions 
 
 Solo helps people keep their own records. It is not an accountant, a registered tax agent or a tax
 filing service, and its summaries are not tax advice.
+
+## Licence
+
+Solo is free software under the [GNU Affero General Public License v3.0](LICENSE) (`AGPL-3.0-only`).
+You may use, study, change and share it; if you distribute it, or run a changed version as a network
+service, you must make your source code available under the same licence.
