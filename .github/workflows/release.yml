@@ -98,8 +98,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.meta.outputs.tag }}
         run: |
-          # release-please has usually drafted it already (drafts aren't found by tag, so list them).
-          id=$(gh api "repos/$GITHUB_REPOSITORY/releases?per_page=30" --jq ".[] | select(.tag_name == \"$TAG\") | .id" | head -1)
+          # release-please has usually drafted it already. Drafts aren't found by tag, and theirs carries a
+          # placeholder tag ("untagged-…") until it's published, so match its name too.
+          id=$(gh api "repos/$GITHUB_REPOSITORY/releases?per_page=30" \
+            --jq ".[] | select(.tag_name == \"$TAG\" or (.draft and .name == \"$TAG\")) | .id" | head -1)
           if [ -n "$id" ]; then
             gh api -X PATCH "repos/$GITHUB_REPOSITORY/releases/$id" -F draft=true -F body=@notes.md > /dev/null
           else
@@ -240,4 +242,8 @@ jobs:
       - env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ needs.prepare.outputs.tag }}
-        run: gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false --latest
+          RELEASE_ID: ${{ needs.prepare.outputs.release_id }}
+        # By ID, attaching the real tag: a release-please draft still has a placeholder tag.
+        run: |
+          gh api -X PATCH "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" \
+            -f tag_name="$TAG" -F draft=false -f make_latest=true --jq '.html_url'
