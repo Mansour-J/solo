@@ -86,13 +86,18 @@ so never make it public or copy from its history.
   invented "Fernleaf Consulting"; ADR 0013). Use IRD's example number `49091850` for GST numbers.
 - **CI** (`ci.yml`) runs on every pull request and push to `main`; hosted runners are free on a public
   repository. Still run `/check` before committing.
-- **Releases:** `npm run release:version -- X.Y.Z`, commit, then push an annotated tag `vX.Y.Z`:
+- **Commits** follow Conventional Commits (`feat(scope): …`, `fix: …`, `docs: …`; CONTRIBUTING.md): the
+  `commit-msg` hook (`.githooks/`, `scripts/commit-check.mjs`) and CI reject anything else, and the
+  description becomes the user's changelog line. Use `feat`/`fix` only for changes users notice.
+- **Releases:** semantic versions from release-please (`release-please.yml`, `release-please-config.json`):
+  every push to `main` updates the "chore: release X.Y.Z" pull request (versions and `CHANGELOG.md`);
+  merging it (only when the user asks) tags `vX.Y.Z` and
   `release.yml` builds Linux, Windows and macOS installers and publishes the release
   (`docs/deployment/release-process.md`). GitHub does all building and releasing; nothing is built
   for release on this machine.
-- **Updates:** the `TAURI_SIGNING_*` secrets aren't set on the new repository (the old one's can't be
-  read back, and the key isn't on this machine). Recover the key or generate a new pair before switching
-  on the feed (`UPDATER_ENDPOINT`, ADR 0015).
+- **Updates:** releases sign update packages with the key in the `TAURI_SIGNING_*` secrets (also in
+  `~/.tauri/solo-updater.key*` here; never commit or print it) and publish `latest.json`; the
+  `UPDATER_ENDPOINT` variable points every build at the latest release's `latest.json` (ADR 0015).
 - Pull requests from forks need approval before their workflows run (the repository default for
   first-time contributors); never run untrusted pull requests on a self-hosted runner.
 

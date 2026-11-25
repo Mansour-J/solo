@@ -27,6 +27,24 @@ env:
   GITHUB_TOKEN: ${{ github.token }}
 
 jobs:
+  commits:
+    name: Conventional Commits
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Check commit messages (scripts/commit-check.mjs)
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          # A new branch has no "before"; check just its last commit then.
+          if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then BASE="$HEAD^"; fi
+          node scripts/commit-check.mjs --range "$BASE..$HEAD"
+
   api:
     name: API (fmt, clippy, unit + integration tests)
     runs-on: ubuntu-latest

@@ -1,24 +1,22 @@
 ---
-description: Cut a Solo release — set the version, commit, tag vX.Y.Z, push the tag and watch the Release workflow
-argument-hint: '<X.Y.Z>'
+description: Cut a Solo release — review and merge release-please's "chore: release X.Y.Z" pull request, then watch the Release workflow publish it
+argument-hint: '[X.Y.Z, optional: force this version]'
 ---
 
-Release version `$ARGUMENTS`. See `docs/deployment/release-process.md`.
+Release Solo. See `docs/deployment/release-process.md`. Versions are semantic and come from the Conventional Commits since the last release: release-please (`.github/workflows/release-please.yml`) keeps a pull request "chore: release X.Y.Z" up to date on every push to `main`. Nothing is versioned, tagged or built on this machine.
 
-**Only run this when the user has explicitly asked for a release in this conversation.** Pushing the tag publishes versioned images to GHCR and a GitHub release, and runs the Linux, macOS and Windows runners (free: the repository is public).
+**Only run this when the user has explicitly asked for a release in this conversation.** Merging the release pull request publishes a GitHub release that installed apps are offered through Settings › Updates.
 
 1. **Preconditions:**
-   - `$ARGUMENTS` is `X.Y.Z`, and the tag `vX.Y.Z` doesn't exist yet (`git tag -l vX.Y.Z`, `git ls-remote --tags origin vX.Y.Z`).
-   - You are on `main`, up to date with `origin/main`, with a clean working tree.
-   - `/release-check X.Y.Z` has passed in this conversation, or the user says it has.
-   - Pushing needs the personal GitHub identity: run `mansour-ssh` first (your work SSH alias switches back afterwards).
-2. **Version:** `npm run release:version -- X.Y.Z`. It sets the three `package.json` files, the lockfile and the three `Cargo.toml`/`Cargo.lock` pairs (API, local server, desktop shell). Check `git diff --stat` shows only those files. On Windows, check `package-lock.json` changed only version lines: some npm versions drop the `libc` markers of platform packages there, which would break Linux installs (restore it and bump the versions by hand).
-3. **Commit and tag:** `git commit -am "Release vX.Y.Z"`, then `git tag -a vX.Y.Z -m "Release vX.Y.Z"`. The tag must be annotated: `git push --follow-tags` skips lightweight tags.
-4. **Push:** `git push origin main`, then `git push origin vX.Y.Z`. If `main` is protected, stop before tagging: push the version bump on a branch, open a pull request, and tag the merged commit on `main` once the user has merged it.
-5. **Watch** `.github/workflows/release.yml`:
-   - `gh run list --workflow release.yml --limit 1` to get the run ID.
-   - `gh run watch <id> --exit-status` in the background. The desktop jobs take the longest.
-   - The workflow checks the versions, drafts the release with notes from the commit subjects, pushes the `solo-api` and `solo-web` images, builds the installers and publishes the release when everything succeeded.
-6. **Report:**
-   - On success: `gh release view vX.Y.Z --json url,isDraft,assets --jq '{url, isDraft, assets: [.assets[].name]}'`. Give the release URL and the installer list.
+   - You are on `main`, up to date with `origin/main` (`git fetch origin`), with nothing unpushed.
+   - CI on the latest `main` commit is green: `gh run list --workflow ci.yml --branch main --limit 1`.
+   - `/release-check` has passed in this conversation, or the user says it has.
+2. **The release pull request:** `gh pr list --label "autorelease: pending" --json number,title,url`. None means no `feat`/`fix`/`perf`/`deps`/breaking commit since the last release: say so and stop (don't invent one).
+   - If `$ARGUMENTS` gives a version that differs from the pull request's, add `"release-as": "$ARGUMENTS"` to the package in `release-please-config.json` (a `chore:` commit), push, wait for the pull request to update, and remove `release-as` in a later commit after the release.
+   - Read its diff: only versions (`package.json`, `package-lock.json`, `Cargo.toml`, `Cargo.lock`), `.release-please-manifest.json` and the new `CHANGELOG.md` section. The changelog lines are user-facing: fix wording on the pull request's branch if a line won't read well to a sole trader.
+3. **Merge** (only now, with the user's go-ahead in this conversation): `gh pr merge <n> --squash`. The merge commit's subject must stay `chore: release X.Y.Z`.
+4. **Watch:** the merge runs `release-please.yml` again. Its `release-please` job tags `vX.Y.Z` and drafts the release; its `build` job calls `release.yml` (version check, Linux/Windows/macOS installers with signed update packages and `latest.json`, then publish).
+   - `gh run list --workflow release-please.yml --limit 1`, then `gh run watch <id> --exit-status` in the background. The desktop jobs take the longest.
+5. **Report:**
+   - On success: `gh release view vX.Y.Z --json url,isDraft,assets --jq '{url, isDraft, assets: [.assets[].name]}'`. Give the release URL and the installer list, and check `latest.json` is among the assets.
    - On failure: `gh run view <id> --log-failed`. Report the failing job and its cause. The release stays a draft. Don't delete the tag, re-run jobs or push fixes without asking.

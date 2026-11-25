@@ -1246,16 +1246,20 @@
                 "text": "The repository is public (2026-11-26; the private history is `solo-old`), so CI runs on every push and pull request and tags start the release workflow at no cost; GitHub does all building and releasing (`release:local` removed)."
               },
               {
+                "done": true,
+                "text": "Semantic versions from Conventional Commits: the `commit-msg` hook and CI's `commits` job check every message (`scripts/commit-check.mjs`); release-please keeps a release pull request with the next version in every manifest and lockfile and the new `CHANGELOG.md` section, and merging it tags, builds and publishes (`release-please.yml` calls `release.yml`)."
+              },
+              {
                 "done": false,
-                "text": "The next version released from the public repository."
+                "text": "The next version (v0.4.0) released from the public repository through the release pull request."
               },
               {
                 "done": false,
                 "text": "Each later phase ends with a release (`/release`)."
               }
             ],
-            "code": "`.github/workflows/release.yml`, `docs/deployment/release-process.md`",
-            "notes": "v0.2.0 and v0.3.0 are on `solo-old`. The updater key isn't on this machine and the new repository has no `TAURI_SIGNING_*` secrets: recover the key or generate a new pair before switching on the feed."
+            "code": "`.github/workflows/release-please.yml`, `.github/workflows/release.yml`, `release-please-config.json`, `scripts/commit-check.mjs`, `docs/deployment/release-process.md`",
+            "notes": "v0.2.0 and v0.3.0 are on `solo-old`. A new updater key pair was made on 2026-11-26 (the first was lost before any app had a feed); `release-as: 0.4.0` in `release-please-config.json` is for the first release only."
           },
           {
             "id": "SL-011",

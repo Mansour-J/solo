@@ -12,7 +12,7 @@ The shell around the web client: all product logic is in the React app and the A
 - **Generated configuration:**
   - `productName`, `identifier`, the window title, descriptions and copyright are written by `npm run brand:sync` from `branding/brand.json`. Don't edit them by hand; CI runs `npm run brand:sync -- --check`.
   - Icons are regenerated with `npm run brand:sync -- --icons` from `branding/assets/app-icon.svg`.
-  - `version` is read from the root `package.json`; bump it with `npm run release:version -- X.Y.Z`.
+  - `version` is read from the root `package.json`; release-please bumps it with the rest (`docs/deployment/release-process.md`).
 - **Development:** `VITE_API_BASE_URL` is only the address `npm run desktop:dev` uses before the local server is ready.
 - **Builds** bundle PostgreSQL (the version in the root `.cargo/config.toml`), downloaded from GitHub at build time; set `GITHUB_TOKEN` to avoid rate limits.
 - `#[cfg_attr(mobile, …)]` keeps the crate mobile-ready, but no Android or iOS project has been generated.

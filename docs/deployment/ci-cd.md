@@ -2,13 +2,15 @@
 
 | Workflow | Trigger | Does |
 |---|---|---|
-| `ci.yml` | Every pull request and push to `main` | The quality gate below |
-| `release.yml` | Tag `vX.Y.Z` (or manual) | Desktop installers for three OSes and the GitHub release ([release process](release-process.md)) |
+| `ci.yml` | Every pull request and push to `main` | The quality gate below, including Conventional Commit messages |
+| `release-please.yml` | Every push to `main` | Keeps the "chore: release X.Y.Z" pull request (semantic version, `CHANGELOG.md`); merging it tags and calls `release.yml` |
+| `release.yml` | Called by `release-please.yml`, a pushed tag `vX.Y.Z`, or manual | Desktop installers for three OSes and the GitHub release ([release process](release-process.md)) |
 
 ## Quality gate (`ci.yml`)
 
 | Job | Checks |
 |---|---|
+| `commits` | Each pushed commit's message follows Conventional Commits (`scripts/commit-check.mjs`) |
 | `api` | `cargo fmt --check`, clippy with warnings as errors, unit and integration tests against a Flyway-migrated PostgreSQL 18 (as `solo_app`, so row-level security is exercised) |
 | `database` | Fresh migration, re-run is a no-op, `flyway validate`, upgrade from the previous version, schema integrity checks (row-level security on every business table, cascading foreign keys, append-only audit log, no float columns) |
 | `web` | TypeScript, ESLint (zero warnings), Prettier, Vitest, production build, brand configuration applied to the desktop app |

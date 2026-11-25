@@ -3,7 +3,13 @@
 ## Workflow
 
 - Branch from `main`, open a pull request and complete the template. CI must be green to merge.
-- Commit subjects in the imperative ("Add invoice PDFs"): they become the release notes.
+- Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/):
+  `<type>[(scope)][!]: <description>`, e.g. `feat(invoices): email a statement to the customer`. The
+  types: `feat` (a new feature: minor version), `fix`, `perf` and `deps` (patch), `revert`, and `docs`,
+  `refactor`, `test`, `build`, `ci`, `style`, `chore` (no release on their own, not in the changelog). A `!`
+  after the type or a `BREAKING CHANGE:` footer marks a breaking change (major; minor while the version
+  is 0.x). The description is what users read in the changelog, so write it for them. `npm install` sets
+  up a `commit-msg` hook that checks this (`scripts/commit-check.mjs`), and CI checks every pushed commit.
 - Record significant decisions as an ADR in `docs/decisions/`.
 - Update the roadmap status in `docs/product/roadmap.md` when a feature is done.
 
@@ -32,9 +38,8 @@ npm run test:e2e            # against the running stack
 
 ## Releasing
 
-```bash
-npm run release:version -- 0.2.0
-git commit -am "Release v0.2.0" && git tag -a v0.2.0 -m "Release v0.2.0" && git push origin HEAD v0.2.0
-```
+Releases follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and are made on GitHub by
+release-please: it keeps a release pull request ("chore: release X.Y.Z") with the next version and the new
+`CHANGELOG.md` section, and merging it tags, builds and publishes the release.
 
 See [docs/deployment/release-process.md](docs/deployment/release-process.md).

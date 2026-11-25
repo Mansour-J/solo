@@ -13,6 +13,7 @@
     "packages/api-client"
   ],
   "scripts": {
+    "prepare": "node -e \"try { require('child_process').execSync('git config core.hooksPath .githooks', { stdio: 'ignore' }) } catch {}\"",
     "dev": "npm run dev -w @solo/client",
     "build": "npm run build -w @solo/client",
     "typecheck": "npm run typecheck -w @solo/client && npm run typecheck -w @solo/api-client && tsc -p tsconfig.e2e.json",
@@ -45,7 +46,6 @@
     "stack:up": "docker compose up -d --wait",
     "stack:down": "docker compose down",
     "brand:sync": "node scripts/brand-sync.mjs",
-    "release:version": "node scripts/release-version.mjs",
     "local:serve": "cargo run --manifest-path services/local/Cargo.toml -- --data-dir data/local"
   },
   "devDependencies": {

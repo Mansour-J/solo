@@ -1,7 +1,9 @@
 name: Release
 
-# Push a tag vX.Y.Z (matching package.json; set it with `npm run release:version -- X.Y.Z`):
-#   1. checks versions, drafts a GitHub release with notes from the commits since the previous tag;
+# Builds the desktop installers and publishes a GitHub release for tag vX.Y.Z. Normally called by
+# release-please.yml when its release pull request is merged (it has already tagged the commit and
+# drafted the release with the CHANGELOG.md section as notes); pushing a tag by hand works too.
+#   1. checks the tag matches every version, finds (or drafts) the release;
 #   2. builds desktop installers for Linux (deb, rpm, AppImage), Windows (MSI, NSIS) and macOS (DMG);
 #   3. publishes the release once everything succeeded.
 #
@@ -20,6 +22,12 @@ on:
   push:
     tags: ['v*.*.*']
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      tag:
+        description: The release tag, vX.Y.Z
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -37,45 +45,66 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.meta.outputs.version }}
+      tag: ${{ steps.meta.outputs.tag }}
       publish: ${{ steps.meta.outputs.publish }}
       release_id: ${{ steps.release.outputs.id }}
     steps:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
+          ref: ${{ inputs.tag || github.ref }}
       - id: meta
         name: Check versions
+        env:
+          CALLED_TAG: ${{ inputs.tag }}
         run: |
           version=$(node -p "require('./package.json').version")
           echo "version=$version" >> "$GITHUB_OUTPUT"
-          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
-            [ "$GITHUB_REF_NAME" = "v$version" ] || { echo "::error::Tag $GITHUB_REF_NAME does not match package.json $version"; exit 1; }
+          tag="$CALLED_TAG"
+          if [ -z "$tag" ] && [ "$GITHUB_REF_TYPE" = "tag" ]; then tag="$GITHUB_REF_NAME"; fi
+          if [ -n "$tag" ]; then
+            [ "$tag" = "v$version" ] || { echo "::error::Tag $tag does not match package.json $version"; exit 1; }
             for manifest in services/api/Cargo.toml services/local/Cargo.toml apps/client/src-tauri/Cargo.toml; do
-              cargo_version=$(sed -n 's/^version = "\(.*\)"/\1/p' "$manifest" | head -1)
+              cargo_version=$(grep -m1 "^version = " "$manifest" | cut -d'"' -f2)
               [ "$cargo_version" = "$version" ] || { echo "::error::$manifest is $cargo_version, expected $version"; exit 1; }
             done
+            echo "tag=$tag" >> "$GITHUB_OUTPUT"
             echo "publish=true" >> "$GITHUB_OUTPUT"
           else
             echo "publish=false" >> "$GITHUB_OUTPUT"
           fi
       - name: Release notes
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
         run: |
-          previous=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || true)
-          range=${previous:+$previous..}HEAD
+          # This version's CHANGELOG.md section (written by release-please), else the commit subjects.
+          awk -v v="$VERSION" '
+            /^## / { if (found) exit; if (index($0, "## [" v "]") == 1 || index($0, "## " v) == 1) { found = 1; next } }
+            found { print }
+          ' CHANGELOG.md > changes.md
+          if [ ! -s changes.md ]; then
+            previous=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || true)
+            git log --no-merges --pretty='- %s' "${previous:+$previous..}HEAD" | head -60 > changes.md
+          fi
           {
-            echo "## Changes"
-            git log --no-merges --pretty='- %s' "$range" | head -60
+            cat changes.md
             echo
-            echo "## Upgrading"
-            echo "Install the new version over the old one (or use Settings › Updates). Your books are kept and updated when it starts."
+            echo "### Upgrading"
+            echo "Install the new version over the old one, or use Settings › Updates in the app. Your books are kept and updated when it starts."
           } > notes.md
       - id: release
         if: steps.meta.outputs.publish == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.meta.outputs.tag }}
         run: |
-          id=$(gh api "repos/$GITHUB_REPOSITORY/releases" -f tag_name="$GITHUB_REF_NAME" -f name="$GITHUB_REF_NAME" \
-            -F draft=true -F body=@notes.md --jq .id)
+          # release-please has usually drafted it already (drafts aren't found by tag, so list them).
+          id=$(gh api "repos/$GITHUB_REPOSITORY/releases?per_page=30" --jq ".[] | select(.tag_name == \"$TAG\") | .id" | head -1)
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/releases/$id" -F draft=true -F body=@notes.md > /dev/null
+          else
+            id=$(gh api "repos/$GITHUB_REPOSITORY/releases" -f tag_name="$TAG" -f name="$TAG" -F draft=true -F body=@notes.md --jq .id)
+          fi
           echo "id=$id" >> "$GITHUB_OUTPUT"
 
   desktop:
@@ -101,6 +130,8 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.tag || github.ref }}
       - name: Linux build dependencies
         if: runner.os == 'Linux'
         run: |
@@ -208,4 +239,5 @@ jobs:
     steps:
       - env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release edit "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --draft=false --latest
+          TAG: ${{ needs.prepare.outputs.tag }}
+        run: gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false --latest

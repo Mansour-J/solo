@@ -1,0 +1,44 @@
+name: Release Please
+
+# On every push to main, release-please reads the Conventional Commits since the last release and keeps
+# a release pull request ("chore: release X.Y.Z") up to date: the next semantic version in every
+# package.json, Cargo.toml and lockfile, and the new CHANGELOG.md section. Merging that pull request
+# tags vX.Y.Z, creates a draft GitHub release with the changelog as its notes, and calls the Release
+# workflow, which builds the installers, uploads them and publishes the release.
+# Config: release-please-config.json and .release-please-manifest.json (docs/deployment/release-process.md).
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: release-please
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    name: Release pull request
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  build:
+    name: Build and publish
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    # A tag pushed with GITHUB_TOKEN doesn't start other workflows, so the release build is called here.
+    uses: ./.github/workflows/release.yml
+    with:
+      tag: ${{ needs.release-please.outputs.tag_name }}
+    secrets: inherit

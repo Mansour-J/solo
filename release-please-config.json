@@ -1,0 +1,50 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bootstrap-sha": "b5aed84722b62eb12ff3e97581e8586f1c7ded7f",
+  "include-component-in-tag": false,
+  "include-v-in-tag": true,
+  "pull-request-title-pattern": "chore: release ${version}",
+  "packages": {
+    ".": {
+      "release-type": "node",
+      "package-name": "solo",
+      "changelog-path": "CHANGELOG.md",
+      "release-as": "0.4.0",
+      "bump-minor-pre-major": true,
+      "bump-patch-for-minor-pre-major": false,
+      "draft": true,
+      "force-tag-creation": true,
+      "changelog-sections": [
+        { "type": "feat", "section": "Features" },
+        { "type": "fix", "section": "Bug fixes" },
+        { "type": "perf", "section": "Performance" },
+        { "type": "revert", "section": "Reverts" },
+        { "type": "deps", "section": "Dependencies" },
+        { "type": "docs", "section": "Documentation", "hidden": true },
+        { "type": "refactor", "section": "Code refactoring", "hidden": true },
+        { "type": "test", "section": "Tests", "hidden": true },
+        { "type": "build", "section": "Build system", "hidden": true },
+        { "type": "ci", "section": "Continuous integration", "hidden": true },
+        { "type": "style", "section": "Styles", "hidden": true },
+        { "type": "chore", "section": "Miscellaneous", "hidden": true }
+      ],
+      "extra-files": [
+        { "type": "json", "path": "apps/client/package.json", "jsonpath": "$.version" },
+        { "type": "json", "path": "apps/client/package.json", "jsonpath": "$.dependencies['@solo/api-client']" },
+        { "type": "json", "path": "packages/api-client/package.json", "jsonpath": "$.version" },
+        { "type": "json", "path": "package-lock.json", "jsonpath": "$.packages['apps/client'].version" },
+        { "type": "json", "path": "package-lock.json", "jsonpath": "$.packages['apps/client'].dependencies['@solo/api-client']" },
+        { "type": "json", "path": "package-lock.json", "jsonpath": "$.packages['packages/api-client'].version" },
+        { "type": "toml", "path": "services/api/Cargo.toml", "jsonpath": "$.package.version" },
+        { "type": "toml", "path": "services/local/Cargo.toml", "jsonpath": "$.package.version" },
+        { "type": "toml", "path": "apps/client/src-tauri/Cargo.toml", "jsonpath": "$.package.version" },
+        { "type": "toml", "path": "services/api/Cargo.lock", "jsonpath": "$.package[?(@.name.value == 'solo-api')].version" },
+        { "type": "toml", "path": "services/local/Cargo.lock", "jsonpath": "$.package[?(@.name.value == 'solo-api')].version" },
+        { "type": "toml", "path": "services/local/Cargo.lock", "jsonpath": "$.package[?(@.name.value == 'solo-local')].version" },
+        { "type": "toml", "path": "apps/client/src-tauri/Cargo.lock", "jsonpath": "$.package[?(@.name.value == 'solo-api')].version" },
+        { "type": "toml", "path": "apps/client/src-tauri/Cargo.lock", "jsonpath": "$.package[?(@.name.value == 'solo-local')].version" },
+        { "type": "toml", "path": "apps/client/src-tauri/Cargo.lock", "jsonpath": "$.package[?(@.name.value == 'solo-desktop')].version" }
+      ]
+    }
+  }
+}
