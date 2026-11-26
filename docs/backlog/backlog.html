@@ -1250,8 +1250,8 @@
                 "text": "Semantic versions from Conventional Commits: the `commit-msg` hook and CI's `commits` job check every message (`scripts/commit-check.mjs`); release-please keeps a release pull request with the next version in every manifest and lockfile and the new `CHANGELOG.md` section, and merging it tags, builds and publishes (`release-please.yml` calls `release.yml`)."
               },
               {
-                "done": false,
-                "text": "The next version (v0.4.0) released from the public repository through the release pull request."
+                "done": true,
+                "text": "The next version (v0.4.0) released from the public repository through the release pull request (2026-11-26; its publish step was finished by hand and the workflow fixed), then v0.4.1 entirely by the workflow."
               },
               {
                 "done": false,
@@ -1259,7 +1259,7 @@
               }
             ],
             "code": "`.github/workflows/release-please.yml`, `.github/workflows/release.yml`, `release-please-config.json`, `scripts/commit-check.mjs`, `docs/deployment/release-process.md`",
-            "notes": "v0.2.0 and v0.3.0 are on `solo-old`. A new updater key pair was made on 2026-11-26 (the first was lost before any app had a feed); `release-as: 0.4.0` in `release-please-config.json` is for the first release only."
+            "notes": "v0.2.0 and v0.3.0 are on `solo-old`. A new updater key pair was made on 2026-11-26 (the first was lost before any app had a feed); `release-as: 0.4.0` was for the first release only and has been removed. `packages/api-client/openapi.json` carries the version too and is one of release-please's extra files (the 0.4.1 release commit failed the API-client check without it)."
           },
           {
             "id": "SL-011",
@@ -1395,6 +1395,7 @@
             "title": "Check for updates and update from the desktop app",
             "section": "foundation",
             "status": "In review",
+            "statusNote": "waiting on the owner to update the installed 0.4.0 to 0.4.1 from Settings › Updates (2026-11-26)",
             "type": "Feature",
             "priority": "P1",
             "size": "M",
@@ -1422,8 +1423,12 @@
                 "text": "A build without a feed address doesn't show the entry (no dead UI). Tests: the shell's feed and error handling, the settings page and menu."
               },
               {
+                "done": true,
+                "text": "Publish installers and `latest.json` publicly, set `UPDATER_ENDPOINT` and release: v0.4.0 and v0.4.1 are public with signed packages, and the feed (`releases/latest/download/latest.json`) offers 0.4.1, signed for that version, with a Windows package that downloads without signing in."
+              },
+              {
                 "done": false,
-                "text": "Publish installers and `latest.json` publicly, set `UPDATER_ENDPOINT` and release, then update a real installed app end to end."
+                "text": "Update a real installed app end to end: Solo 0.4.0 is installed on the owner's computer; in Settings › Updates, *Update and restart* should leave 0.4.1 installed with the books intact."
               },
               {
                 "done": true,
