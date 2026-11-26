@@ -5,6 +5,16 @@ versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html), and 
 release's section from the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) merged
 since the one before (see `docs/deployment/release-process.md`).
 
+## [0.5.0](https://github.com/Mansour-J/solo/compare/v0.4.1...v0.5.0) (2026-11-26)
+
+
+### Features
+
+* **data:** back up the books to a file and restore them ([de20ba7](https://github.com/Mansour-J/solo/commit/de20ba70a1d4e42b9ca2d3a6107f87de18ee2a36))
+* **income-tax:** estimate ACC levies for each year ([7f20c8e](https://github.com/Mansour-J/solo/commit/7f20c8e722806366c56e11ee3561c3d05a35b8d7))
+* **insights:** a dashboard notice when business health finds something to fix now ([cff0ff5](https://github.com/Mansour-J/solo/commit/cff0ff53e07f32f136ca2482234c8ef03d5b4e79))
+* **settings:** business health checks that the business is set up properly ([314497b](https://github.com/Mansour-J/solo/commit/314497be49902c09a7431d6c01fcfc2bde16a2a1))
+
 ## [0.4.1](https://github.com/Mansour-J/solo/compare/v0.4.0...v0.4.1) (2026-11-25)
 
 
