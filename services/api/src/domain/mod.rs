@@ -3,6 +3,7 @@
 
 pub mod allocations;
 pub mod business;
+pub mod business_health;
 pub mod change_of_use;
 pub mod depreciation;
 pub mod documents;

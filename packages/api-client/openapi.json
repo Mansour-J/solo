@@ -3643,6 +3643,37 @@
         }
       }
     },
+    "/api/v1/businesses/{business_id}/health": {
+      "get": {
+        "tags": [
+          "businesses"
+        ],
+        "summary": "Every business health check with what it found, why it matters and where to fix it. Calculated on request.",
+        "operationId": "businesses_get_health",
+        "parameters": [
+          {
+            "name": "business_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessHealth"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/businesses/{business_id}/home-office": {
       "get": {
         "tags": [
@@ -8880,6 +8911,26 @@
           }
         }
       },
+      "BusinessHealth": {
+        "type": "object",
+        "required": [
+          "checked_at",
+          "checks"
+        ],
+        "properties": {
+          "checked_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "checks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HealthCheck"
+            },
+            "description": "Every check, in the order the screen shows them within each status."
+          }
+        }
+      },
       "BusinessInput": {
         "type": "object",
         "description": "Business profile as entered in onboarding and settings. Optional fields can be completed later.",
@@ -11170,6 +11221,74 @@
             "type": "string"
           }
         }
+      },
+      "HealthArea": {
+        "type": "string",
+        "description": "The part of the business a check belongs to.",
+        "enum": [
+          "details",
+          "gst",
+          "getting_paid",
+          "records"
+        ]
+      },
+      "HealthCheck": {
+        "type": "object",
+        "required": [
+          "key",
+          "area",
+          "title",
+          "status",
+          "finding",
+          "why"
+        ],
+        "properties": {
+          "action": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "What to do, when there's something to do."
+          },
+          "area": {
+            "$ref": "#/components/schemas/HealthArea"
+          },
+          "finding": {
+            "type": "string",
+            "description": "What the check found, in plain language."
+          },
+          "key": {
+            "type": "string",
+            "description": "Stable identifier, e.g. `gst-number`."
+          },
+          "link": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The screen that fixes it."
+          },
+          "status": {
+            "$ref": "#/components/schemas/HealthStatus"
+          },
+          "title": {
+            "type": "string"
+          },
+          "why": {
+            "type": "string",
+            "description": "Why it matters. Shown with problems."
+          }
+        }
+      },
+      "HealthStatus": {
+        "type": "string",
+        "enum": [
+          "critical",
+          "warning",
+          "recommendation",
+          "passed",
+          "not_applicable"
+        ]
       },
       "HomeOfficeClaim": {
         "type": "object",

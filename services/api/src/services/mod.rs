@@ -4,6 +4,7 @@
 pub mod accountant_pack;
 pub mod allocations;
 pub mod annual;
+pub mod business_health;
 pub mod businesses;
 pub mod change_of_use;
 pub mod customers;

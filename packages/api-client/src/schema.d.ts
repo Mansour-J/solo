@@ -775,6 +775,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/businesses/{business_id}/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Every business health check with what it found, why it matters and where to fix it. Calculated on request. */
+        get: operations["businesses_get_health"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/businesses/{business_id}/home-office": {
         parameters: {
             query?: never;
@@ -2154,6 +2171,12 @@ export interface components {
             /** Format: date-time */
             updated_at: string;
         };
+        BusinessHealth: {
+            /** Format: date-time */
+            checked_at: string;
+            /** @description Every check, in the order the screen shows them within each status. */
+            checks: components["schemas"]["HealthCheck"][];
+        };
         /** @description Business profile as entered in onboarding and settings. Optional fields can be completed later. */
         BusinessInput: {
             address?: components["schemas"]["Address"];
@@ -3030,6 +3053,28 @@ export interface components {
             status: string;
             version: string;
         };
+        /**
+         * @description The part of the business a check belongs to.
+         * @enum {string}
+         */
+        HealthArea: "details" | "gst" | "getting_paid" | "records";
+        HealthCheck: {
+            /** @description What to do, when there's something to do. */
+            action?: string | null;
+            area: components["schemas"]["HealthArea"];
+            /** @description What the check found, in plain language. */
+            finding: string;
+            /** @description Stable identifier, e.g. `gst-number`. */
+            key: string;
+            /** @description The screen that fixes it. */
+            link?: string | null;
+            status: components["schemas"]["HealthStatus"];
+            title: string;
+            /** @description Why it matters. Shown with problems. */
+            why: string;
+        };
+        /** @enum {string} */
+        HealthStatus: "critical" | "warning" | "recommendation" | "passed" | "not_applicable";
         HomeOfficeClaim: {
             business_area: string;
             /**
@@ -6875,6 +6920,27 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    businesses_get_health: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BusinessHealth"];
                 };
             };
         };

@@ -2644,6 +2644,36 @@
             "labels": ["Third-party integration"]
           },
           {
+            "id": "SL-709",
+            "title": "Business health",
+            "section": "phase-7",
+            "status": "In review",
+            "statusNote": "pushed (2026-11-26); the dashboard notice next",
+            "type": "Feature",
+            "priority": "P2",
+            "size": "M",
+            "dependsOn": [],
+            "summary": "Settings › Business health answers \"is this business set up properly?\", next to System status (\"does the app work here?\") and the guide (\"how do I use it?\"). Each check says what it found, why it matters and links to the screen that fixes it, with a severity: *Fix now*, *Worth fixing*, *Suggestion*, *Passed* or *Doesn't apply*. Checks only what Solo has: no payment gateways, staff or SMS, and no duplicate-invoice-number check because numbering already skips used numbers.",
+            "criteria": [
+              {
+                "done": true,
+                "text": "`GET /businesses/{id}/health`: pure rules in `domain/business_health.rs` (unit-tested) over facts from the records: GST registration threshold, GST number and registration date (not applicable when unregistered), address, contact details, payment details, email (a warning when reminders are on without it), customers who owe money without an email address, and this financial year's expenses without a receipt (a warning when one claims GST over $50). Integration tests, including another owner getting 404."
+              },
+              {
+                "done": true,
+                "text": "Settings › Business health: the overall state, counts, problems first with *Why it matters* and a button to the fix (receipts open the expenses list filtered to *Missing receipt*), passed and inapplicable checks folded away, *Check again*. Component tests, an end-to-end journey, the guide step, light, dark and phone screenshots."
+              },
+              {
+                "done": true,
+                "text": "Committed and pushed; README features updated."
+              },
+              {
+                "done": false,
+                "text": "Follow-ups to decide: a dashboard notice when something is *Fix now*; a backup check once exports are recorded (nothing records when *Download data* was last used); more checks as modules grow (year-end steps, opening balances)."
+              }
+            ]
+          },
+          {
             "id": "SL-801",
             "title": "Income tax and ACC estimates",
             "section": "phase-8",

@@ -4,6 +4,7 @@
 pub mod allocations;
 pub mod annual;
 pub mod audit;
+pub mod business_health;
 pub mod businesses;
 pub mod customers;
 pub mod documents;

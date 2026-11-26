@@ -15,6 +15,8 @@ export default tseslint.config(
       'playwright-report',
       'test-results',
       'coverage',
+      // The desktop app's local server data (bundled PostgreSQL), when run with `npm run local:serve`.
+      'data',
     ],
   },
   {

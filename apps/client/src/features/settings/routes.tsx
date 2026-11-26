@@ -1,5 +1,6 @@
 import { Navigate, type RouteObject } from 'react-router';
 import { ExpenseCategoriesSettings } from '@/features/expenses/ExpenseCategoriesSettings';
+import { BusinessHealthPage } from '@/features/health/BusinessHealthPage';
 import { MileageSettings } from '@/features/mileage/MileageSettings';
 import { UpdatesSettings } from '@/features/updates/UpdatesSettings';
 import { DataSettings, PreferencesSettings, ProfileSettings } from './AccountSettings';
@@ -18,6 +19,7 @@ export const settingsRoutes: RouteObject[] = [
       { path: 'invoicing', element: <InvoicingSettings /> },
       { path: 'expenses', element: <ExpenseCategoriesSettings /> },
       { path: 'mileage', element: <MileageSettings /> },
+      { path: 'health', element: <BusinessHealthPage /> },
       { path: 'activity', element: <ActivitySettings /> },
       { path: 'businesses', element: <BusinessesSettings /> },
       { path: 'profile', element: <ProfileSettings /> },

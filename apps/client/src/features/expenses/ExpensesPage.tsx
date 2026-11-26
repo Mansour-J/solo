@@ -195,7 +195,8 @@ function ExpensesView({ business }: { business: Business }) {
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebouncedValue(search.trim(), 300);
-  const [receipt, setReceipt] = useState<ReceiptFilter>('any');
+  // `?receipt=missing` (from Business health) opens the list filtered.
+  const [receipt, setReceipt] = useState<ReceiptFilter>(() => (searchParams.get('receipt') === 'missing' ? 'missing' : 'any'));
   const [classification, setClassification] = useState<string | null>(null);
   const [page, setPage] = useState(1);
 

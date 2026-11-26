@@ -3,6 +3,7 @@
 
 pub mod allocations;
 pub mod annual;
+pub mod business_health;
 pub mod businesses;
 pub mod customers;
 pub mod expenses;
@@ -88,6 +89,7 @@ pub fn routes() -> OpenApiRouter<AppState> {
         .nest("/api/v1/meta", meta::router())
         .nest("/api/v1/users/me", users::router())
         .nest("/api/v1/businesses", businesses::router())
+        .nest("/api/v1/businesses", business_health::router())
         .nest("/api/v1/businesses", customers::router())
         .nest("/api/v1/businesses", invoices::router())
         .nest("/api/v1/businesses", expenses::router())

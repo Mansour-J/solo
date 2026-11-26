@@ -94,6 +94,9 @@ account or password. It opens straight into your books.
   key dates (GST returns, provisional and terminal tax, the income tax return, year end) with the days left
 - A step-by-step guide in the app for people new to bookkeeping: every feature in the order you use it,
   ending with the yearly report for your accountant, with links to each screen and your progress saved
+- Business health: checks your business is set up to issue correct tax invoices, keep the records IRD
+  expects and get paid (GST number and registration, contact and payment details, email, missing
+  receipts), says why each problem matters and links to the fix
 
 </details>
 
