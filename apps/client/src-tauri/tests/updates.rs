@@ -225,7 +225,9 @@ fn invoke(app: &tauri::App<MockRuntime>, cmd: &str, args: Value) -> Result<Value
         cmd: cmd.into(),
         callback: CallbackFn(0),
         error: CallbackFn(1),
-        url: "http://tauri.localhost".parse().expect("url"),
+        // The page's own address (tauri://localhost, or http://tauri.localhost on Windows): anything else is a
+        // remote origin, which may not call the app's commands.
+        url: webview.url().expect("the page's address"),
         body: InvokeBody::Json(args),
         headers: Default::default(),
         invoke_key: INVOKE_KEY.into(),
