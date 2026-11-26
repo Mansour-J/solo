@@ -38,7 +38,7 @@ export async function restartApp(): Promise<void> {
   await invoke('restart_app');
 }
 
-/** Whether this desktop build updates itself (its release feed is set), and its version (`updates.rs`). */
+/** Whether this desktop build updates itself (its release feed is set), and its version (`src-tauri/src/updates/`). */
 export interface UpdateSupport {
   enabled: boolean;
   current_version: string;

@@ -36,6 +36,7 @@
     "api:client": "node scripts/generate-api-client.mjs",
     "desktop:dev": "npm run tauri -w @solo/client -- dev --additional-watch-folders ../../../services/api/src --additional-watch-folders ../../../services/api/assets --additional-watch-folders ../../../services/local/src --additional-watch-folders ../../../database/migrations",
     "desktop:build": "npm run tauri -w @solo/client -- build",
+    "desktop:coverage:updates": "node scripts/updates-coverage.mjs",
     "db:up": "docker compose up -d --wait db",
     "db:migrate": "docker compose run --rm migrate",
     "db:info": "docker compose run --rm migrate info",

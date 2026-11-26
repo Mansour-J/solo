@@ -14,6 +14,7 @@ npm run check                         # tsc + eslint (0 warnings) + prettier --c
 npm run api:test                      # cargo test: API (unit + integration; needs the test DB, below) and the local server
 npm run local:serve                   # the desktop app's local server (embedded PostgreSQL + API) on its own
 npm run api:lint                      # cargo fmt --check + clippy -D warnings
+npm run desktop:coverage:updates      # desktop update tests, fail under 99% of lines (+ `npm run coverage -w @solo/client` for the update screen)
 npm run db:up && npm run db:migrate && npm run db:test:prepare
 npm run api:client                    # after ANY API change: regenerate packages/api-client
 npm run test:e2e                      # Playwright vs Vite on http://localhost:5173 proxying `npm run local:serve`
@@ -95,6 +96,8 @@ so never make it public or copy from its history.
   `release.yml` builds Linux, Windows and macOS installers and publishes the release
   (`docs/deployment/release-process.md`). GitHub does all building and releasing; nothing is built
   for release on this machine.
+- **Updates must always work** (a broken updater can't ship its own fix): the update code on both sides
+  is held at 99% coverage in CI (`docs/development/testing.md`); keep it there when you change it.
 - **Updates:** releases sign update packages with the key in the `TAURI_SIGNING_*` secrets (also in
   `~/.tauri/solo-updater.key*` here; never commit or print it) and publish `latest.json`; the
   `UPDATER_ENDPOINT` variable points every build at the latest release's `latest.json` (ADR 0015).

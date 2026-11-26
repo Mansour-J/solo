@@ -4,12 +4,15 @@ import userEvent from '@testing-library/user-event';
 import type { AvailableUpdate, InstallProgress, UpdateSupport } from '@/services/platform';
 import { SettingsLayout } from '@/features/settings/SettingsLayout';
 import { renderWithProviders } from '@/test/render';
+import { updateErrorMessage } from './api';
 import { UpdatesSettings } from './UpdatesSettings';
 
 const { native } = vi.hoisted(() => ({
   native: {
     desktop: true,
-    support: { enabled: true, current_version: '0.3.0' } as UpdateSupport,
+    support: { enabled: true, current_version: '0.3.0' } as UpdateSupport | null,
+    /** Errors the next support queries fail with. */
+    supportFailures: [] as Error[],
     check: (async () => null) as () => Promise<AvailableUpdate | null>,
     install: (async () => undefined) as (onProgress: (p: InstallProgress) => void) => Promise<void>,
   },
@@ -17,7 +20,11 @@ const { native } = vi.hoisted(() => ({
 vi.mock('@/services/platform', async (importOriginal) => ({
   ...(await importOriginal<typeof Platform>()),
   isTauri: () => native.desktop,
-  updateSupport: async () => (native.desktop ? native.support : null),
+  updateSupport: async () => {
+    const failure = native.supportFailures.shift();
+    if (failure) throw failure;
+    return native.desktop ? native.support : null;
+  },
   checkForUpdate: () => native.check(),
   installUpdate: (onProgress: (p: InstallProgress) => void) => native.install(onProgress),
 }));
@@ -25,6 +32,7 @@ vi.mock('@/services/platform', async (importOriginal) => ({
 afterEach(() => {
   native.desktop = true;
   native.support = { enabled: true, current_version: '0.3.0' };
+  native.supportFailures = [];
   native.check = async () => null;
   native.install = async () => undefined;
 });
@@ -100,6 +108,51 @@ describe('checking for updates', () => {
     native.desktop = false;
     renderWithProviders(<UpdatesSettings />);
     expect(screen.getByText('Only in the desktop app')).toBeInTheDocument();
+  });
+});
+
+describe('the details', () => {
+  it('shows a download without a known size, and an update without a date or notes', async () => {
+    native.check = async () => ({ ...newer, published_at: null, notes: null });
+    let report: (p: InstallProgress) => void = () => undefined;
+    native.install = (onProgress) => {
+      report = onProgress;
+      return new Promise<void>(() => undefined);
+    };
+    renderWithProviders(<UpdatesSettings />);
+    await userEvent.click(await screen.findByRole('button', { name: 'Check for updates' }));
+    expect(await screen.findByText('Version 0.4.0 is available')).toBeInTheDocument();
+    expect(screen.queryByText(/Released/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Faster reports/)).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Update and restart' }));
+    report({ event: 'downloading', downloaded: 4096, total: null });
+    await waitFor(() => expect(screen.getByText('Downloading…')).toBeInTheDocument());
+    report({ event: 'downloading', downloaded: 4096, total: 1024 });
+    expect(await screen.findByText('Downloading… 100%')).toBeInTheDocument();
+  });
+
+  it('can try again when the app can’t say whether it updates itself', async () => {
+    // The first try and its two retries (services/api/query.ts) fail.
+    native.supportFailures = [1, 2, 3].map(() => new Error('The desktop app didn’t answer.'));
+    renderWithProviders(<UpdatesSettings />);
+    expect(await screen.findByText('Couldn’t load this', undefined, { timeout: 10_000 })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(await screen.findByRole('button', { name: 'Check for updates' })).toBeInTheDocument();
+  });
+
+  it('shows an error state when the app gives no answer', async () => {
+    native.support = null;
+    renderWithProviders(<UpdatesSettings />);
+    expect(await screen.findByText('Couldn’t load this')).toBeInTheDocument();
+  });
+
+  it('turns any failure into words', () => {
+    expect(updateErrorMessage('Check for updates first.')).toBe('Check for updates first.');
+    expect(updateErrorMessage(new Error('The download didn’t finish.'))).toBe('The download didn’t finish.');
+    expect(updateErrorMessage('')).toBe('Something went wrong. Try again.');
+    expect(updateErrorMessage(new Error(''))).toBe('Something went wrong. Try again.');
+    expect(updateErrorMessage({ code: 1 })).toBe('Something went wrong. Try again.');
   });
 });
 

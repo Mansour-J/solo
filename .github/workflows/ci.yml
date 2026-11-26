@@ -160,6 +160,8 @@ jobs:
       - name: Backlog data is valid
         run: npm run backlog -- check
       - run: npm test
+      - name: Update screens and calls are covered (99%)
+        run: npm run coverage -w @solo/client
       - run: npm run build
       - name: Brand configuration is applied to the desktop app
         run: npm run brand:sync -- --check
@@ -254,6 +256,37 @@ jobs:
             --ignore RUSTSEC-2026-0367 --ignore RUSTSEC-2026-0368 --ignore RUSTSEC-2026-0369 \
             --ignore RUSTSEC-2026-0429 --ignore RUSTSEC-2026-0545 --ignore RUSTSEC-2026-0548
           cargo audit --file services/local/Cargo.lock
+
+  updates:
+    # Checking for and installing updates must always work: a broken updater can't deliver its own fix.
+    # Runs on pull requests too (the desktop job below only runs on main).
+    name: Desktop updates (99% coverage)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+      - name: Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev libssl-dev libxdo-dev
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: llvm-tools-preview, clippy
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-llvm-cov
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: apps/client/src-tauri
+      - run: npm ci
+      # The app embeds the built web client.
+      - run: npm run build
+      - run: cargo clippy --manifest-path apps/client/src-tauri/Cargo.toml --all-targets --locked -- -D warnings
+      - run: npm run desktop:coverage:updates
 
   desktop:
     name: Desktop shell (Rust tests + Linux bundle)

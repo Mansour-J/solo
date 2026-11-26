@@ -14,7 +14,7 @@ downloaded anonymously, and a token can't be built into the app. Hermes Hub solv
 
 ## Decision
 
-- **Tauri's updater, driven from Rust.** `src-tauri/src/updates.rs` has three commands: `update_support`
+- **Tauri's updater, driven from Rust.** `src-tauri/src/updates/` has three commands: `update_support`
   (whether this build has a feed, and its version), `update_check` (asks the feed, keeps the update it
   found) and `update_install` (downloads, verifies, installs, then stops the local server and restarts).
   The page never calls the updater plugin directly, so the capability grants nothing for it. On Windows

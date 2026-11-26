@@ -32,7 +32,7 @@ solo-local = { path = "../../../services/local" }
 tokio = { version = "1.54.1", features = ["signal", "macros"] }
 
 [target.'cfg(any(target_os = "macos", target_os = "windows", target_os = "linux"))'.dependencies]
-# Signed in-app updates from the release feed (updates.rs, ADR 0015).
+# Signed in-app updates from the release feed (src/updates/, ADR 0015).
 tauri-plugin-updater = "2"
 
 [profile.release]
@@ -41,3 +41,8 @@ lto = true
 opt-level = "s"
 panic = "abort"
 strip = true
+
+[dev-dependencies]
+base64 = "0.22"
+minisign = "0.10"
+tauri = { version = "2", features = ["test"] }

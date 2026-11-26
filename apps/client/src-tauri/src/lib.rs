@@ -6,13 +6,13 @@
 //!
 //! * `backend_status`, `restart_app` — the local server's address and key, and recovering from a
 //!   failed start (see `backend.rs`).
-//! * `update_*` — check for, install and restart on a signed update (see `updates.rs`, desktop only).
+//! * `update_*` — check for, install and restart on a signed update (see `updates/`, desktop only).
 //! * `opener` — open external links in the system browser.
 //! * `log` — debug-build logging.
 
 mod backend;
 #[cfg(desktop)]
-mod updates;
+pub mod updates;
 
 use tauri::Manager;
 
@@ -20,9 +20,7 @@ use tauri::Manager;
 pub fn run() {
     let builder = tauri::Builder::default().plugin(tauri_plugin_opener::init());
     #[cfg(desktop)]
-    let builder = builder
-        .plugin(tauri_plugin_updater::Builder::new().build())
-        .manage(updates::PendingUpdate::default());
+    let builder = builder.plugin(tauri_plugin_updater::Builder::new().build());
     builder
         .setup(|app| {
             if cfg!(debug_assertions) {
@@ -36,21 +34,29 @@ pub fn run() {
             // large and live, so they must not sync between computers with a roaming profile.
             let data_dir = app.path().app_local_data_dir()?;
             app.manage(backend::Backend::default());
+            #[cfg(desktop)]
+            app.manage(updates::Updates::new(updates::Desktop(
+                app.handle().clone(),
+            )));
             backend::Backend::start(app.handle(), data_dir);
             #[cfg(unix)]
             exit_on_signal(app.handle().clone());
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![
-            backend::backend_status,
-            backend::restart_app,
+        .invoke_handler({
+            // The update commands have their own handler (`updates::commands`), which the tests use too.
+            let commands: fn(tauri::ipc::Invoke) -> bool =
+                tauri::generate_handler![backend::backend_status, backend::restart_app];
             #[cfg(desktop)]
-            updates::update_support,
-            #[cfg(desktop)]
-            updates::update_check,
-            #[cfg(desktop)]
-            updates::update_install,
-        ])
+            let update_commands = updates::commands::<tauri::Wry>();
+            move |invoke| {
+                #[cfg(desktop)]
+                if invoke.message.command().starts_with(updates::PREFIX) {
+                    return update_commands(invoke);
+                }
+                commands(invoke)
+            }
+        })
         .build(tauri::generate_context!())
         .expect("error while building the desktop app")
         .run(|app, event| {

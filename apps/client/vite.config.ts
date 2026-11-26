@@ -94,6 +94,16 @@ export default defineConfig(({ mode }) => {
       include: ['src/**/*.test.{ts,tsx}'],
       css: false,
       testTimeout: 20000,
+      // `npm run coverage`: the update code (Settings › Updates and the calls into the desktop shell) must
+      // always work, since a broken updater can't deliver its own fix. The Rust side is measured by
+      // scripts/updates-coverage.mjs.
+      coverage: {
+        provider: 'v8',
+        include: ['src/features/updates/**/*.{ts,tsx}', 'src/services/platform.ts'],
+        exclude: ['**/*.test.{ts,tsx}'],
+        reporter: ['text'],
+        thresholds: { lines: 99, statements: 99, functions: 99, branches: 99 },
+      },
     },
   };
 });

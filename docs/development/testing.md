@@ -37,6 +37,35 @@ Each kind of test must cover at least 90% of lines on its own (cargo-llvm-cov; i
 | `npm run api:coverage:unit` | Unit tests (`--lib`) over `domain/`, where the rules live | 99.1% of lines |
 | `npm run api:coverage:integration` | Integration tests (`tests/*.rs`, no unit tests) over the whole crate, including `main.rs` and configuration | 93.1% of lines |
 
+### Updates (99%)
+
+Checking for and installing updates must always work: a broken updater can't deliver its own fix. Both
+sides have a 99% gate, run in CI on every pull request:
+
+| Command | Measures | Last measured |
+|---|---|---|
+| `npm run desktop:coverage:updates` | `apps/client/src-tauri/tests/updates.rs` over `src/updates/mod.rs` | 100% of lines |
+| `npm run coverage -w @solo/client` | Settings › Updates (`features/updates/`) and the shell calls (`services/platform.ts`) | 100% of lines, branches and functions |
+
+- The Rust tests run the real updater plugin in a mock Tauri app against a feed on 127.0.0.1, signed with
+  a throwaway minisign key as releases are. They check:
+  - a newer version is offered with its date and notes;
+  - the latest version, a 204 and an older version offer nothing;
+  - a failed or malformed check says to try again;
+  - a genuine package downloads with progress, installs and restarts;
+  - a changed package, another key, an old release announced as a new version, or a signature without a
+    version is refused;
+  - a failed download or install keeps the update to try again.
+  They also call the commands through IPC with the page's argument names, and check that
+  `tauri.conf.json` ships the public key with `requireSignedVersion`.
+- They're an integration test (`tests/`) because on Windows only test targets can be given the manifest a
+  Tauri app needs to start (`build.rs`).
+- Not measured:
+  - `src/updates/system.rs`: stopping the local database, running the installer and restarting, which
+    would replace the test program. It's checked by updating a real installed app
+    (`docs/deployment/release-process.md`).
+  - `#[tauri::command]` lines: the macro leaves an uncalled closure there.
+
 Integration tests carry most of the weight: they mock nothing below HTTP, so they catch SQL, row-level
 security, posting and serialisation bugs that unit tests can't. A new endpoint gets an integration
 test for its happy path, validation, conflicts and isolation; the `maintenance.rs` suite covers

@@ -1424,9 +1424,13 @@
               {
                 "done": false,
                 "text": "Publish installers and `latest.json` publicly, set `UPDATER_ENDPOINT` and release, then update a real installed app end to end."
+              },
+              {
+                "done": true,
+                "text": "Checking for and installing updates held at 99% coverage in CI on both sides: `npm run desktop:coverage:updates` (the real updater against a signed local feed, including tampered, wrong-key and downgraded packages) and `npm run coverage -w @solo/client` (Settings › Updates and the shell calls)."
               }
             ],
-            "code": "`apps/client/src-tauri/src/updates.rs`, `apps/client/src/features/updates/`, `.github/workflows/release.yml`. Decision: [ADR 0015](../decisions/0015-desktop-updates.md)."
+            "code": "`apps/client/src-tauri/src/updates/` (tests in `apps/client/src-tauri/tests/updates.rs`), `apps/client/src/features/updates/`, `.github/workflows/release.yml`. Decision: [ADR 0015](../decisions/0015-desktop-updates.md)."
           },
           {
             "id": "SL-018",
