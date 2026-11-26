@@ -31,6 +31,7 @@
         { "type": "json", "path": "apps/client/package.json", "jsonpath": "$.version" },
         { "type": "json", "path": "apps/client/package.json", "jsonpath": "$.dependencies['@solo/api-client']" },
         { "type": "json", "path": "packages/api-client/package.json", "jsonpath": "$.version" },
+        { "type": "json", "path": "packages/api-client/openapi.json", "jsonpath": "$.info.version" },
         { "type": "json", "path": "package-lock.json", "jsonpath": "$.packages['apps/client'].version" },
         { "type": "json", "path": "package-lock.json", "jsonpath": "$.packages['apps/client'].dependencies['@solo/api-client']" },
         { "type": "json", "path": "package-lock.json", "jsonpath": "$.packages['packages/api-client'].version" },
