@@ -102,6 +102,25 @@ async fn gst_customers_and_receipts() {
     assert_eq!(check(&h, "address")["status"], "passed");
     assert_eq!(check(&h, "contact")["status"], "passed");
 
+    // What to fix now is also a dashboard notice, linking here.
+    let insights = app
+        .get(
+            &format!("/api/v1/businesses/{business}/insights"),
+            &user.auth(),
+        )
+        .await;
+    assert_eq!(insights.status, StatusCode::OK, "{}", insights.body);
+    let notice = insights.body["notices"]
+        .as_array()
+        .expect("notices")
+        .iter()
+        .find(|n| n["key"] == "health:gst-number")
+        .expect("fix-now notice")
+        .clone();
+    assert_eq!(notice["message"], check(&h, "gst-number")["finding"]);
+    assert_eq!(notice["link"], "/settings/health");
+    assert_eq!(notice["tone"], "warning");
+
     // A customer with no email address owes money; one with an address has paid in full.
     let without = post(
         &app,

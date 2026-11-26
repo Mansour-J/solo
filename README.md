@@ -96,7 +96,8 @@ account or password. It opens straight into your books.
   ending with the yearly report for your accountant, with links to each screen and your progress saved
 - Business health: checks your business is set up to issue correct tax invoices, keep the records IRD
   expects and get paid (GST number and registration, contact and payment details, email, missing
-  receipts), says why each problem matters and links to the fix
+  receipts), says why each problem matters and links to the fix; anything to fix now is also a
+  dashboard notice
 
 </details>
 

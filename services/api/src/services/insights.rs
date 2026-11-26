@@ -12,6 +12,7 @@ use utoipa::ToSchema;
 
 use crate::context::BusinessContext;
 use crate::domain::business::{ReportingBasis, financial_year};
+use crate::domain::business_health::fix_now_notice;
 use crate::domain::insights::{
     CONCENTRATION_WARNING_PERCENT, Figure, MIN_NOTABLE_CHANGE, MIN_SAMPLE, Tone, Trend, average,
     must_register_for_gst, notable_growth, percent_change, percent_of, recurring, trend,
@@ -22,6 +23,7 @@ use crate::error::{AppError, AppResult, FieldErrors};
 use crate::repositories::allocations as alloc_repo;
 use crate::repositories::insights as repo;
 use crate::repositories::reports::{self, MonthTotals};
+use crate::services::business_health;
 use crate::services::businesses::business_today;
 use crate::services::invoices::{clean, load_business};
 use crate::state::AppState;
@@ -1101,6 +1103,7 @@ fn notices(d: &Data, s: &Spending, w: &Window, x: &Writer) -> Vec<Notice> {
 // ─── Endpoints ──────────────────────────────────────────────────────────────
 
 pub async fn build(state: &AppState, ctx: &BusinessContext) -> AppResult<Insights> {
+    let setup = business_health::build(state, ctx).await?;
     let mut tx = state
         .db
         .begin_business(ctx.user_id(), ctx.business_id)
@@ -1165,7 +1168,23 @@ pub async fn build(state: &AppState, ctx: &BusinessContext) -> AppResult<Insight
             "This appears once you’ve recorded money received or invoices to be paid.",
         ),
     ];
-    let all_notices = notices(&data, &spend, &w, &x);
+    let mut all_notices = notices(&data, &spend, &w, &x);
+    // Setup problems to fix now come first, after the GST threshold.
+    if let Some((key, message)) = fix_now_notice(&setup.checks) {
+        let at = all_notices
+            .iter()
+            .take_while(|n| n.key == "gst-threshold")
+            .count();
+        all_notices.insert(
+            at,
+            Notice {
+                key,
+                message,
+                tone: Tone::Warning,
+                link: Some("/settings/health".into()),
+            },
+        );
+    }
     Ok(Insights {
         generated_on: today,
         currency: business.currency.clone(),

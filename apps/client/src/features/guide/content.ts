@@ -418,7 +418,7 @@ export const GUIDE_CHAPTERS: GuideChapter[] = [
       },
       {
         title: 'Check your business is set up properly',
-        body: '**Settings › Business health** checks this business is ready to issue correct invoices, keep the records IRD expects and get paid: your GST number and registration date, your address and contact details, how customers pay you, email for invoices and reminders, customers who owe you without an email address, and expenses without a receipt. Problems come first, under **Fix now**, **Worth fixing** and **Suggestions**, each saying why it matters with a button to the screen that fixes it. Choose **Check again** after fixing something.',
+        body: '**Settings › Business health** checks this business is ready to issue correct invoices, keep the records IRD expects and get paid: your GST number and registration date, your address and contact details, how customers pay you, email for invoices and reminders, customers who owe you without an email address, and expenses without a receipt. Problems come first, under **Fix now**, **Worth fixing** and **Suggestions**, each saying why it matters with a button to the screen that fixes it. Choose **Check again** after fixing something. Anything to fix now also shows as a notice on the dashboard until it’s fixed.',
         link: { to: '/settings/health', label: 'Open business health' },
         tip: 'Checks that don’t apply to you, such as the GST number when you aren’t registered for GST, are listed under **Doesn’t apply**.',
       },

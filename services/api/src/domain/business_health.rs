@@ -388,6 +388,36 @@ pub fn checks(f: &Facts) -> Vec<HealthCheck> {
     out
 }
 
+/// The dashboard notice for checks to fix now, as (key, message). The GST threshold has its own
+/// notice in Insights with the sales figure, so it is left out here. The key names the checks, so a
+/// dismissed notice comes back when another one needs fixing.
+pub fn fix_now_notice(checks: &[HealthCheck]) -> Option<(String, String)> {
+    let fix: Vec<&HealthCheck> = checks
+        .iter()
+        .filter(|c| c.status == HealthStatus::Critical && c.key != "gst-threshold")
+        .collect();
+    let message = match fix.as_slice() {
+        [] => return None,
+        [one] => one.finding.clone(),
+        many => format!(
+            "Business health found {} to fix now: {}.",
+            plural(many.len() as i64, "thing", "things"),
+            list(&many.iter().map(|c| c.title).collect::<Vec<_>>())
+        ),
+    };
+    let keys: Vec<&str> = fix.iter().map(|c| c.key).collect();
+    Some((format!("health:{}", keys.join("+")), message))
+}
+
+/// "a", "a and b", "a, b and c".
+fn list(items: &[&str]) -> String {
+    match items {
+        [] => String::new(),
+        [one] => (*one).to_owned(),
+        [rest @ .., last] => format!("{} and {last}", rest.join(", ")),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -580,5 +610,39 @@ mod tests {
             find(&checks(&single), "receipts").finding,
             "1 expense this financial year has no receipt, including one that claims GST over $50."
         );
+    }
+
+    #[test]
+    fn checks_to_fix_now_become_one_dashboard_notice() {
+        assert_eq!(fix_now_notice(&checks(&healthy())), None);
+
+        // Over the threshold has its own notice in Insights.
+        let over = Facts {
+            gst_registered: false,
+            over_gst_threshold: true,
+            ..healthy()
+        };
+        assert_eq!(fix_now_notice(&checks(&over)), None);
+
+        let no_number = Facts {
+            has_gst_number: false,
+            ..healthy()
+        };
+        let (key, message) = fix_now_notice(&checks(&no_number)).expect("notice");
+        assert_eq!(key, "health:gst-number");
+        assert_eq!(message, find(&checks(&no_number), "gst-number").finding);
+
+        let mut two = checks(&no_number);
+        two.iter_mut()
+            .find(|c| c.key == "address")
+            .expect("address")
+            .status = HealthStatus::Critical;
+        let (key, message) = fix_now_notice(&two).expect("notice");
+        assert_eq!(key, "health:gst-number+address");
+        assert_eq!(
+            message,
+            "Business health found 2 things to fix now: GST number and Business address."
+        );
+        assert_eq!(list(&["a", "b", "c"]), "a, b and c");
     }
 }
