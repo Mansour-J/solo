@@ -7,6 +7,7 @@ import { EmptyBlock, ErrorState, ListSkeleton, SectionCard } from '@/components/
 import { useCurrentBusiness } from '@/features/businesses/api';
 import { MovementForm } from '@/features/yearend/MovementsPanel';
 import { formatDate } from '@/lib/format';
+import { AccLevies } from './AccLevies';
 import { PAYMENT_STATUS, percent, useIncomeTax, type TaxPayment, type TaxYear } from './api';
 
 function StatusBadge({ status }: { status: TaxPayment['status'] }) {
@@ -209,13 +210,13 @@ export function IncomeTaxPage() {
             <Payments year={year} currency={business.currency} onPay={setPaying} />
           </Stack>
         </SectionCard>
+        <AccLevies year={year} settings={data.acc_settings} />
         <Text size="xs" c="dimmed">
-          An estimate from your business records only: other income (wages, interest, rent), ACC levies, tax credits and losses aren’t
-          included. Payments recorded under Year end › Money in and out (income tax paid to IRD) settle the earliest due date first. Under
-          IRD’s standard option, when your residual income tax is under $60,000 IRD doesn’t charge interest before the terminal tax date
-          (the safe harbour), though late payment penalties can still apply. Terminal tax is due 7 February (7 April if you have a tax
-          agent); dates on a weekend or public holiday move to the next working day. Check with IRD or your accountant before you rely on
-          these figures.
+          An estimate from your business records only: other income (wages, interest, rent), tax credits and losses aren’t included.
+          Payments recorded under Year end › Money in and out (income tax paid to IRD) settle the earliest due date first. Under IRD’s
+          standard option, when your residual income tax is under $60,000 IRD doesn’t charge interest before the terminal tax date (the safe
+          harbour), though late payment penalties can still apply. Terminal tax is due 7 February (7 April if you have a tax agent); dates
+          on a weekend or public holiday move to the next working day. Check with IRD or your accountant before you rely on these figures.
         </Text>
       </Stack>
     );

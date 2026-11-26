@@ -76,6 +76,8 @@ account or password. It opens straight into your books.
 - Each GST period (monthly, two-monthly or six-monthly) with IRD's due date, GST collected and claimable,
   what was paid and what's left, on your GST basis
 - What you owe IRD now, what's overdue and any refunds due; record a GST payment against a return
+- Income tax estimated per year by IRD's bands, with tax withheld, provisional tax (standard option) and terminal
+  tax, and the ACC levies (earners', work and Working Safer) on the same profit
 
 **Insights** (explained rules, no AI; shown only with enough data)
 

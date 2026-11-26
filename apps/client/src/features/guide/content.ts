@@ -295,9 +295,9 @@ export const GUIDE_CHAPTERS: GuideChapter[] = [
       },
       {
         title: 'Your income tax',
-        body: 'The **Income tax** page estimates each year’s tax from your records: **Taxable income**, **Income tax**, the **Tax withheld by customers** and the **Residual income tax** left to pay. When that’s over $5,000, it shows provisional tax by IRD’s standard option and when each instalment is due, then the terminal tax for the year. When you pay one, choose **Record payment** next to it.',
+        body: 'The **Income tax** page estimates each year’s tax from your records: **Taxable income**, **Income tax**, the **Tax withheld by customers** and the **Residual income tax** left to pay. When that’s over $5,000, it shows provisional tax by IRD’s standard option and when each instalment is due, then the terminal tax for the year. When you pay one, choose **Record payment** next to it. Below it, **ACC levies** estimates what ACC will invoice for the year: enter the **Work levy rate** from your ACC invoice, turn on **I work full-time** if you work over 30 hours a week, and choose **Save**.',
         link: { to: '/income-tax', label: 'Open income tax' },
-        tip: 'It’s an estimate from what you’ve recorded: ACC levies and income from outside the business aren’t included. Your accountant’s return is the final figure.',
+        tip: 'It’s an estimate from what you’ve recorded: income from outside the business isn’t included. Your accountant’s return and ACC’s invoice are the final figures.',
       },
     ],
   },

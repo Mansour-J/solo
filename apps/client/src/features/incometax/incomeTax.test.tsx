@@ -21,6 +21,7 @@ const data: IncomeTax = {
   overdue: 992_251,
   refunds_due: 0,
   credit: 0,
+  acc_settings: { work_levy_rate: null, full_time: true },
   next_due: {
     kind: 'terminal',
     label: 'Terminal tax',
@@ -48,6 +49,20 @@ const data: IncomeTax = {
       withholding_tax: 600_000,
       residual_income_tax: 422_050,
       provisional_tax: 1_041_800,
+      acc: {
+        liable_earnings: 6_000_000,
+        adjustment: 'none',
+        min_liable: 4_936_500,
+        max_liable: 15_279_000,
+        earners_levy_rate: '1.45',
+        earners_levy: 87_000,
+        work_levy_rate: null,
+        work_levy: null,
+        working_safer_levy_rate: '0.08',
+        working_safer_levy: 4_800,
+        gst: 13_770,
+        total: 105_570,
+      },
       payments: [
         {
           kind: 'provisional',
@@ -82,6 +97,7 @@ const data: IncomeTax = {
       withholding_tax: 1_000_000,
       residual_income_tax: 992_251,
       provisional_tax: null,
+      acc: null,
       payments: [
         {
           kind: 'terminal',
@@ -136,5 +152,35 @@ describe('income tax', () => {
     await userEvent.click(await screen.findByRole('option', { name: 'FY2025', hidden: true }));
     expect(await screen.findByText('Income tax estimate, FY2025')).toBeInTheDocument();
     expect(screen.getByText(/No provisional tax for FY2025/)).toBeInTheDocument();
+  });
+
+  it('estimates ACC levies and saves the work levy rate', async () => {
+    const put: unknown[] = [];
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      const request = input as Request;
+      if (request.method === 'PUT') {
+        put.push(await request.json());
+        return Response.json({ work_levy_rate: '0.69', full_time: false });
+      }
+      return Response.json(data);
+    });
+    renderWithProviders(<IncomeTaxPage />, { path: '/income-tax' });
+    expect(await screen.findByText('ACC levies, FY2026')).toBeInTheDocument();
+    expect(screen.getByText('Earners’ levy ($1.45 per $100)')).toBeInTheDocument();
+    expect(screen.getByText('Enter your rate')).toBeInTheDocument();
+    expect(screen.getByRole('switch', { name: /I work full-time/ })).toBeChecked();
+
+    await userEvent.type(screen.getByRole('textbox', { name: /Work levy rate/ }), '0.69');
+    await userEvent.click(screen.getByRole('switch', { name: /I work full-time/ }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(put).toEqual([{ work_levy_rate: '0.69', full_time: false }]));
+  });
+
+  it('says when a year has no ACC rates', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async () => Response.json(data));
+    renderWithProviders(<IncomeTaxPage />, { path: '/income-tax' });
+    await userEvent.click(await screen.findByRole('combobox', { name: 'Income year' }));
+    await userEvent.click(await screen.findByRole('option', { name: 'FY2025', hidden: true }));
+    expect(await screen.findByText(/ACC levies aren’t estimated for FY2025/)).toBeInTheDocument();
   });
 });

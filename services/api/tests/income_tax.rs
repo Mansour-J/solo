@@ -207,3 +207,89 @@ async fn another_business_cannot_see_the_income_tax() {
         .await;
     assert_eq!(response.status, StatusCode::NOT_FOUND);
 }
+
+/// ACC levies on the same records, at each levy year's rates (per $100, excl. GST) plus 15% GST:
+///
+/// - FY2025 ($90,000, 2024/25: earners' levy $1.39, Working Safer $0.08): 1,251 + 72 = $1,323, GST
+///   $198.45, $1,521.45 (no work levy until the owner enters their rate).
+/// - FY2026 ($60,000, 2025/26: $1.45): 870 + 48 = $918, GST $137.70; with a $0.69 work levy,
+///   870 + 414 + 48 = $1,332, GST $199.80, $1,531.80.
+/// - FY2027 (nothing recorded, 2026/27: $1.52): nothing part-time; full-time it's levied on the
+///   $50,501 minimum: 767.62 + 348.46 + 40.40 = $1,156.48, GST $173.47, $1,329.95.
+#[tokio::test]
+async fn acc_levies_by_year_with_the_owners_work_levy() {
+    let b = Books::new("income-tax-acc").await;
+    let customer = b
+        .ok("POST", "/customers", json!({ "name": "Agency" }))
+        .await;
+    let categories = b.ok("GET", "/expense-categories", json!(null)).await;
+    b.paid_invoice(&customer, "2024-06-20", 100_000, 10_000)
+        .await;
+    b.expense(&categories[0], "2024-07-01", 10_000).await;
+    b.paid_invoice(&customer, "2025-05-20", 60_000, 6_000).await;
+
+    let tax = b.ok("GET", "/income-tax", json!(null)).await;
+    assert_eq!(
+        tax["acc_settings"],
+        json!({ "work_levy_rate": null, "full_time": false })
+    );
+    let acc = &year(&tax, "FY2025")["acc"];
+    assert_eq!(acc["liable_earnings"], 9_000_000);
+    assert_eq!(acc["adjustment"], "none");
+    assert_eq!(acc["earners_levy_rate"], "1.39");
+    assert_eq!(acc["earners_levy"], 125_100);
+    assert_eq!(acc["work_levy"], Value::Null);
+    assert_eq!(acc["working_safer_levy"], 7_200);
+    assert_eq!(acc["gst"], 19_845);
+    assert_eq!(acc["total"], 152_145);
+    assert_eq!(year(&tax, "FY2026")["acc"]["total"], 105_570);
+    assert_eq!(year(&tax, "FY2027")["acc"]["total"], 0);
+
+    let invalid = b
+        .app
+        .put(
+            &format!("{}/income-tax/acc", b.base),
+            &b.user.auth(),
+            json!({ "work_levy_rate": "150", "full_time": true }),
+        )
+        .await;
+    assert_eq!(invalid.status, StatusCode::UNPROCESSABLE_ENTITY);
+    assert!(invalid.field_error("work_levy_rate").is_some());
+
+    let saved = b
+        .app
+        .put(
+            &format!("{}/income-tax/acc", b.base),
+            &b.user.auth(),
+            json!({ "work_levy_rate": "0.69", "full_time": true }),
+        )
+        .await;
+    assert_eq!(saved.status, StatusCode::OK, "{}", saved.body);
+    assert_eq!(
+        saved.body,
+        json!({ "work_levy_rate": "0.69", "full_time": true })
+    );
+
+    let tax = b.ok("GET", "/income-tax", json!(null)).await;
+    let fy26 = &year(&tax, "FY2026")["acc"];
+    assert_eq!(fy26["work_levy_rate"], "0.69");
+    assert_eq!(fy26["work_levy"], 41_400);
+    assert_eq!(fy26["gst"], 19_980);
+    assert_eq!(fy26["total"], 153_180);
+    let fy27 = &year(&tax, "FY2027")["acc"];
+    assert_eq!(fy27["adjustment"], "minimum");
+    assert_eq!(fy27["liable_earnings"], 5_050_100);
+    assert_eq!(fy27["total"], 132_995);
+
+    // Another owner can't change this business's settings.
+    let stranger = b.app.register("income-tax-acc-stranger").await;
+    let other = b
+        .app
+        .put(
+            &format!("{}/income-tax/acc", b.base),
+            &stranger.auth(),
+            json!({ "work_levy_rate": null, "full_time": false }),
+        )
+        .await;
+    assert_eq!(other.status, StatusCode::NOT_FOUND);
+}

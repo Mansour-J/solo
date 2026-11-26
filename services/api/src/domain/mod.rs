@@ -1,6 +1,7 @@
 //! Pure domain logic: types, rules and calculations with no I/O. Services call into this module;
 //! it never calls services, repositories or HTTP code, so every rule here is unit-testable.
 
+pub mod acc;
 pub mod allocations;
 pub mod business;
 pub mod business_health;

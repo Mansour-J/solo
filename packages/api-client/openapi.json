@@ -3967,6 +3967,56 @@
         }
       }
     },
+    "/api/v1/businesses/{business_id}/income-tax/acc": {
+      "put": {
+        "tags": [
+          "gst"
+        ],
+        "summary": "Saves the owner's ACC work levy rate (dollars per $100 for their classification unit) and whether\nthey work full-time, for the ACC levy estimate on the Income tax page.",
+        "operationId": "gst_save_acc_settings",
+        "parameters": [
+          {
+            "name": "business_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccSettings"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccSettings"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/businesses/{business_id}/income/{income_id}": {
       "get": {
         "tags": [
@@ -8091,6 +8141,106 @@
   },
   "components": {
     "schemas": {
+      "AccAdjustment": {
+        "type": "string",
+        "enum": [
+          "none",
+          "minimum",
+          "maximum"
+        ]
+      },
+      "AccEstimate": {
+        "type": "object",
+        "description": "ACC levies on the year's profit (an estimate: ACC invoices them after the IR3 return is filed).",
+        "required": [
+          "liable_earnings",
+          "adjustment",
+          "min_liable",
+          "max_liable",
+          "earners_levy_rate",
+          "earners_levy",
+          "working_safer_levy_rate",
+          "working_safer_levy",
+          "gst",
+          "total"
+        ],
+        "properties": {
+          "adjustment": {
+            "$ref": "#/components/schemas/AccAdjustment"
+          },
+          "earners_levy": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "earners_levy_rate": {
+            "type": "string",
+            "description": "Dollars per $100, excl. GST, e.g. \"1.52\"."
+          },
+          "gst": {
+            "type": "integer",
+            "format": "int64",
+            "description": "GST ACC adds to the levies."
+          },
+          "liable_earnings": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "max_liable": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "min_liable": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Levies plus GST."
+          },
+          "work_levy": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "work_levy_rate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The owner's rate; `null` until they enter it."
+          },
+          "working_safer_levy": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "working_safer_levy_rate": {
+            "type": "string"
+          }
+        }
+      },
+      "AccSettings": {
+        "type": "object",
+        "description": "What the ACC estimate needs from the owner.",
+        "required": [
+          "full_time"
+        ],
+        "properties": {
+          "full_time": {
+            "type": "boolean",
+            "description": "Works over 30 hours a week on average, so ACC levies at least the minimum."
+          },
+          "work_levy_rate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The work levy for the business's ACC classification unit, dollars per $100 excl. GST (on the\nACC invoice, or in ACC's levy guidebook); `null` when not known."
+          }
+        }
+      },
       "AccountTotal": {
         "type": "object",
         "required": [
@@ -11602,9 +11752,13 @@
           "years",
           "overdue",
           "refunds_due",
-          "credit"
+          "credit",
+          "acc_settings"
         ],
         "properties": {
+          "acc_settings": {
+            "$ref": "#/components/schemas/AccSettings"
+          },
           "basis": {
             "$ref": "#/components/schemas/ReportingBasis"
           },
@@ -15228,6 +15382,17 @@
           "payments"
         ],
         "properties": {
+          "acc": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AccEstimate",
+                "description": "ACC levies on this year's profit; `null` for years before Solo has ACC's rates (2024-25)."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "bands": {
             "type": "array",
             "items": {

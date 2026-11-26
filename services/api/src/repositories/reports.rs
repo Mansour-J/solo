@@ -434,6 +434,33 @@ pub async fn gst_settlements(conn: &mut PgConnection) -> Result<(i64, i64), sqlx
 }
 
 /// The income tax bands for the tax year starting on `year_start`: the latest set in effect then.
+/// The ACC levy rates for the income year starting on `year_start` (the latest levy year starting on
+/// or before it): earners' levy and Working Safer levy per $100, minimum and maximum liable earnings.
+pub async fn acc_rates(
+    conn: &mut PgConnection,
+    year_start: NaiveDate,
+) -> Result<Option<(rust_decimal::Decimal, rust_decimal::Decimal, i64, i64)>, sqlx::Error> {
+    sqlx::query_as(
+        "SELECT earners_levy, working_safer_levy, min_liable, max_liable FROM acc_levy_rates
+         WHERE effective_from <= $1 ORDER BY effective_from DESC LIMIT 1",
+    )
+    .bind(year_start)
+    .fetch_optional(conn)
+    .await
+}
+
+/// The owner's ACC work levy rate (per $100) and whether they work full-time.
+pub async fn acc_settings(
+    conn: &mut PgConnection,
+) -> Result<(Option<rust_decimal::Decimal>, bool), sqlx::Error> {
+    let (rate, full_time): (Option<rust_decimal::Decimal>, bool) =
+        sqlx::query_as("SELECT acc_work_levy_rate, acc_full_time FROM business_settings")
+            .fetch_one(conn)
+            .await?;
+    // "0.69", not the column's "0.6900".
+    Ok((rate.map(|r| r.normalize()), full_time))
+}
+
 pub async fn income_tax_bands(
     conn: &mut PgConnection,
     year_start: NaiveDate,

@@ -6,6 +6,7 @@ import { api, unwrap } from '@/services/api/client';
 export type IncomeTax = components['schemas']['IncomeTax'];
 export type TaxYear = components['schemas']['TaxYear'];
 export type TaxPayment = components['schemas']['TaxPayment'];
+export type AccSettings = components['schemas']['AccSettings'];
 
 export const incomeTaxKeys = {
   summary: (businessId: string) => ['business', businessId, 'gst', 'income-tax'] as const,

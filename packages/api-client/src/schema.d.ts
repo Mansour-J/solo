@@ -849,6 +849,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/businesses/{business_id}/income-tax/acc": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Saves the owner's ACC work levy rate (dollars per $100 for their classification unit) and whether
+         *     they work full-time, for the ACC levy estimate on the Income tax page.
+         */
+        put: operations["gst_save_acc_settings"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/businesses/{business_id}/income/{income_id}": {
         parameters: {
             query?: never;
@@ -1867,12 +1887,55 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** @enum {string} */
+        AccAdjustment: "none" | "minimum" | "maximum";
+        /** @description ACC levies on the year's profit (an estimate: ACC invoices them after the IR3 return is filed). */
+        AccEstimate: {
+            adjustment: components["schemas"]["AccAdjustment"];
+            /** Format: int64 */
+            earners_levy: number;
+            /** @description Dollars per $100, excl. GST, e.g. "1.52". */
+            earners_levy_rate: string;
+            /**
+             * Format: int64
+             * @description GST ACC adds to the levies.
+             */
+            gst: number;
+            /** Format: int64 */
+            liable_earnings: number;
+            /** Format: int64 */
+            max_liable: number;
+            /** Format: int64 */
+            min_liable: number;
+            /**
+             * Format: int64
+             * @description Levies plus GST.
+             */
+            total: number;
+            /** Format: int64 */
+            work_levy?: number | null;
+            /** @description The owner's rate; `null` until they enter it. */
+            work_levy_rate?: string | null;
+            /** Format: int64 */
+            working_safer_levy: number;
+            working_safer_levy_rate: string;
+        };
         AccountTotal: {
             /** Format: uuid */
             account_id: string;
             /** Format: int64 */
             amount: number;
             name: string;
+        };
+        /** @description What the ACC estimate needs from the owner. */
+        AccSettings: {
+            /** @description Works over 30 hours a week on average, so ACC levies at least the minimum. */
+            full_time: boolean;
+            /**
+             * @description The work levy for the business's ACC classification unit, dollars per $100 excl. GST (on the
+             *     ACC invoice, or in ACC's levy guidebook); `null` when not known.
+             */
+            work_levy_rate?: string | null;
         };
         /** @description A postal address. Every field is optional so users can complete it later. */
         Address: {
@@ -3187,6 +3250,7 @@ export interface components {
             voided_at?: string | null;
         };
         IncomeTax: {
+            acc_settings: components["schemas"]["AccSettings"];
             basis: components["schemas"]["ReportingBasis"];
             /**
              * Format: int64
@@ -4471,6 +4535,7 @@ export interface components {
          */
         TaxTreatment: "standard" | "zero_rated" | "exempt" | "no_gst";
         TaxYear: {
+            acc?: components["schemas"]["AccEstimate"] | null;
             bands: components["schemas"]["TaxBand"][];
             /**
              * Format: int64
@@ -7119,6 +7184,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["IncomeTax"];
+                };
+            };
+        };
+    };
+    gst_save_acc_settings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                business_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AccSettings"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccSettings"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
                 };
             };
         };

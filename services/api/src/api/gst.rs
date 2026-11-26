@@ -9,7 +9,7 @@ use utoipa_axum::routes;
 use crate::context::BusinessContext;
 use crate::error::AppResult;
 use crate::services::gst_returns::{self, GstReturnBoxes, GstReturns};
-use crate::services::income_tax::{self, IncomeTax};
+use crate::services::income_tax::{self, AccSettings, IncomeTax};
 use crate::state::AppState;
 
 /// Every GST return period from the first GST record to today, with its IRD due date, the GST to pay
@@ -52,9 +52,25 @@ async fn get_income_tax(
     Ok(Json(income_tax::summary(&state, &ctx).await?))
 }
 
+/// Saves the owner's ACC work levy rate (dollars per $100 for their classification unit) and whether
+/// they work full-time, for the ACC levy estimate on the Income tax page.
+#[utoipa::path(put, path = "/{business_id}/income-tax/acc", tag = "gst", params(("business_id" = uuid::Uuid, Path)),
+    request_body = AccSettings,
+    responses((status = OK, body = AccSettings), (status = UNPROCESSABLE_ENTITY, body = crate::error::ErrorBody)))]
+async fn save_acc_settings(
+    State(state): State<AppState>,
+    ctx: BusinessContext,
+    super::extract::ApiJson(input): super::extract::ApiJson<AccSettings>,
+) -> AppResult<Json<AccSettings>> {
+    Ok(Json(
+        income_tax::save_acc_settings(&state, &ctx, input).await?,
+    ))
+}
+
 pub fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .routes(routes!(list_returns))
         .routes(routes!(return_boxes))
         .routes(routes!(get_income_tax))
+        .routes(routes!(save_acc_settings))
 }

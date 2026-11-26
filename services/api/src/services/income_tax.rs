@@ -2,19 +2,23 @@
 //! withheld (schedular payments), residual income tax (RIT), provisional tax under the standard option
 //! and terminal tax, with the income tax payments recorded settling them oldest first.
 //!
-//! An estimate from the business's records only: other income (wages, interest, rent), ACC levies,
-//! tax credits and losses carried forward aren't known here.
+//! An estimate from the business's records only: other income (wages, interest, rent), tax credits
+//! and losses carried forward aren't known here. ACC levies are estimated on the same profit
+//! (`domain::acc`), with the owner's work levy rate and whether they work full-time.
 
 use chrono::{Duration, NaiveDate};
-use serde::Serialize;
+use rust_decimal::Decimal;
+use serde::{Deserialize, Serialize};
+use serde_json::json;
 use utoipa::ToSchema;
 
 use crate::context::BusinessContext;
+use crate::domain::acc::{self, AccRates, Adjustment};
 use crate::domain::business::{self, ReportingBasis};
 use crate::domain::gst_returns::{self, GstPeriod};
 use crate::domain::income_tax::{self, Band};
-use crate::error::AppResult;
-use crate::repositories::{annual, reports as repo};
+use crate::error::{AppResult, FieldErrors};
+use crate::repositories::{annual, audit, reports as repo, tax_rates};
 use crate::services::businesses::business_today;
 use crate::services::invoices::load_business;
 use crate::state::AppState;
@@ -64,6 +68,49 @@ pub struct TaxBand {
     pub tax: i64,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, ToSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum AccAdjustment {
+    /// Levied on the earnings as recorded.
+    None,
+    /// Full-time and under the minimum: levied on the minimum.
+    Minimum,
+    /// Over the maximum: levied on the maximum.
+    Maximum,
+}
+
+/// ACC levies on the year's profit (an estimate: ACC invoices them after the IR3 return is filed).
+#[derive(Debug, Clone, Serialize, ToSchema)]
+pub struct AccEstimate {
+    pub liable_earnings: i64,
+    pub adjustment: AccAdjustment,
+    pub min_liable: i64,
+    pub max_liable: i64,
+    /// Dollars per $100, excl. GST, e.g. "1.52".
+    pub earners_levy_rate: String,
+    pub earners_levy: i64,
+    /// The owner's rate; `null` until they enter it.
+    pub work_levy_rate: Option<String>,
+    pub work_levy: Option<i64>,
+    pub working_safer_levy_rate: String,
+    pub working_safer_levy: i64,
+    /// GST ACC adds to the levies.
+    pub gst: i64,
+    /// Levies plus GST.
+    pub total: i64,
+}
+
+/// What the ACC estimate needs from the owner.
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
+pub struct AccSettings {
+    /// The work levy for the business's ACC classification unit, dollars per $100 excl. GST (on the
+    /// ACC invoice, or in ACC's levy guidebook); `null` when not known.
+    #[schema(value_type = Option<String>)]
+    pub work_levy_rate: Option<Decimal>,
+    /// Works over 30 hours a week on average, so ACC levies at least the minimum.
+    pub full_time: bool,
+}
+
 #[derive(Debug, Clone, Serialize, ToSchema)]
 pub struct TaxYear {
     /// e.g. "FY2026".
@@ -85,6 +132,8 @@ pub struct TaxYear {
     /// Provisional tax for this year (last year's RIT + 5%), when last year's RIT was over $5,000.
     pub provisional_tax: Option<i64>,
     pub payments: Vec<TaxPayment>,
+    /// ACC levies on this year's profit; `null` for years before Solo has ACC's rates (2024-25).
+    pub acc: Option<AccEstimate>,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -100,6 +149,7 @@ pub struct IncomeTax {
     pub refunds_due: i64,
     /// Payments beyond everything due so far.
     pub credit: i64,
+    pub acc_settings: AccSettings,
 }
 
 pub async fn summary(state: &AppState, ctx: &BusinessContext) -> AppResult<IncomeTax> {
@@ -120,6 +170,7 @@ pub async fn summary(state: &AppState, ctx: &BusinessContext) -> AppResult<Incom
     );
     let six_monthly = business.gst_registered && business.gst_period == GstPeriod::SixMonthly;
 
+    let (work_levy_rate, full_time) = repo::acc_settings(&mut tx).await?;
     let opening = annual::find_opening(&mut tx).await?;
     let first = match &opening {
         Some(o) => Some(o.as_at + Duration::days(1)),
@@ -158,6 +209,20 @@ pub async fn summary(state: &AppState, ctx: &BusinessContext) -> AppResult<Incom
             let withholding = repo::withholding_credits(&mut tx, start, end, basis_name).await?;
             let taxable = income - deductible;
             let (tax, rows) = income_tax::tax_on(taxable, &bands);
+            let gst_rate = tax_rates::rate_on(&mut tx, "NZ", "gst", start)
+                .await?
+                .unwrap_or_default();
+            let acc = repo::acc_rates(&mut tx, start).await?.map(
+                |(earners_levy, working_safer_levy, min_liable, max_liable)| {
+                    let rates = AccRates {
+                        earners_levy,
+                        working_safer_levy,
+                        min_liable,
+                        max_liable,
+                    };
+                    acc_estimate(taxable, &rates, work_levy_rate, full_time, gst_rate)
+                },
+            );
             years.push(TaxYear {
                 label: business::financial_year_label(end),
                 start,
@@ -181,6 +246,7 @@ pub async fn summary(state: &AppState, ctx: &BusinessContext) -> AppResult<Incom
                 residual_income_tax: tax - withholding,
                 provisional_tax: None,
                 payments: Vec::new(),
+                acc,
             });
             start = end + Duration::days(1);
             end = business::financial_year(start, month, day).1;
@@ -244,6 +310,10 @@ pub async fn summary(state: &AppState, ctx: &BusinessContext) -> AppResult<Incom
         next_due: None,
         refunds_due: 0,
         credit: settlement.unapplied_payments,
+        acc_settings: AccSettings {
+            work_levy_rate,
+            full_time,
+        },
     };
     for (&(y, p), settled) in order.iter().zip(settlement.settled) {
         let ended = years[y].ended;
@@ -269,6 +339,87 @@ pub async fn summary(state: &AppState, ctx: &BusinessContext) -> AppResult<Incom
     years.reverse();
     result.years = years;
     Ok(result)
+}
+
+fn acc_estimate(
+    earnings: i64,
+    rates: &AccRates,
+    work_levy_rate: Option<Decimal>,
+    full_time: bool,
+    gst_rate: Decimal,
+) -> AccEstimate {
+    let l = acc::levies(earnings, rates, work_levy_rate, full_time, gst_rate);
+    let rate = |r: Decimal| r.normalize().to_string();
+    AccEstimate {
+        liable_earnings: l.liable_earnings,
+        adjustment: match l.adjustment {
+            Adjustment::None => AccAdjustment::None,
+            Adjustment::Minimum => AccAdjustment::Minimum,
+            Adjustment::Maximum => AccAdjustment::Maximum,
+        },
+        min_liable: rates.min_liable,
+        max_liable: rates.max_liable,
+        earners_levy_rate: rate(rates.earners_levy),
+        earners_levy: l.earners_levy,
+        work_levy_rate: work_levy_rate.map(rate),
+        work_levy: l.work_levy,
+        working_safer_levy_rate: rate(rates.working_safer_levy),
+        working_safer_levy: l.working_safer_levy,
+        gst: l.gst,
+        total: l.total,
+    }
+}
+
+/// Saves the owner's ACC work levy rate and whether they work full-time.
+pub async fn save_acc_settings(
+    state: &AppState,
+    ctx: &BusinessContext,
+    input: AccSettings,
+) -> AppResult<AccSettings> {
+    let mut errors = FieldErrors::new();
+    if let Some(rate) = input.work_levy_rate {
+        errors.check(
+            rate >= Decimal::ZERO && rate < Decimal::ONE_HUNDRED && rate.normalize().scale() <= 4,
+            "work_levy_rate",
+            "Enter the rate in dollars per $100, e.g. 0.69, or leave it empty.",
+        );
+    }
+    errors.into_result()?;
+    let mut tx = state
+        .db
+        .begin_business(ctx.user_id(), ctx.business_id)
+        .await?;
+    let (before_rate, before_full_time) = repo::acc_settings(&mut tx).await?;
+    sqlx::query(
+        "UPDATE business_settings SET acc_work_levy_rate = $2, acc_full_time = $3 WHERE business_id = $1",
+    )
+    .bind(ctx.business_id)
+    .bind(input.work_levy_rate)
+    .bind(input.full_time)
+    .execute(&mut *tx)
+    .await?;
+    audit::record(
+        &mut tx,
+        &ctx.actor(),
+        audit::Entry {
+            business_id: Some(ctx.business_id),
+            action: "settings.acc_updated",
+            entity_type: "business",
+            entity_id: Some(ctx.business_id),
+            summary: "Updated the ACC levy estimate settings".into(),
+            changes: json!({
+                "before": { "work_levy_rate": before_rate, "full_time": before_full_time },
+                "after": input,
+            }),
+        },
+    )
+    .await?;
+    let (work_levy_rate, full_time) = repo::acc_settings(&mut tx).await?;
+    tx.commit().await?;
+    Ok(AccSettings {
+        work_levy_rate,
+        full_time,
+    })
 }
 
 fn new_payment(
