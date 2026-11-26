@@ -7,10 +7,14 @@
 //! - `database/`: the database cluster (the user's records)
 //! - `storage/`: receipts and other files
 //! - `local.json`: the database owner's password (readable only by this user)
+//! - `backups/`: copies of the books kept before a restore, and work folders ([`backups`])
+
+mod backups;
 
 use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 use std::time::Duration;
 
 use anyhow::{Context, Result};
@@ -136,8 +140,9 @@ impl LocalServer {
         }
         postgres.start().await.context("starting the database")?;
         let port = postgres.settings().port;
+        let bin_dir = postgres.settings().binary_dir();
         let key = options.require_key.then(random_password);
-        match Self::prepare(&options, &paths, &secrets, port, key.as_deref()).await {
+        match Self::prepare(&options, &paths, &secrets, port, &bin_dir, key.as_deref()).await {
             Ok((url, shutdown, server)) => Ok(Self {
                 url,
                 key,
@@ -157,6 +162,7 @@ impl LocalServer {
         paths: &Paths,
         secrets: &Secrets,
         port: u16,
+        bin_dir: &Path,
         api_key: Option<&str>,
     ) -> Result<(String, oneshot::Sender<()>, JoinHandle<std::io::Result<()>>)> {
         // The owner creates the database, the API's role and the schema.
@@ -220,9 +226,18 @@ impl LocalServer {
             }
             .map(str::to_owned)
         })?;
-        let state = AppState::from_config(config)
+        let mut state = AppState::from_config(config)
             .await
             .context("starting the API")?;
+        state.backups = Some(Arc::new(backups::LocalBackups::new(
+            bin_dir.to_path_buf(),
+            port,
+            OWNER,
+            &secrets.owner_password,
+            DATABASE,
+            paths.storage.clone(),
+            &options.data_dir,
+        )));
         let owner = solo_api::services::users::ensure_owner(&state.db).await?;
         let listener = tokio::net::TcpListener::bind(("127.0.0.1", 0)).await?;
         let url = format!("http://{}", listener.local_addr()?);

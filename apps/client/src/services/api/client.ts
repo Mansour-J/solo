@@ -35,8 +35,8 @@ export const api: ApiClient = new Proxy({} as ApiClient, {
 });
 
 /** Fetches a binary resource (logos, PDFs, exports). */
-export async function fetchBlob(path: string): Promise<Blob> {
-  const response = await send(new Request(`${baseUrl}${path}`));
+export async function fetchBlob(path: string, method: 'GET' | 'POST' = 'GET'): Promise<Blob> {
+  const response = await send(new Request(`${baseUrl}${path}`, { method }));
   if (!response.ok) throw ApiError.fromResponse(response.status, await response.json().catch(() => null));
   return response.blob();
 }

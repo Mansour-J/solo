@@ -11,6 +11,7 @@ import { useSavePreferences } from '@/features/account/preferences';
 import { api, fetchBlob, unwrap } from '@/services/api/client';
 import { errorMessage } from '@/services/api/errors';
 import { saveBlob } from '@/services/platform';
+import { BackupCard } from './BackupCard';
 import { useApiMutation } from '@/services/api/query';
 
 // ─── Profile ────────────────────────────────────────────────────────────────
@@ -143,6 +144,7 @@ export function DataSettings() {
           Download data
         </Button>
       </SectionCard>
+      <BackupCard />
     </Stack>
   );
 }

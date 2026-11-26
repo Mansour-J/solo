@@ -9,6 +9,7 @@ process, on 127.0.0.1 only. The Tauri shell starts it (`apps/client/src-tauri/sr
   `<data_dir>/storage` and the owner's password in `<data_dir>/local.json` (owner-only). The API's
   role `solo_app` gets a new random password on each start. `stop()` stops the API, then
   PostgreSQL (a fast shutdown). A database still running from a killed app is stopped and restarted.
+- **Backups** (`src/backups.rs`, SL-013): the API's `BackupProvider` (`state.backups`). A backup is a tar of `backup.json`, a `pg_dump` custom-format `database.dump` and `storage/`. Restore checks the file (format, schema version no newer than this build, `pg_restore --list`), keeps a copy in `<data_dir>/backups/before-restore-*.solobackup` (the last three), drops and recreates the database, runs `pg_restore` and the migrations (putting the current books back if that fails), then swaps `storage/`. The app must restart afterwards (the restored books have their own owner). One backup or restore at a time.
 - The API runs with `EMAIL_PROVIDER=log` (no mail server) as the owner (`ensure_owner`, created on first start). With `require_key` (the desktop app) it requires a new random `x-api-key` on each start, given by `key()`; the `solo-local` binary runs without one for the Vite dev server and Playwright.
 - PostgreSQL is bundled at build time (`postgresql_embedded`, feature `bundled`). The version is pinned
   by `POSTGRESQL_VERSION` in the repository's `.cargo/config.toml` and must match `POSTGRES_VERSION`
@@ -17,6 +18,6 @@ process, on 127.0.0.1 only. The Tauri shell starts it (`apps/client/src-tauri/sr
 
 ```bash
 export PATH="$HOME/.cargo/bin:$PATH"
-cargo test --manifest-path services/local/Cargo.toml   # first start, restart, recovery after a kill (~20 s)
+cargo test --manifest-path services/local/Cargo.toml   # first start, restart, recovery after a kill, backup and restore (~40 s)
 npm run local:serve                                    # data in ./data/local; prints the API URL
 ```

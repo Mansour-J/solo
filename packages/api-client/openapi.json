@@ -7849,6 +7849,106 @@
         }
       }
     },
+    "/api/v1/users/me/backups": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Whether backups can be made here (the desktop app) and when the books were last backed up.",
+        "operationId": "users_backup_status",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BackupStatus"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Makes a backup of every business and its receipts and sends it as one file (desktop app only).",
+        "operationId": "users_create_backup",
+        "responses": {
+          "200": {
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "format": "int32",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/me/backups/restore": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Replaces the books with a backup (multipart field `file`), keeping a copy of the current books\nfirst. The app must restart afterwards (desktop app only).",
+        "operationId": "users_restore_backup",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestoreResult"
+                }
+              }
+            }
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/users/me/email-settings": {
       "get": {
         "tags": [
@@ -8821,6 +8921,60 @@
           }
         }
       },
+      "BackupRecord": {
+        "type": "object",
+        "required": [
+          "kind",
+          "made_at",
+          "size_bytes"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "description": "`backup` (made here) or `restored` (the backup the books were restored from)."
+          },
+          "made_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the backup was made."
+          },
+          "size_bytes": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "BackupStatus": {
+        "type": "object",
+        "required": [
+          "available",
+          "recent"
+        ],
+        "properties": {
+          "available": {
+            "type": "boolean",
+            "description": "Backups can be made here (the desktop app)."
+          },
+          "last": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/BackupRecord",
+                "description": "The newest backup the books have (made or restored from)."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "recent": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BackupRecord"
+            },
+            "description": "The most recent, newest first (up to 5)."
+          }
+        }
+      },
       "Balances": {
         "type": "object",
         "required": [
@@ -9078,6 +9232,14 @@
               "$ref": "#/components/schemas/HealthCheck"
             },
             "description": "Every check, in the order the screen shows them within each status."
+          },
+          "last_backup_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "When the books were last backed up (the desktop app; `null` when never or elsewhere)."
           }
         }
       },
@@ -14573,6 +14735,24 @@
           "cash",
           "accrual"
         ]
+      },
+      "RestoreResult": {
+        "type": "object",
+        "required": [
+          "made_at",
+          "restart_required"
+        ],
+        "properties": {
+          "made_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the restored backup was made."
+          },
+          "restart_required": {
+            "type": "boolean",
+            "description": "The app has to restart to open the restored books."
+          }
+        }
       },
       "ReviewInput": {
         "type": "object",

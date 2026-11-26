@@ -12,13 +12,15 @@ use crate::error::AppResult;
 use crate::repositories::business_health as repo;
 use crate::repositories::reports;
 use crate::services::businesses::business_today;
-use crate::services::email_settings;
 use crate::services::invoices::load_business;
+use crate::services::{backups, email_settings};
 use crate::state::AppState;
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct BusinessHealth {
     pub checked_at: DateTime<Utc>,
+    /// When the books were last backed up (the desktop app; `null` when never or elsewhere).
+    pub last_backup_at: Option<DateTime<Utc>>,
     /// Every check, in the order the screen shows them within each status.
     pub checks: Vec<HealthCheck>,
 }
@@ -53,7 +55,9 @@ pub async fn build(state: &AppState, ctx: &BusinessContext) -> AppResult<Busines
     let (customers_owing, customers_owing_without_email) = repo::customers_owing(&mut tx).await?;
     let (expenses_without_receipt, gst_claims_without_receipt) =
         repo::expenses_without_receipt(&mut tx, fy_start, fy_end).await?;
+    let last_backup = backups::last_backup(state, &mut tx).await?;
     tx.commit().await?;
+    let now = Utc::now();
 
     let address = |field: &str| {
         business.address[field]
@@ -75,9 +79,13 @@ pub async fn build(state: &AppState, ctx: &BusinessContext) -> AppResult<Busines
         customers_owing_without_email,
         expenses_without_receipt,
         gst_claims_without_receipt,
+        backups_available: last_backup.is_some(),
+        days_since_backup: last_backup.flatten().map(|at| (now - at).num_days()),
+        business_age_days: (now - business.created_at).num_days(),
     };
     Ok(BusinessHealth {
-        checked_at: Utc::now(),
+        checked_at: now,
+        last_backup_at: last_backup.flatten(),
         checks: business_health::checks(&facts),
     })
 }

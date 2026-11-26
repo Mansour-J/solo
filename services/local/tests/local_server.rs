@@ -132,3 +132,193 @@ async fn records_survive_a_restart_and_a_killed_app() {
     assert_eq!(business_names(&client, &server).await, ["Kererū Studio"]);
     server.stop().await.expect("stop");
 }
+
+/// A 1×1 PNG, as a receipt.
+const RECEIPT: [u8; 70] = [
+    137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 6, 0,
+    0, 0, 31, 21, 196, 137, 0, 0, 0, 13, 73, 68, 65, 84, 120, 218, 99, 100, 96, 248, 95, 15, 0, 2,
+    135, 1, 128, 235, 71, 186, 146, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130,
+];
+
+fn authed(
+    client: &reqwest::Client,
+    server: &LocalServer,
+    method: reqwest::Method,
+    path: &str,
+) -> reqwest::RequestBuilder {
+    let mut request = client
+        .request(method, format!("{}{path}", server.url()))
+        .header("x-client-kind", "desktop");
+    if let Some(key) = server.key() {
+        request = request.header("x-api-key", key);
+    }
+    request
+}
+
+async fn restore(client: &reqwest::Client, server: &LocalServer, bytes: Vec<u8>) -> (u16, Value) {
+    let form = reqwest::multipart::Form::new().part(
+        "file",
+        reqwest::multipart::Part::bytes(bytes).file_name("books.solobackup"),
+    );
+    let response = authed(
+        client,
+        server,
+        reqwest::Method::POST,
+        "/api/v1/users/me/backups/restore",
+    )
+    .multipart(form)
+    .send()
+    .await
+    .expect("restore");
+    let status = response.status().as_u16();
+    (status, response.json().await.unwrap_or(Value::Null))
+}
+
+#[tokio::test]
+async fn a_backup_restores_the_books_and_their_receipts() {
+    let dir = tempfile::tempdir().expect("temp dir");
+    let client = reqwest::Client::new();
+    let server = LocalServer::start(options(dir.path()))
+        .await
+        .expect("start");
+    let get = reqwest::Method::GET;
+    let post = reqwest::Method::POST;
+
+    let (_, status) = call(
+        &client,
+        &server,
+        get.clone(),
+        "/api/v1/users/me/backups",
+        None,
+    )
+    .await;
+    assert_eq!(status["available"], true);
+    assert_eq!(status["last"], Value::Null);
+
+    // A business with an expense and its receipt.
+    let (_, business) = call(
+        &client,
+        &server,
+        post.clone(),
+        "/api/v1/businesses",
+        Some(json!({ "name": "Tūī Design", "complete_onboarding": true })),
+    )
+    .await;
+    let base = format!(
+        "/api/v1/businesses/{}",
+        business["id"].as_str().expect("id")
+    );
+    let (_, categories) = call(
+        &client,
+        &server,
+        get.clone(),
+        &format!("{base}/expense-categories"),
+        None,
+    )
+    .await;
+    let (status_code, expense) = call(
+        &client,
+        &server,
+        post.clone(),
+        &format!("{base}/expenses"),
+        Some(json!({ "expense_date": business["today"], "supplier": "Paper Test Supplies", "category_id": categories[0]["id"],
+                     "gross_amount": 2_000, "gst_treatment": "no_gst", "payment_method": "business_account", "classification": "business" })),
+    )
+    .await;
+    assert_eq!(status_code, 201, "{expense}");
+    let expense_path = format!("{base}/expenses/{}", expense["id"].as_str().expect("id"));
+    let attached = authed(
+        &client,
+        &server,
+        post.clone(),
+        &format!("{expense_path}/attachments"),
+    )
+    .multipart(reqwest::multipart::Form::new().part(
+        "file",
+        reqwest::multipart::Part::bytes(RECEIPT.to_vec()).file_name("receipt.png"),
+    ))
+    .send()
+    .await
+    .expect("attach");
+    assert_eq!(attached.status().as_u16(), 201);
+    let attached: Value = attached.json().await.expect("json");
+    let receipt = format!(
+        "{expense_path}/attachments/{}",
+        attached["attachments"][0]["id"]
+            .as_str()
+            .expect("attachment")
+    );
+
+    // Back up, then change the books.
+    let backup = authed(&client, &server, post.clone(), "/api/v1/users/me/backups")
+        .send()
+        .await
+        .expect("backup");
+    assert_eq!(backup.status().as_u16(), 200);
+    assert!(
+        backup.headers()["content-disposition"]
+            .to_str()
+            .expect("header")
+            .contains(".solobackup")
+    );
+    let backup = backup.bytes().await.expect("bytes").to_vec();
+    let (_, status) = call(
+        &client,
+        &server,
+        get.clone(),
+        "/api/v1/users/me/backups",
+        None,
+    )
+    .await;
+    assert_eq!(status["last"]["kind"], "backup");
+    assert_eq!(status["last"]["size_bytes"], backup.len());
+    call(
+        &client,
+        &server,
+        post.clone(),
+        "/api/v1/businesses",
+        Some(json!({ "name": "Later Ltd", "complete_onboarding": true })),
+    )
+    .await;
+
+    // Something that isn't a backup is refused, and nothing changes.
+    let (code, refused) = restore(&client, &server, b"not a backup".to_vec()).await;
+    assert_eq!(code, 422, "{refused}");
+    assert!(
+        refused.to_string().contains("isn’t a Solo backup"),
+        "{refused}"
+    );
+    let mut names = business_names(&client, &server).await;
+    names.sort();
+    assert_eq!(names, ["Later Ltd", "Tūī Design"]);
+
+    // Restore: the books are as they were at the backup, after a restart.
+    let (code, restored) = restore(&client, &server, backup).await;
+    assert_eq!(code, 200, "{restored}");
+    assert_eq!(restored["restart_required"], true);
+    server.stop().await.expect("stop");
+    let kept: Vec<_> = std::fs::read_dir(dir.path().join("backups"))
+        .expect("backups folder")
+        .filter_map(|e| e.ok())
+        .filter(|e| {
+            e.file_name()
+                .to_string_lossy()
+                .starts_with("before-restore-")
+        })
+        .collect();
+    assert_eq!(kept.len(), 1, "a copy of the books before the restore");
+
+    let server = LocalServer::start(options(dir.path()))
+        .await
+        .expect("start after restoring");
+    assert_eq!(business_names(&client, &server).await, ["Tūī Design"]);
+    let file = authed(&client, &server, get.clone(), &receipt)
+        .send()
+        .await
+        .expect("receipt");
+    assert_eq!(file.status().as_u16(), 200);
+    assert_eq!(file.bytes().await.expect("bytes").as_ref(), RECEIPT);
+    let (_, status) = call(&client, &server, get, "/api/v1/users/me/backups", None).await;
+    assert_eq!(status["last"]["kind"], "restored");
+    server.stop().await.expect("stop");
+}

@@ -145,8 +145,8 @@ API ([ADR 0014](../decisions/0014-local-first-desktop.md)). It is for one person
 sign-in, and the cloud-server option and server deployment were removed
 ([ADR 0016](../decisions/0016-one-person-no-sign-in.md), SL-018). Signed in-app updates (SL-017).
 
-Known limitations: no backup and restore button yet (SL-013) and no email from the desktop app
-(SL-015).
+Backup and restore of the books, with a reminder when the last backup is old (SL-013). Known
+limitation: no email from the desktop app (SL-015).
 
 ## GST returns ✅
 

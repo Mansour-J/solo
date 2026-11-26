@@ -4,6 +4,7 @@ use std::sync::Arc;
 
 use crate::config::Config;
 use crate::db::Db;
+use crate::services::backups::BackupProvider;
 use crate::services::email::{Mailer, MemoryEmailSender};
 use crate::services::storage::Storage;
 
@@ -15,6 +16,8 @@ pub struct AppState {
     pub storage: Storage,
     /// Present when `EMAIL_PROVIDER=memory` (tests read sent emails from it).
     pub memory_mailbox: Option<MemoryEmailSender>,
+    /// Makes and restores backups: set by the desktop app's local server, `None` elsewhere.
+    pub backups: Option<Arc<dyn BackupProvider>>,
 }
 
 impl AppState {
@@ -32,6 +35,7 @@ impl AppState {
             mailer,
             storage,
             memory_mailbox,
+            backups: None,
         })
     }
 }

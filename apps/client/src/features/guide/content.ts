@@ -401,9 +401,10 @@ export const GUIDE_CHAPTERS: GuideChapter[] = [
         link: { to: '/settings/preferences', label: 'Open preferences' },
       },
       {
-        title: 'Keep a copy of your records',
-        body: 'In **Settings › Your data**, **Download data** saves a file with your profile and every business. Do it now and then, and keep it somewhere safe.',
+        title: 'Back up your books',
+        body: 'Your books are kept only on this computer. In **Settings › Your data**, choose **Back up now** to save one file with every business and its receipts, and keep it somewhere else, such as a USB drive or a cloud folder. To get your books back, on this computer or a new one, choose **Restore from a backup** and pick the file: your books are replaced by the backup’s, and Solo restarts. Solo reminds you on the dashboard when your last backup is over 30 days old.',
         link: { to: '/settings/data', label: 'Open your data' },
+        tip: '**Download data** saves your records as a JSON file you can read or take to other software. Only a backup can be restored.',
       },
       {
         title: 'Send email from the app',

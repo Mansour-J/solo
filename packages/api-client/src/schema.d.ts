@@ -1743,6 +1743,44 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/users/me/backups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Whether backups can be made here (the desktop app) and when the books were last backed up. */
+        get: operations["users_backup_status"];
+        put?: never;
+        /** Makes a backup of every business and its receipts and sends it as one file (desktop app only). */
+        post: operations["users_create_backup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/me/backups/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Replaces the books with a backup (multipart field `file`), keeping a copy of the current books
+         *     first. The app must restart afterwards (desktop app only).
+         */
+        post: operations["users_restore_backup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/users/me/email-settings": {
         parameters: {
             query?: never;
@@ -2151,6 +2189,24 @@ export interface components {
              */
             opened: number;
         };
+        BackupRecord: {
+            /** @description `backup` (made here) or `restored` (the backup the books were restored from). */
+            kind: string;
+            /**
+             * Format: date-time
+             * @description When the backup was made.
+             */
+            made_at: string;
+            /** Format: int64 */
+            size_bytes: number;
+        };
+        BackupStatus: {
+            /** @description Backups can be made here (the desktop app). */
+            available: boolean;
+            last?: components["schemas"]["BackupRecord"] | null;
+            /** @description The most recent, newest first (up to 5). */
+            recent: components["schemas"]["BackupRecord"][];
+        };
         Balances: {
             currency: string;
             /** @description Active destinations, then archived ones that still hold a balance. */
@@ -2239,6 +2295,11 @@ export interface components {
             checked_at: string;
             /** @description Every check, in the order the screen shows them within each status. */
             checks: components["schemas"]["HealthCheck"][];
+            /**
+             * Format: date-time
+             * @description When the books were last backed up (the desktop app; `null` when never or elsewhere).
+             */
+            last_backup_at?: string | null;
         };
         /** @description Business profile as entered in onboarding and settings. Optional fields can be completed later. */
         BusinessInput: {
@@ -4251,6 +4312,15 @@ export interface components {
             from: string;
             /** Format: date */
             to: string;
+        };
+        RestoreResult: {
+            /**
+             * Format: date-time
+             * @description When the restored backup was made.
+             */
+            made_at: string;
+            /** @description The app has to restart to open the restored books. */
+            restart_required: boolean;
         };
         /** @description The amounts to record for an allocation, as reviewed by the user. */
         ReviewInput: {
@@ -9400,6 +9470,91 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UserProfile"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    users_backup_status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BackupStatus"];
+                };
+            };
+        };
+    };
+    users_create_backup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": number[];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    users_restore_backup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": Record<string, never>;
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RestoreResult"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
                 };
             };
             422: {

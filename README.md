@@ -25,6 +25,8 @@ account or password. It opens straight into your books.
 - Several businesses, each with its own records
 - GST registration with dated rates, financial year, cash or accrual reporting basis, branding for documents
 - Export everything as one file
+- Back up every business and its receipts to one file and restore it, here or on a new computer; a reminder
+  when the last backup is over 30 days old
 
 **Invoices, quotes and customers**
 
@@ -157,7 +159,8 @@ Details: [roadmap](docs/product/roadmap.md) and [backlog](docs/backlog/backlog.h
 **Desktop app:** install it from the release page and open it. Nothing else is needed
 ([installation](docs/deployment/installation.md)).
 
-Your data stays in the app's own folder on your computer; Settings › Your data downloads a copy.
+Your data stays in the app's own folder on your computer; Settings › Your data backs it up to a file you
+can restore, here or on another computer.
 
 ## Development
 

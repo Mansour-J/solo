@@ -11,7 +11,11 @@ Nothing is sent anywhere, and it works offline.
   Anyone who can use your computer account can open it, as with any file: protect the account, and
   turn on disk encryption.
 - **Documents** are downloaded as PDFs to send from your own email: the app has no mail server.
-- **A copy of everything:** Settings › Your data › Download data.
+- **Backups:** Settings › Your data › **Back up now** saves one file with every business and its
+  receipts; keep it somewhere other than this computer. **Restore from a backup** replaces the books with
+  one (on this computer or a new one) and restarts the app; a copy of the books before the restore is
+  kept in the data folder's `backups/` (the last three). A backup from a newer version is refused.
+  **Download data** saves a readable JSON copy, which can't be restored.
 - **Upgrading:** install the new version over the old one, or use Settings › Updates. Your books are
   kept and their database is updated when the new version starts.
 

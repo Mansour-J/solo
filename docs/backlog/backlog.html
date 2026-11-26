@@ -1325,13 +1325,35 @@
             "id": "SL-013",
             "title": "Back up and restore the books on this computer",
             "section": "foundation",
-            "status": "Idea",
+            "status": "Done",
+            "statusNote": "pushed (2026-11-26)",
             "type": "Feature",
             "priority": "P1",
             "size": "M",
             "dependsOn": ["SL-012"],
             "summary": "A one-click backup of the local database (a dump to a file the user chooses) and a restore, with a reminder when the last backup is old. Today the copy is the JSON export.",
-            "criteria": []
+            "criteria": [
+              {
+                "done": true,
+                "text": "The local server makes a backup: one file (`.solobackup`, a tar of `backup.json`, a `pg_dump` of the database and the receipts folder), through the API's `BackupProvider`, so the API records it (`backups`, V31). `POST /users/me/backups` sends the file; `GET /users/me/backups` says whether backups are made here and when the last one was."
+              },
+              {
+                "done": true,
+                "text": "Restore (`POST /users/me/backups/restore`): refuses a file that isn't a backup, is damaged or comes from a newer version (nothing changes); keeps a copy of the current books in `backups/` (the last three); replaces the database and the receipts and brings an older backup's schema up to date, putting the current books back if that fails; the app restarts to open them."
+              },
+              {
+                "done": true,
+                "text": "Settings › Your data › **Back up and restore**: **Back up now**, **Restore from a backup** with a confirmation, the last backup's date; only in the desktop app (not offered elsewhere)."
+              },
+              {
+                "done": true,
+                "text": "A reminder: the **Backup** check in Business health (worth fixing after 30 days, or with none two weeks after setting up) and a dashboard notice with it."
+              },
+              {
+                "done": true,
+                "text": "Tests: a local server round trip (back up, change, refuse a bad file, restore, restart, receipt back), API tests where backups aren't offered, unit tests for the check, component tests, an end-to-end backup download; the guide, README and installation notes."
+              }
+            ]
           },
           {
             "id": "SL-014",
@@ -2648,7 +2670,7 @@
             "title": "Business health",
             "section": "phase-7",
             "status": "Done",
-            "statusNote": "pushed with the dashboard notice (2026-11-26); a backup check and more checks are follow-ups",
+            "statusNote": "pushed with the dashboard notice (2026-11-26); more checks are follow-ups",
             "type": "Feature",
             "priority": "P2",
             "size": "M",
@@ -2673,7 +2695,7 @@
               },
               {
                 "done": false,
-                "text": "Follow-ups: a backup check once exports are recorded (nothing records when *Download data* was last used); more checks as modules grow (year-end steps, opening balances)."
+                "text": "Follow-ups: more checks as modules grow (year-end steps, opening balances). The backup check came with SL-013."
               }
             ]
           },

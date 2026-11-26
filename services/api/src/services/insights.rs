@@ -12,7 +12,7 @@ use utoipa::ToSchema;
 
 use crate::context::BusinessContext;
 use crate::domain::business::{ReportingBasis, financial_year};
-use crate::domain::business_health::fix_now_notice;
+use crate::domain::business_health::{HealthStatus, fix_now_notice};
 use crate::domain::insights::{
     CONCENTRATION_WARNING_PERCENT, Figure, MIN_NOTABLE_CHANGE, MIN_SAMPLE, Tone, Trend, average,
     must_register_for_gst, notable_growth, percent_change, percent_of, recurring, trend,
@@ -1169,6 +1169,25 @@ pub async fn build(state: &AppState, ctx: &BusinessContext) -> AppResult<Insight
         ),
     ];
     let mut all_notices = notices(&data, &spend, &w, &x);
+    // A backup reminder, from Business health: its key names the last backup, so a dismissed
+    // reminder comes back once a newer backup gets old too.
+    if let Some(backup) = setup
+        .checks
+        .iter()
+        .find(|c| c.key == "backup" && c.status == HealthStatus::Warning)
+    {
+        all_notices.push(Notice {
+            key: format!(
+                "backup:{}",
+                setup
+                    .last_backup_at
+                    .map_or("never".to_owned(), |at| at.date_naive().to_string())
+            ),
+            message: backup.finding.clone(),
+            tone: Tone::Warning,
+            link: Some("/settings/data".into()),
+        });
+    }
     // Setup problems to fix now come first, after the GST threshold.
     if let Some((key, message)) = fix_now_notice(&setup.checks) {
         let at = all_notices

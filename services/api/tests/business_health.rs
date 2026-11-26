@@ -204,3 +204,23 @@ async fn another_owner_cannot_see_a_business_health() {
         .await;
     assert_eq!(response.status, StatusCode::NOT_FOUND);
 }
+
+/// Outside the desktop app there's no local server to make backups: none are offered, and the
+/// backup check doesn't apply.
+#[tokio::test]
+async fn backups_are_only_offered_by_the_desktop_app() {
+    let app = TestApp::new().await;
+    let user = app.register("health-backups").await;
+    let business = app.create_business(&user, "Backup Test Ltd").await;
+    let status = app.get("/api/v1/users/me/backups", &user.auth()).await;
+    assert_eq!(status.status, StatusCode::OK, "{}", status.body);
+    assert_eq!(status.body["available"], false);
+    assert_eq!(status.body["last"], serde_json::Value::Null);
+    let made = app
+        .post("/api/v1/users/me/backups", &user.auth(), json!({}))
+        .await;
+    assert_eq!(made.status, StatusCode::CONFLICT, "{}", made.body);
+    let h = health(&app, &user, business).await;
+    assert_eq!(check(&h, "backup")["status"], "not_applicable");
+    assert_eq!(h["last_backup_at"], serde_json::Value::Null);
+}

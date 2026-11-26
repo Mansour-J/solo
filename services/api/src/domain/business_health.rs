@@ -77,7 +77,18 @@ pub struct Facts {
     pub expenses_without_receipt: i64,
     /// …of which claim GST on more than $50 (IRD needs the supplier's tax invoice for those).
     pub gst_claims_without_receipt: i64,
+    /// Backups are made here (the desktop app).
+    pub backups_available: bool,
+    /// Days since the newest backup; `None` when there's never been one.
+    pub days_since_backup: Option<i64>,
+    /// Days since the business was set up.
+    pub business_age_days: i64,
 }
+
+/// A backup older than this many days is worth a reminder.
+pub const BACKUP_DUE_DAYS: i64 = 30;
+/// A new business gets a gentle suggestion before the reminder, for this many days.
+const NEW_BUSINESS_DAYS: i64 = 14;
 
 fn plural(n: i64, one: &str, many: &str) -> String {
     format!("{n} {}", if n == 1 { one } else { many })
@@ -385,6 +396,45 @@ pub fn checks(f: &Facts) -> Vec<HealthCheck> {
         }
     });
 
+    let c = check(
+        "backup",
+        HealthArea::Records,
+        "Backup",
+        "Your books are kept only on this computer. A backup saved somewhere else, such as a USB drive or a cloud folder, gets them back if the computer is lost, stolen or fails.",
+    );
+    let action = (Some("Back up now"), Some("/settings/data"));
+    out.push(match (f.backups_available, f.days_since_backup) {
+        (false, _) => c(
+            NotApplicable,
+            "Backups are made by the desktop app.".into(),
+            None,
+            None,
+        ),
+        (true, None) => c(
+            if f.business_age_days >= NEW_BUSINESS_DAYS {
+                Warning
+            } else {
+                Recommendation
+            },
+            "You haven’t backed up your books on this computer yet.".into(),
+            action.0,
+            action.1,
+        ),
+        (true, Some(days)) => {
+            let when = match days {
+                ..=0 => "today".to_owned(),
+                1 => "yesterday".to_owned(),
+                n => format!("{n} days ago"),
+            };
+            let finding = format!("Your last backup was {when}.");
+            if days > BACKUP_DUE_DAYS {
+                c(Warning, finding, action.0, action.1)
+            } else {
+                c(Passed, finding, None, None)
+            }
+        }
+    });
+
     out
 }
 
@@ -439,6 +489,9 @@ mod tests {
             customers_owing_without_email: 0,
             expenses_without_receipt: 0,
             gst_claims_without_receipt: 0,
+            backups_available: true,
+            days_since_backup: Some(3),
+            business_age_days: 400,
         }
     }
 
@@ -457,7 +510,7 @@ mod tests {
     #[test]
     fn a_healthy_business_passes_everything_that_applies() {
         let all = checks(&healthy());
-        assert_eq!(all.len(), 9);
+        assert_eq!(all.len(), 10);
         for c in &all {
             let expected = if c.key == "gst-threshold" {
                 HealthStatus::NotApplicable
@@ -609,6 +662,45 @@ mod tests {
         assert_eq!(
             find(&checks(&single), "receipts").finding,
             "1 expense this financial year has no receipt, including one that claims GST over $50."
+        );
+    }
+
+    #[test]
+    fn a_backup_older_than_30_days_or_none_after_two_weeks_is_worth_fixing() {
+        let with = |available, days, age| Facts {
+            backups_available: available,
+            days_since_backup: days,
+            business_age_days: age,
+            ..healthy()
+        };
+        assert_eq!(
+            status(&with(false, None, 400), "backup"),
+            HealthStatus::NotApplicable,
+            "not in the browser"
+        );
+        assert_eq!(
+            status(&with(true, None, 3), "backup"),
+            HealthStatus::Recommendation
+        );
+        assert_eq!(
+            status(&with(true, None, 14), "backup"),
+            HealthStatus::Warning
+        );
+        assert_eq!(
+            status(&with(true, Some(30), 400), "backup"),
+            HealthStatus::Passed
+        );
+        let old = find(&checks(&with(true, Some(31), 400)), "backup");
+        assert_eq!(old.status, HealthStatus::Warning);
+        assert_eq!(old.finding, "Your last backup was 31 days ago.");
+        assert_eq!(old.link.as_deref(), Some("/settings/data"));
+        assert_eq!(
+            find(&checks(&with(true, Some(0), 400)), "backup").finding,
+            "Your last backup was today."
+        );
+        assert_eq!(
+            find(&checks(&with(true, Some(1), 400)), "backup").finding,
+            "Your last backup was yesterday."
         );
     }
 

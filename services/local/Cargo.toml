@@ -10,6 +10,7 @@ publish = false
 [dependencies]
 anyhow = "1.0.104"
 axum = "0.8.9"
+chrono = { version = "0.4.45", features = ["serde"] }
 # Real PostgreSQL, bundled into the binary at build time (POSTGRESQL_VERSION in .cargo/config.toml).
 postgresql_embedded = { version = "0.22.0", default-features = false, features = ["bundled", "tokio", "tls-rustls-ring"] }
 rand = "0.10.4"
@@ -17,12 +18,14 @@ serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.154"
 solo-api = { path = "../api" }
 sqlx = { version = "0.9.1", default-features = false, features = ["runtime-tokio", "postgres"] }
+# Backups: one file with the database dump and the receipts.
+tar = "0.4.46"
 tokio = { version = "1.54.1", features = ["full"] }
 tracing = "0.1.44"
 tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
 
 [dev-dependencies]
-reqwest = { version = "0.13", default-features = false, features = ["json", "rustls"] }
+reqwest = { version = "0.13", default-features = false, features = ["json", "multipart", "rustls"] }
 tempfile = "3"
 
 [lints.rust]

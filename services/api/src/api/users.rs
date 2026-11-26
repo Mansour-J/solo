@@ -1,7 +1,7 @@
-//! `/api/v1/users/me`: the owner's profile and the full data export.
+//! `/api/v1/users/me`: the owner's profile, the full data export and backups.
 
 use axum::Json;
-use axum::extract::State;
+use axum::extract::{DefaultBodyLimit, Multipart, State};
 use axum::http::header;
 use axum::response::IntoResponse;
 use utoipa_axum::router::OpenApiRouter;
@@ -9,7 +9,8 @@ use utoipa_axum::routes;
 
 use super::extract::ApiJson;
 use crate::context::Owner;
-use crate::error::{AppResult, ErrorBody};
+use crate::error::{AppError, AppResult, ErrorBody};
+use crate::services::backups::{self, BackupStatus, RestoreResult};
 use crate::services::email_settings::{self, EmailSettings, EmailSettingsInput, TestEmailInput};
 use crate::services::notices_email::{
     self, NoticesEmail, NoticesEmailInput, NoticesRun, NoticesRunInput,
@@ -128,6 +129,90 @@ async fn run_notices_email(
     Ok(Json(notices_email::run(&state, &owner, input).await?))
 }
 
+/// Whether backups can be made here (the desktop app) and when the books were last backed up.
+#[utoipa::path(get, path = "/backups", tag = "users", responses((status = OK, body = BackupStatus)))]
+async fn backup_status(
+    State(state): State<AppState>,
+    _owner: Owner,
+) -> AppResult<Json<BackupStatus>> {
+    Ok(Json(backups::status(&state).await?))
+}
+
+/// Makes a backup of every business and its receipts and sends it as one file (desktop app only).
+#[utoipa::path(post, path = "/backups", tag = "users",
+    responses((status = OK, content_type = "application/octet-stream", body = Vec<u8>), (status = CONFLICT, body = ErrorBody)))]
+async fn create_backup(
+    State(state): State<AppState>,
+    _owner: Owner,
+) -> AppResult<impl IntoResponse> {
+    let file = backups::create(&state).await?;
+    let bytes = tokio::fs::read(&file.path)
+        .await
+        .map_err(AppError::internal);
+    let _ = tokio::fs::remove_file(&file.path).await;
+    let filename = format!(
+        "solo-backup-{}.solobackup",
+        file.made_at.format("%Y-%m-%d-%H%M")
+    );
+    Ok((
+        [
+            (header::CONTENT_TYPE, "application/octet-stream".to_owned()),
+            (
+                header::CONTENT_DISPOSITION,
+                format!("attachment; filename=\"{filename}\""),
+            ),
+            (header::CACHE_CONTROL, "no-store".to_owned()),
+        ],
+        bytes?,
+    ))
+}
+
+/// Replaces the books with a backup (multipart field `file`), keeping a copy of the current books
+/// first. The app must restart afterwards (desktop app only).
+#[utoipa::path(post, path = "/backups/restore", tag = "users", request_body(content_type = "multipart/form-data", content = Object),
+    responses((status = OK, body = RestoreResult), (status = UNPROCESSABLE_ENTITY, body = ErrorBody), (status = CONFLICT, body = ErrorBody)))]
+async fn restore_backup(
+    State(state): State<AppState>,
+    owner: Owner,
+    mut multipart: Multipart,
+) -> AppResult<Json<RestoreResult>> {
+    use tokio::io::AsyncWriteExt;
+    while let Some(mut field) = multipart
+        .next_field()
+        .await
+        .map_err(|e| AppError::BadRequest(e.body_text()))?
+    {
+        if field.name() != Some("file") {
+            continue;
+        }
+        let path = backups::upload_path(&state)?;
+        let mut out = tokio::fs::File::create(&path)
+            .await
+            .map_err(AppError::internal)?;
+        let written: Result<(), AppError> = async {
+            while let Some(chunk) = field
+                .chunk()
+                .await
+                .map_err(|e| AppError::BadRequest(e.body_text()))?
+            {
+                out.write_all(&chunk).await.map_err(AppError::internal)?;
+            }
+            out.flush().await.map_err(AppError::internal)
+        }
+        .await;
+        drop(out);
+        if let Err(error) = written {
+            let _ = tokio::fs::remove_file(&path).await;
+            return Err(error);
+        }
+        return Ok(Json(backups::restore(&state, &owner, path).await?));
+    }
+    Err(AppError::validation(
+        "file",
+        "Choose a backup file to restore.",
+    ))
+}
+
 pub fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .routes(routes!(me, update_me))
@@ -137,4 +222,11 @@ pub fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(system_status))
         .routes(routes!(get_notices_email, save_notices_email))
         .routes(routes!(run_notices_email))
+        .routes(routes!(backup_status, create_backup))
+        // A backup holds every receipt, so it can be far larger than other uploads.
+        .merge(
+            OpenApiRouter::new()
+                .routes(routes!(restore_backup))
+                .layer(DefaultBodyLimit::disable()),
+        )
 }
