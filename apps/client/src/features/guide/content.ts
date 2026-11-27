@@ -444,6 +444,16 @@ export const GUIDE_CHAPTERS: GuideChapter[] = [
         body: '**Settings › Your businesses** lists every business you keep books for. Each keeps its own customers, records and settings; switch between them from the top bar.',
         link: { to: '/settings/businesses', label: 'Open your businesses' },
       },
+      {
+        title: `Who makes ${BRAND.name}, and your privacy`,
+        body: `**Settings › About** says who makes ${BRAND.name} and what it’s for, and links to its code on GitHub. It sends no analytics, and your books stay on your own computer.`,
+        link: { to: '/settings/about', label: 'Open about' },
+      },
+      {
+        title: 'What the licence allows',
+        body: `**Settings › Licence** explains in a table what ${BRAND.name}’s open-source licence lets you do, with a link to the full text.`,
+        link: { to: '/settings/licence', label: 'Open the licence' },
+      },
     ],
   },
 ];

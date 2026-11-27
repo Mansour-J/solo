@@ -7,6 +7,8 @@ import {
   Database,
   FileText,
   HeartPulse,
+  Info,
+  Scale,
   Mail,
   Palette,
   Receipt,
@@ -49,6 +51,13 @@ const SECTIONS: Section[] = [
       { path: '/settings/data', label: 'Your data', icon: Database },
       { path: '/settings/status', label: 'System status', icon: HeartPulse },
       { path: '/settings/updates', label: 'Updates', icon: RefreshCw, desktopOnly: true, updates: true },
+    ],
+  },
+  {
+    label: 'About',
+    items: [
+      { path: '/settings/about', label: 'About', icon: Info },
+      { path: '/settings/licence', label: 'Licence', icon: Scale },
     ],
   },
 ];

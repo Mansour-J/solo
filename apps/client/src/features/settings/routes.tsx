@@ -3,6 +3,7 @@ import { ExpenseCategoriesSettings } from '@/features/expenses/ExpenseCategories
 import { BusinessHealthPage } from '@/features/health/BusinessHealthPage';
 import { MileageSettings } from '@/features/mileage/MileageSettings';
 import { UpdatesSettings } from '@/features/updates/UpdatesSettings';
+import { AboutSettings, LicenceSettings } from './AboutSettings';
 import { DataSettings, PreferencesSettings, ProfileSettings } from './AccountSettings';
 import { ActivitySettings, BusinessesSettings, InvoicingSettings, KeyedBusinessDetails } from './BusinessSettings';
 import { EmailSettingsPage } from './EmailSettings';
@@ -28,6 +29,8 @@ export const settingsRoutes: RouteObject[] = [
       { path: 'data', element: <DataSettings /> },
       { path: 'status', element: <SystemStatusPage /> },
       { path: 'updates', element: <UpdatesSettings /> },
+      { path: 'about', element: <AboutSettings /> },
+      { path: 'licence', element: <LicenceSettings /> },
     ],
   },
 ];

@@ -10,6 +10,9 @@ declare const __BRAND__: {
   secondaryColor: string;
   supportEmail: string;
   websiteUrl: string;
+  repositoryUrl: string;
+  author: string;
+  license: string;
   termsUrl: string;
   privacyUrl: string;
   copyright: string;
