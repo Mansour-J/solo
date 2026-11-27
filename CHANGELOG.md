@@ -5,6 +5,13 @@ versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html), and 
 release's section from the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) merged
 since the one before (see `docs/deployment/release-process.md`).
 
+## [0.6.0](https://github.com/Mansour-J/solo/compare/v0.5.0...v0.6.0) (2026-11-27)
+
+
+### Features
+
+* **onboarding:** explore a demo business or set up your own on first run ([a78e729](https://github.com/Mansour-J/solo/commit/a78e72922adb4f21cf734a2f66a756a8f033acf6))
+
 ## [0.5.0](https://github.com/Mansour-J/solo/compare/v0.4.1...v0.5.0) (2026-11-26)
 
 
