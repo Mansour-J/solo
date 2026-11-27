@@ -1,7 +1,7 @@
 {
   "name": "@solo/api-client",
   "private": true,
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Typed client for the REST API, generated from its OpenAPI document. Run `npm run api:client` from the repository root after changing the API.",
   "type": "module",
   "main": "src/index.ts",
