@@ -5,6 +5,19 @@ versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html), and 
 release's section from the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) merged
 since the one before (see `docs/deployment/release-process.md`).
 
+## [0.7.0](https://github.com/Mansour-J/solo/compare/v0.6.0...v0.7.0) (2026-11-27)
+
+
+### Features
+
+* **navigation:** group the sidebar into Sales, Spending, Tax and Planning ([0106aea](https://github.com/Mansour-J/solo/commit/0106aea4f8e0ca1eeeb1430059b2f6ea81dbfd64))
+* **settings:** add About and Licence pages ([01491ca](https://github.com/Mansour-J/solo/commit/01491cabeff42999ab355d3473943414872f9cf2))
+
+
+### Bug fixes
+
+* **navigation:** open sidebar groups with the keyboard ([5e3be0f](https://github.com/Mansour-J/solo/commit/5e3be0f970970a2bf6c67499166322ede5236c1c))
+
 ## [0.6.0](https://github.com/Mansour-J/solo/compare/v0.5.0...v0.6.0) (2026-11-27)
 
 
