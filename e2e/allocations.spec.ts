@@ -1,12 +1,12 @@
 import { expect, test } from '@playwright/test';
-import { createBusiness, startBusinessSetup } from './helpers';
+import { createBusiness, startBusinessSetup, openFromSidebar } from './helpers';
 
 test('a rule proposes a split for income, the user adjusts and confirms it, and deleting the income reverses it', async ({ page }) => {
   await startBusinessSetup(page);
   await createBusiness(page, 'Allocation Studio');
 
   // First visit: nothing is planned until there's a rule.
-  await page.getByRole('link', { name: 'Allocations' }).first().click();
+  await openFromSidebar(page, 'Allocations');
   await expect(page.getByText('Plan where your money goes')).toBeVisible();
   await page.getByRole('button', { name: 'Add your first rule' }).click();
   const ruleDialog = page.getByRole('dialog', { name: 'Add rule' });

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { createBusiness, currentBusinessId, startBusinessSetup } from './helpers';
+import { createBusiness, currentBusinessId, startBusinessSetup, openFromSidebar } from './helpers';
 
 const headers = { 'x-client-kind': 'web' };
 
@@ -37,7 +37,7 @@ test('withholding tax, drawings and depreciation reach the balance sheet', async
   await expect(page.getByText('Payment recorded')).toBeVisible();
 
   // A $300 drawing.
-  await page.getByRole('link', { name: 'Year end' }).first().click();
+  await openFromSidebar(page, 'Year end');
   await expect(page.getByText('Nothing recorded yet')).toBeVisible();
   await page.getByRole('button', { name: 'Record money in or out' }).first().click();
   const movement = page.getByRole('dialog', { name: 'Record money in or out' });
@@ -65,7 +65,7 @@ test('withholding tax, drawings and depreciation reach the balance sheet', async
   await expect(page.getByRole('row', { name: /^Laptop/ }).last()).toContainText('$500.00');
 
   // The balance sheet balances: equity = earnings − drawings − tax withheld.
-  await page.getByRole('link', { name: 'Reports' }).first().click();
+  await openFromSidebar(page, 'Reports');
   await page.getByRole('navigation', { name: 'Reports' }).getByText('Balance sheet').click();
   await expect(page.getByRole('row', { name: /^Business bank account/ })).toContainText('$1,300.00');
   await expect(page.getByRole('row', { name: /^Drawings/ })).toContainText('-$300.00');

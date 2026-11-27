@@ -63,6 +63,9 @@ function Navigation({ onNavigate }: { onNavigate: () => void }) {
             return (
               <NavLink
                 key={entry.key}
+                component="button"
+                type="button"
+                aria-expanded={openGroups[entry.key] ?? holdsActive}
                 label={entry.label}
                 leftSection={<entry.icon size={18} strokeWidth={1.85} />}
                 opened={openGroups[entry.key] ?? holdsActive}
@@ -116,7 +119,7 @@ export function AppLayout() {
           </Group>
         </Group>
       </AppShell.Header>
-      <AppShell.Navbar bg="var(--app-sidebar-bg)" style={{ borderColor: 'var(--app-border)' }}>
+      <AppShell.Navbar aria-label="Main" bg="var(--app-sidebar-bg)" style={{ borderColor: 'var(--app-border)' }}>
         <Navigation onNavigate={close} />
       </AppShell.Navbar>
       <AppShell.Main bg="var(--app-surface-muted)">

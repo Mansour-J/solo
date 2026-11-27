@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { createBusiness, startBusinessSetup } from './helpers';
+import { createBusiness, startBusinessSetup, openFromSidebar } from './helpers';
 
 /** A 1×1 PNG: the API checks a receipt's bytes, not just its name. */
 const RECEIPT_PNG = Buffer.from(
@@ -18,7 +18,7 @@ test('a customer added from the dashboard opens on its own page', async ({ page 
   await dialog.getByRole('button', { name: 'Add customer' }).click();
 
   await expect(page.getByRole('heading', { name: 'Kākā Consulting' })).toBeVisible();
-  await page.getByRole('link', { name: 'Customers' }).first().click();
+  await openFromSidebar(page, 'Customers');
   await expect(page.getByRole('link', { name: 'Kākā Consulting' }).or(page.getByText('Kākā Consulting')).first()).toBeVisible();
 });
 

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { createBusiness, currentBusinessId, startBusinessSetup } from './helpers';
+import { createBusiness, currentBusinessId, startBusinessSetup, openFromSidebar } from './helpers';
 
 const headers = { 'x-client-kind': 'web' };
 
@@ -39,7 +39,7 @@ test('reports show figures from the records, export as PDF and give a customer t
   const customer = await seed(page);
 
   // Profit and loss for this financial year (accrual): the invoice and the income are sales.
-  await page.getByRole('link', { name: 'Reports' }).first().click();
+  await openFromSidebar(page, 'Reports');
   await expect(page.getByText('Profit and loss', { exact: true }).first()).toBeVisible();
   const income = page.getByRole('row', { name: /^Sales/ }).first();
   await expect(income).toContainText('$1,230.00');

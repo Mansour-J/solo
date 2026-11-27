@@ -1,13 +1,13 @@
 import { readFile } from 'node:fs/promises';
 import { expect, test } from '@playwright/test';
-import { createBusiness, startBusinessSetup } from './helpers';
+import { createBusiness, startBusinessSetup, openFromSidebar } from './helpers';
 
 test('a vehicle, a rate and a trip produce a mileage claim in the report, the dashboard and the CSV', async ({ page }) => {
   await startBusinessSetup(page);
   await createBusiness(page, 'Mileage Studio');
 
   // First visit: set up the vehicle with a rate of our own.
-  await page.getByRole('link', { name: 'Mileage' }).first().click();
+  await openFromSidebar(page, 'Mileage');
   await page.getByRole('button', { name: 'Add vehicle' }).click();
   const vehicleDialog = page.getByRole('dialog', { name: 'Add vehicle' });
   await vehicleDialog.getByRole('textbox', { name: 'Name', exact: true }).fill('Corolla');

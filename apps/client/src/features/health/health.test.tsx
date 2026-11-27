@@ -87,7 +87,9 @@ describe('business health', () => {
 
     // Checks that passed or don't apply are folded away.
     await userEvent.click(screen.getByRole('button', { name: 'Passed (1)' }));
-    expect(await screen.findByText('Your address is on your invoices.')).toBeVisible();
+    // The section opens with an animation, so wait for it rather than checking straight away.
+    const passed = await screen.findByText('Your address is on your invoices.');
+    await waitFor(() => expect(passed).toBeVisible());
     expect(screen.getByRole('button', { name: 'Doesn’t apply (1)' })).toBeInTheDocument();
   });
 

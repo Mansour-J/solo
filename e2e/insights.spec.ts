@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { createBusiness, currentBusinessId, startBusinessSetup } from './helpers';
+import { createBusiness, currentBusinessId, startBusinessSetup, openFromSidebar } from './helpers';
 
 const headers = { 'x-client-kind': 'web' };
 
@@ -39,7 +39,7 @@ test('insights explain the figures, and a notice can be dismissed', async ({ pag
   await expect(page.getByText('Worth knowing')).toBeVisible();
   await expect(page.getByText('You have 1 overdue invoice ($1,000.00).')).toBeVisible();
 
-  await page.getByRole('link', { name: 'Insights' }).first().click();
+  await openFromSidebar(page, 'Insights');
   await expect(page.getByText('Owed to you', { exact: true })).toBeVisible();
   await expect(page.getByText('Customers owe you $1,000.00 on 1 invoice, $1,000.00 of it overdue.')).toBeVisible();
   // Not enough history yet for comparisons: the section says why instead of guessing.
