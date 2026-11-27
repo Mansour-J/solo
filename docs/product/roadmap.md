@@ -154,11 +154,15 @@ Each GST period with IRD's due date, what to pay and what was paid, on the busin
 is owed now (SL-019). Known limitations: public holidays aren't in the due dates, and returns are filed
 with IRD outside the app.
 
-## Phase 7 — Improvements and integrations (next)
+## Phase 7 — Improvements and integrations (in progress)
 
-Recurring invoices, reminders, imports, OCR, bank feeds, payment integrations.
+Done: recurring invoices (SL-701), invoice reminders (SL-702), advanced exports (SL-704) and Business
+health (SL-709). Parked for later: imports (SL-703), receipt OCR (SL-705), bank feeds (SL-706), online
+invoice payments (SL-707) and a mobile app (SL-708).
 
-## Phase 8 — Tax (last)
+## Phase 8 — Tax (in progress)
 
-GST calculations, tax estimates, provisional tax, income tax, ACC, student loan, IRD integration and
-filing — only after the core product is stable, as separate modules.
+Done: GST return preparation (SL-802), income tax and ACC estimates (SL-801), provisional tax
+(SL-805), entertainment at 50% (SL-806), bad debts (SL-807), the GST registration reminder (SL-808),
+second-hand goods and change of use (SL-809), home office (SL-810) and low-value assets (SL-811).
+Parked for later: income tax return preparation (SL-803) and filing integrations (SL-804).
