@@ -54,6 +54,7 @@ pub async fn send(
     customer_id: Uuid,
     input: SendStatementInput,
 ) -> AppResult<Vec<EmailLogRow>> {
+    crate::services::businesses::refuse_demo_email(state, ctx).await?;
     let Some(mailer) = email_settings::mailer(state, ctx.user_id()).await? else {
         return Err(AppError::Conflict(
             "Email isn’t set up yet: add your email account in Settings › Email, or download the PDF and send it yourself.".into(),

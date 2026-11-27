@@ -60,6 +60,10 @@ pub struct BusinessInput {
     /// Marks onboarding as finished (the user reached the end of the setup flow).
     #[serde(default)]
     pub complete_onboarding: bool,
+    /// Creates the demo business, filled with made-up records to explore the app with (first run). Only
+    /// on creation: a business never becomes, or stops being, a demo.
+    #[serde(default)]
+    pub demo: bool,
 }
 
 fn default_business_type() -> BusinessType {
@@ -119,6 +123,8 @@ pub struct Business {
     pub reporting_basis: ReportingBasis,
     pub has_logo: bool,
     pub onboarding_completed: bool,
+    /// A demo business of made-up records: it never sends email and can be reset or removed.
+    pub is_demo: bool,
     pub current_financial_year: FinancialYear,
     /// Today's date in the business's time zone.
     pub today: NaiveDate,
@@ -133,6 +139,7 @@ pub struct BusinessSummary {
     pub currency: String,
     pub has_logo: bool,
     pub onboarding_completed: bool,
+    pub is_demo: bool,
 }
 
 /// Invoice, quote and expense defaults for a business.
@@ -196,6 +203,7 @@ fn to_business(row: BusinessRow) -> Business {
         address: serde_json::from_value(row.address).unwrap_or_default(),
         has_logo: row.logo_object_key.is_some(),
         onboarding_completed: row.onboarding_completed_at.is_some(),
+        is_demo: row.is_demo,
         current_financial_year: FinancialYear {
             start,
             end,
@@ -354,16 +362,23 @@ pub async fn list(state: &AppState, auth: &Owner) -> AppResult<Vec<BusinessSumma
             currency: m.currency,
             has_logo: m.logo_object_key.is_some(),
             onboarding_completed: m.onboarding_completed_at.is_some(),
+            is_demo: m.is_demo,
         })
         .collect())
 }
 
 pub async fn create(state: &AppState, auth: &Owner, input: BusinessInput) -> AppResult<Business> {
     let complete = input.complete_onboarding;
+    let demo = input.demo;
     let fields = validate(input)?;
+    if demo && list(state, auth).await?.iter().any(|b| b.is_demo) {
+        return Err(AppError::Conflict(
+            "There’s already a demo business: reset it instead.".into(),
+        ));
+    }
     let id = Uuid::now_v7();
     let mut tx = state.db.begin_business(auth.user_id, id).await?;
-    let row = businesses::insert(&mut tx, id, auth.user_id, &fields, complete).await?;
+    let row = businesses::insert(&mut tx, id, auth.user_id, &fields, complete, demo).await?;
     crate::services::hooks::on_business_created(&mut tx, id).await?;
     audit::record(
         &mut tx,
@@ -374,7 +389,7 @@ pub async fn create(state: &AppState, auth: &Owner, input: BusinessInput) -> App
             entity_type: "business",
             entity_id: Some(id),
             summary: format!("Business “{}” created", row.name),
-            changes: serde_json::json!({}),
+            changes: serde_json::json!({ "is_demo": demo }),
         },
     )
     .await?;
@@ -392,6 +407,22 @@ pub async fn get(state: &AppState, ctx: &BusinessContext) -> AppResult<Business>
         .ok_or(AppError::NotFound("Business"))?;
     tx.commit().await?;
     Ok(to_business(row))
+}
+
+/// What a demo business says when asked to send email.
+pub const DEMO_EMAIL: &str = "This is the demo business, so it doesn’t send email: its customers are made up. Download the PDF to see what would be sent.";
+
+/// Whether a business is the demo (its records are made up). Email is never sent from one.
+pub async fn is_demo(state: &AppState, ctx: &BusinessContext) -> AppResult<bool> {
+    Ok(get(state, ctx).await?.is_demo)
+}
+
+/// Refuses to send email from the demo business.
+pub async fn refuse_demo_email(state: &AppState, ctx: &BusinessContext) -> AppResult<()> {
+    if is_demo(state, ctx).await? {
+        return Err(AppError::Conflict(DEMO_EMAIL.into()));
+    }
+    Ok(())
 }
 
 /// Field-level differences between two JSON objects, for the audit log.

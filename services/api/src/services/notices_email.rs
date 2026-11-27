@@ -157,8 +157,9 @@ pub async fn run(state: &AppState, owner: &Owner, input: NoticesRunInput) -> App
     let mut paragraphs = Vec::new();
     let mut count = 0;
     let list = businesses::list(state, owner).await?;
-    let several = list.len() > 1;
-    for b in &list {
+    let several = list.iter().filter(|b| !b.is_demo).count() > 1;
+    // The demo business's notices are about made-up records.
+    for b in list.iter().filter(|b| !b.is_demo) {
         let ctx = BusinessContext {
             owner: owner.clone(),
             business_id: b.id,

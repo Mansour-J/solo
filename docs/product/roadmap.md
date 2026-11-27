@@ -156,8 +156,8 @@ with IRD outside the app.
 
 ## Phase 7 — Improvements and integrations (in progress)
 
-Done: recurring invoices (SL-701), invoice reminders (SL-702), advanced exports (SL-704) and Business
-health (SL-709). Parked for later: imports (SL-703), receipt OCR (SL-705), bank feeds (SL-706), online
+Done: recurring invoices (SL-701), invoice reminders (SL-702), advanced exports (SL-704), Business
+health (SL-709) and a demo business to explore on first run (SL-710). Parked for later: imports (SL-703), receipt OCR (SL-705), bank feeds (SL-706), online
 invoice payments (SL-707) and a mobile app (SL-708).
 
 ## Phase 8 — Tax (in progress)

@@ -64,15 +64,25 @@ export function OnboardingPage() {
   };
 
   const hasOtherBusinesses = (existing?.length ?? 0) > 0;
+  const hasDemo = existing?.some((b) => b.is_demo) ?? false;
 
   return (
     <Box mih="100dvh" bg="var(--app-surface-muted)">
       <Group justify="space-between" px={{ base: 'md', sm: 'xl' }} py="md">
         <Wordmark />
-        {hasOtherBusinesses && !created && (
-          <Anchor size="sm" onClick={() => navigate('/')}>
-            Cancel
-          </Anchor>
+        {!created && (
+          <Group gap="md">
+            {!hasDemo && (
+              <Anchor size="sm" onClick={() => navigate('/welcome')}>
+                Explore the demo first
+              </Anchor>
+            )}
+            {hasOtherBusinesses && (
+              <Anchor size="sm" onClick={() => navigate('/')}>
+                Cancel
+              </Anchor>
+            )}
+          </Group>
         )}
       </Group>
       <Container size={720} pb="xl">
@@ -81,7 +91,7 @@ export function OnboardingPage() {
             <Title order={1}>
               {created
                 ? 'Your business is ready'
-                : hasOtherBusinesses
+                : existing?.some((b) => !b.is_demo)
                   ? 'Add a business'
                   : user.first_name
                     ? `Kia ora, ${user.first_name}`

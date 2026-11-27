@@ -51,6 +51,28 @@ export async function uploadFile(path: string, file: File, method: 'PUT' | 'POST
   return body;
 }
 
+/**
+ * Sends JSON to a path under `/api/v1` and returns the JSON reply. For code that builds many requests
+ * from data (the demo business, `features/demo`); screens use the typed `api`.
+ */
+export async function requestJson(method: string, path: string, body?: unknown): Promise<unknown> {
+  let response: Response;
+  try {
+    response = await send(
+      new Request(`${baseUrl}/api/v1${path}`, {
+        method,
+        headers: body === undefined ? undefined : { 'content-type': 'application/json' },
+        body: body === undefined ? undefined : JSON.stringify(body),
+      }),
+    );
+  } catch {
+    throw new ApiError('NETWORK', 'Unable to reach the server. Check your connection and try again.');
+  }
+  const json: unknown = response.status === 204 ? null : await response.json().catch(() => null);
+  if (!response.ok) throw ApiError.fromResponse(response.status, json);
+  return json;
+}
+
 interface FetchResult<T> {
   data?: T;
   error?: unknown;

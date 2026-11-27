@@ -260,7 +260,8 @@ pub async fn run(state: &AppState, ctx: &BusinessContext) -> AppResult<ReminderR
     let settings = settings_of(&mut tx, ctx.business_id).await?;
     let business = load_business(&mut tx, ctx.business_id).await?;
     let today = businesses::business_today(&business.timezone);
-    if !settings.reminders_enabled {
+    // The demo's customers are made up: it never sends reminders.
+    if !settings.reminders_enabled || business.is_demo {
         tx.commit().await?;
         return Ok(ReminderRun {
             sent: Vec::new(),

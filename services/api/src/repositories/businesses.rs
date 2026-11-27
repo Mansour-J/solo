@@ -33,6 +33,7 @@ pub struct BusinessRow {
     pub reporting_basis: ReportingBasis,
     pub logo_object_key: Option<String>,
     pub onboarding_completed_at: Option<DateTime<Utc>>,
+    pub is_demo: bool,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -41,7 +42,7 @@ macro_rules! columns {
     () => {
         "id, name, trading_name, business_type, email, phone, address, nzbn, gst_registered, gst_number, \
     gst_registered_from, gst_basis, gst_period, gst_period_end_month, currency, locale, timezone, financial_year_start_month, financial_year_start_day, \
-    reporting_basis, logo_object_key, onboarding_completed_at, created_at, updated_at"
+    reporting_basis, logo_object_key, onboarding_completed_at, is_demo, created_at, updated_at"
     };
 }
 
@@ -99,13 +100,14 @@ pub async fn insert(
     owner: Uuid,
     fields: &BusinessFields,
     onboarding_complete: bool,
+    is_demo: bool,
 ) -> Result<BusinessRow, sqlx::Error> {
     let row: BusinessRow = sqlx::query_as(concat!(
         "INSERT INTO businesses (id, name, trading_name, business_type, email, phone, address, nzbn, gst_registered,
             gst_number, gst_registered_from, gst_basis, currency, financial_year_start_month, financial_year_start_day,
-            reporting_basis, onboarding_completed_at, created_by, gst_period, gst_period_end_month)
+            reporting_basis, onboarding_completed_at, created_by, gst_period, gst_period_end_month, is_demo)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
-                 CASE WHEN $17 THEN now() END, $18, $19, $20)
+                 CASE WHEN $17 THEN now() END, $18, $19, $20, $21)
          RETURNING ", columns!(), ""
     ))
     .bind(id)
@@ -128,6 +130,7 @@ pub async fn insert(
     .bind(owner)
     .bind(fields.gst_period)
     .bind(fields.gst_period_end_month)
+    .bind(is_demo)
     .fetch_one(&mut *conn)
     .await?;
     sqlx::query(
@@ -199,6 +202,7 @@ pub struct MembershipRow {
     pub logo_object_key: Option<String>,
     pub onboarding_completed_at: Option<DateTime<Utc>>,
     pub currency: String,
+    pub is_demo: bool,
 }
 
 /// Businesses the current user belongs to (requires `solo.user_id`).
@@ -207,7 +211,7 @@ pub async fn list_for_user(
     user_id: Uuid,
 ) -> Result<Vec<MembershipRow>, sqlx::Error> {
     sqlx::query_as(
-        "SELECT b.id AS business_id, b.name, b.logo_object_key, b.onboarding_completed_at, b.currency
+        "SELECT b.id AS business_id, b.name, b.logo_object_key, b.onboarding_completed_at, b.currency, b.is_demo
          FROM business_members m JOIN businesses b ON b.id = m.business_id
          WHERE m.user_id = $1
          ORDER BY b.created_at",

@@ -33,10 +33,11 @@ const RUNS = [
       'income-tax:/income-tax',
       'health:/settings/health',
       'data:/settings/data',
+      'welcome:/welcome',
     ],
   ],
   [['--dark'], ['dashboard:/dashboard', 'reports:/reports', 'insights:/insights', 'health:/settings/health']],
-  [['--mobile'], ['dashboard:/dashboard', 'income-tax:/income-tax']],
+  [['--mobile'], ['dashboard:/dashboard', 'income-tax:/income-tax', 'welcome:/welcome']],
 ];
 
 for (const [flags, shots] of RUNS) {

@@ -364,3 +364,96 @@ async fn reference_data_and_meta_are_public() {
         "there is no sign-in"
     );
 }
+
+#[tokio::test]
+async fn the_demo_business_is_marked_alone_and_never_sends_email() {
+    let app = TestApp::new().await;
+    let user = app.register("demo").await;
+    let real = app.create_business(&user, "Real Work Ltd").await;
+    let created = app
+        .post(
+            "/api/v1/businesses",
+            &user.auth(),
+            json!({ "name": "Fernbird Consulting (demo)", "demo": true, "complete_onboarding": true }),
+        )
+        .await;
+    assert_eq!(created.status, StatusCode::CREATED, "{}", created.body);
+    assert_eq!(created.body["is_demo"], true);
+    let demo = created.body["id"].as_str().expect("id").to_owned();
+
+    let list = app.get("/api/v1/businesses", &user.auth()).await;
+    let flags: Vec<(String, bool)> = list
+        .body
+        .as_array()
+        .expect("list")
+        .iter()
+        .map(|b| {
+            (
+                b["id"].as_str().unwrap_or_default().to_owned(),
+                b["is_demo"] == true,
+            )
+        })
+        .collect();
+    assert_eq!(flags, vec![(real.to_string(), false), (demo.clone(), true)]);
+
+    // One demo at a time, and editing a business never changes whether it's the demo.
+    let again = app
+        .post(
+            "/api/v1/businesses",
+            &user.auth(),
+            json!({ "name": "Another demo", "demo": true }),
+        )
+        .await;
+    assert_eq!(again.status, StatusCode::CONFLICT, "{}", again.body);
+    let updated = app
+        .put(
+            &format!("/api/v1/businesses/{real}"),
+            &user.auth(),
+            json!({ "name": "Real Work Ltd", "demo": true }),
+        )
+        .await;
+    assert_eq!(updated.status, StatusCode::OK, "{}", updated.body);
+    assert_eq!(updated.body["is_demo"], false);
+
+    // Its customers are made up, so nothing is emailed to them.
+    let base = format!("/api/v1/businesses/{demo}");
+    let customer = app
+        .post(
+            &format!("{base}/customers"),
+            &user.auth(),
+            json!({ "name": "Tūī Analytics (demo)", "email": "accounts@tui.example" }),
+        )
+        .await;
+    let draft = app
+        .post(
+            &format!("{base}/invoices"),
+            &user.auth(),
+            json!({
+                "customer_id": customer.body["id"], "issue_date": "2026-10-01",
+                "lines": [{ "description": "Work", "quantity": "1", "unit_price": 10000, "tax_treatment": "standard" }]
+            }),
+        )
+        .await;
+    let id = draft.body["id"].as_str().expect("invoice id");
+    let issued = app
+        .post(
+            &format!("{base}/invoices/{id}/issue"),
+            &user.auth(),
+            json!({}),
+        )
+        .await;
+    assert_eq!(issued.status, StatusCode::OK, "{}", issued.body);
+    let sent = app
+        .post(
+            &format!("{base}/invoices/{id}/send"),
+            &user.auth(),
+            json!({}),
+        )
+        .await;
+    assert_eq!(sent.status, StatusCode::CONFLICT, "{}", sent.body);
+    assert!(
+        sent.body.to_string().contains("demo business"),
+        "{}",
+        sent.body
+    );
+}

@@ -148,6 +148,9 @@ Everything below works in the current release. Click a section to expand it.
 
 <br>
 
+- Try it first with a demo business: a made-up contractor's books, a year and a half of invoices,
+  expenses, GST returns, mileage and reports, kept apart from your own, never sending email, and reset
+  or removed whenever you like
 - Several businesses, each with its own books
 - Business health: checks you're set up to issue correct tax invoices, keep the records IRD expects and
   get paid, says why each problem matters and links to the fix
@@ -190,8 +193,10 @@ Everything below works in the current release. Click a section to expand it.
 | Income tax, provisional tax and ACC levies | Business health |
 | ![Back up and restore](docs/screenshots/data.png) | ![Business health in dark mode](docs/screenshots/health_d.png) |
 | Back up and restore | Business health, dark theme |
-| ![Reports in dark mode](docs/screenshots/reports_d.png) | <img src="docs/screenshots/dashboard_m.png" alt="Dashboard on a phone" width="200"> <img src="docs/screenshots/income-tax_m.png" alt="Income tax on a phone" width="200"> |
-| Reports, dark theme | At phone width |
+| ![The first screen: explore the demo or set up your business](docs/screenshots/welcome.png) | ![Reports in dark mode](docs/screenshots/reports_d.png) |
+| The first screen: explore the demo or set up your business | Reports, dark theme |
+| <img src="docs/screenshots/welcome_m.png" alt="The first screen on a phone" width="200"> | <img src="docs/screenshots/dashboard_m.png" alt="Dashboard on a phone" width="200"> <img src="docs/screenshots/income-tax_m.png" alt="Income tax on a phone" width="200"> |
+| The first screen on a phone | At phone width |
 
 </details>
 
@@ -200,8 +205,9 @@ Everything below works in the current release. Click a section to expand it.
 1. **Download** the installer for your computer from the
    [latest release](https://github.com/Mansour-J/solo/releases/latest).
 2. **Install and open it.** There's nothing else to set up: no account, no server, no password.
-3. **Set up your business** with its name, GST registration and financial year, and follow the guide
-   in the app.
+3. **Explore the demo or set up your business.** The first screen offers both: a demo business of
+   made-up records to try everything on, or your own business with its name, GST registration and
+   financial year. Then follow the guide in the app.
 
 <details>
 <summary><strong>Which file do I download?</strong></summary>
@@ -241,6 +247,11 @@ developer the first time you open it. See the [installation guide](docs/deployme
 Solo is built in phases. Each phase ships complete, tested features; later work is tracked in the
 [backlog](docs/backlog/backlog.html) and the [roadmap](docs/product/roadmap.md).
 
+<details>
+<summary><strong>Phases 0–8: 9 done, 2 in progress</strong></summary>
+
+<br>
+
 | Phase | What it delivers | Status |
 |---|---|---|
 | 0 | Foundation: the app, its database, design system and automated releases | ✅ Done |
@@ -255,6 +266,8 @@ Solo is built in phases. Each phase ships complete, tested features; later work 
 | 7 | Improvements and integrations | 🔄 In progress |
 | 8 | Tax | 🔄 In progress |
 
+</details>
+
 <details>
 <summary><strong>Phase 7: improvements and integrations</strong></summary>
 
@@ -264,6 +277,7 @@ Solo is built in phases. Each phase ships complete, tested features; later work 
 - ✅ Invoice reminders
 - ✅ Advanced exports
 - ✅ Business health
+- ✅ A demo business to explore on first run
 - ⏸️ Later: importing from other software, reading receipts automatically, bank feeds, online invoice
   payments, a mobile app
 

@@ -2700,6 +2700,45 @@
             ]
           },
           {
+            "id": "SL-710",
+            "title": "Explore with demo data on first run",
+            "section": "phase-7",
+            "status": "Done",
+            "statusNote": "pushed to main (2026-11-27)",
+            "type": "Feature",
+            "priority": "P2",
+            "size": "M",
+            "dependsOn": [],
+            "summary": "Someone who has just installed the app may not know yet whether it suits them. Instead of starting with business setup, the first screen offers two choices: **Explore the demo**, a business filled with made-up records to try everything on straight away, or **Set up my business**, the usual onboarding.",
+            "criteria": [
+              {
+                "done": true,
+                "text": "The welcome screen (`/welcome`) on a first start, with both choices; the choice is remembered, so choosing to set up goes straight to onboarding next time, and once there is a business the app opens it. Onboarding links back to the demo while there is none."
+              },
+              {
+                "done": true,
+                "text": "The demo is an ordinary business marked `is_demo` (V32), so its records are isolated like any other: one at a time, set only on creation, shown in `Business` and `BusinessSummary`."
+              },
+              {
+                "done": true,
+                "text": "Realistic records covering the main features, dated from the start of last financial year to the business's today: agency invoices with withholding tax, direct jobs (paid, part paid and overdue, a draft), a quote, expenses, interest, assets and depreciation, home office, mileage with two tiers, drawings, GST returns paid and allocation rules. One module (`features/demo/demoData.ts`) builds it from the app and from `scripts/seed-demo.mjs`."
+              },
+              {
+                "done": true,
+                "text": "Never mixed with real records: a **Demo** badge in the business switcher and a banner on every screen of the demo; it never sends email (documents, statements and reminders are refused or skipped, and the weekly notices email leaves it out)."
+              },
+              {
+                "done": true,
+                "text": "**Reset demo** rebuilds it from scratch and **Remove demo** deletes it, from the banner; your own businesses aren't touched."
+              },
+              {
+                "done": true,
+                "text": "Tests: an API test (the flag, one demo, no email), component tests (the choices, building, failure, reset, remove; every demo record dated on or before today), an end-to-end journey; the guide, README (with screenshots) and roadmap."
+              }
+            ],
+            "code": "`database/migrations/V32__demo_business.sql`, `services/api/src/services/businesses.rs`, `apps/client/src/features/demo/`, `scripts/seed-demo.mjs`"
+          },
+          {
             "id": "SL-801",
             "title": "Income tax and ACC estimates",
             "section": "phase-8",

@@ -565,6 +565,7 @@ pub async fn send_document(
     id: Uuid,
     input: SendDocumentInput,
 ) -> AppResult<()> {
+    crate::services::businesses::refuse_demo_email(state, ctx).await?;
     let Some(mailer) = crate::services::email_settings::mailer(state, ctx.user_id()).await? else {
         return Err(AppError::Conflict(
             "Email isn’t set up yet: add your email account in Settings › Email, or download the PDF and send it yourself.".into(),

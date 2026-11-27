@@ -5,6 +5,7 @@ import { NavLink as RouterNavLink, Outlet, useLocation } from 'react-router';
 import { RecurringRunner } from '@/features/invoices/Recurring';
 import { ReminderRunner } from '@/features/invoices/Reminders';
 import { NoticesEmailRunner } from '@/features/settings/NoticesEmail';
+import { DemoBanner } from '@/features/demo/DemoBanner';
 import { PageLoader } from '@/app/guards';
 import { FOOTER_NAV_ITEMS, NAV_ITEMS } from '@/app/nav';
 import { Wordmark } from '@/components/Logo';
@@ -81,6 +82,7 @@ export function AppLayout() {
         <Navigation onNavigate={close} />
       </AppShell.Navbar>
       <AppShell.Main bg="var(--app-surface-muted)">
+        <DemoBanner />
         <Suspense fallback={<PageLoader />}>
           <Outlet />
           <RecurringRunner />

@@ -9105,6 +9105,7 @@
           "reporting_basis",
           "has_logo",
           "onboarding_completed",
+          "is_demo",
           "current_financial_year",
           "today",
           "created_at",
@@ -9173,6 +9174,10 @@
           "id": {
             "type": "string",
             "format": "uuid"
+          },
+          "is_demo": {
+            "type": "boolean",
+            "description": "A demo business of made-up records: it never sends email and can be reset or removed."
           },
           "locale": {
             "type": "string"
@@ -9262,6 +9267,10 @@
           },
           "currency": {
             "type": "string"
+          },
+          "demo": {
+            "type": "boolean",
+            "description": "Creates the demo business, filled with made-up records to explore the app with (first run). Only\non creation: a business never becomes, or stops being, a demo."
           },
           "email": {
             "type": [
@@ -9407,7 +9416,8 @@
           "name",
           "currency",
           "has_logo",
-          "onboarding_completed"
+          "onboarding_completed",
+          "is_demo"
         ],
         "properties": {
           "currency": {
@@ -9419,6 +9429,9 @@
           "id": {
             "type": "string",
             "format": "uuid"
+          },
+          "is_demo": {
+            "type": "boolean"
           },
           "name": {
             "type": "string"

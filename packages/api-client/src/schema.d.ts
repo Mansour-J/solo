@@ -2274,6 +2274,8 @@ export interface components {
             has_logo: boolean;
             /** Format: uuid */
             id: string;
+            /** @description A demo business of made-up records: it never sends email and can be reset or removed. */
+            is_demo: boolean;
             locale: string;
             name: string;
             nzbn?: string | null;
@@ -2308,6 +2310,11 @@ export interface components {
             /** @description Marks onboarding as finished (the user reached the end of the setup flow). */
             complete_onboarding?: boolean;
             currency?: string;
+            /**
+             * @description Creates the demo business, filled with made-up records to explore the app with (first run). Only
+             *     on creation: a business never becomes, or stops being, a demo.
+             */
+            demo?: boolean;
             email?: string | null;
             /** Format: int32 */
             financial_year_start_day?: number;
@@ -2363,6 +2370,7 @@ export interface components {
             has_logo: boolean;
             /** Format: uuid */
             id: string;
+            is_demo: boolean;
             name: string;
             onboarding_completed: boolean;
         };

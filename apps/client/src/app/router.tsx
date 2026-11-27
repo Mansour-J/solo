@@ -13,6 +13,7 @@ import { insightRoutes } from '@/features/insights/routes';
 import { yearEndRoutes } from '@/features/yearend/routes';
 import { mileageRoutes } from '@/features/mileage/routes';
 import { OnboardingPage } from '@/features/onboarding/OnboardingPage';
+import { WelcomePage } from '@/features/demo/WelcomePage';
 import { settingsRoutes } from '@/features/settings/routes';
 import { RequireBusiness } from './guards';
 import { AppLayout } from './layout/AppLayout';
@@ -22,6 +23,7 @@ export const appRoutes: RouteObject[] = [
   {
     errorElement: <RouteErrorBoundary />,
     children: [
+      { path: '/welcome', element: <WelcomePage /> },
       { path: '/onboarding', element: <OnboardingPage /> },
       {
         element: <RequireBusiness />,

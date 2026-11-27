@@ -1,4 +1,4 @@
-import { Avatar, Group, Menu, Text, UnstyledButton } from '@mantine/core';
+import { Avatar, Badge, Group, Menu, Text, UnstyledButton } from '@mantine/core';
 import { Check, ChevronsUpDown, Plus, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { useBusinesses, useCurrentBusiness } from '@/features/businesses/api';
@@ -35,6 +35,11 @@ export function BusinessSwitcher() {
             <Text fw={600} size="sm" className="clamp-1">
               {business.name}
             </Text>
+            {business.is_demo && (
+              <Badge size="xs" color="yellow" variant="light" style={{ flexShrink: 0 }}>
+                Demo
+              </Badge>
+            )}
             <ChevronsUpDown size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
           </Group>
         </UnstyledButton>
@@ -55,9 +60,16 @@ export function BusinessSwitcher() {
               navigate('/dashboard');
             }}
           >
-            <Text size="sm" className="clamp-1">
-              {b.name}
-            </Text>
+            <Group gap={6} wrap="nowrap">
+              <Text size="sm" className="clamp-1">
+                {b.name}
+              </Text>
+              {b.is_demo && (
+                <Badge size="xs" color="yellow" variant="light" style={{ flexShrink: 0 }}>
+                  Demo
+                </Badge>
+              )}
+            </Group>
           </Menu.Item>
         ))}
         <Menu.Divider />

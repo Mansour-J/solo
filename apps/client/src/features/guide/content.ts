@@ -32,6 +32,12 @@ export const GUIDE_CHAPTERS: GuideChapter[] = [
     summary: `${BRAND.name} keeps your business records in one place and turns them into the reports your accountant needs at the end of the year. You don’t need to know bookkeeping: you record what happens, and the app does the double-entry for you.`,
     steps: [
       {
+        title: 'Try the demo business first',
+        body: 'Not sure yet? On the welcome screen, choose **Explore the demo** to open a made-up contractor’s books, with a year and a half of invoices, expenses, GST returns, mileage and reports. Try anything: it’s a separate business, labelled **Demo** on every screen, and it never sends email. The banner at the top has **Reset demo** to start it again, **Remove demo** to delete it, and **Set up my business** when you’re ready for your own.',
+        link: { to: '/welcome', label: 'Open the welcome screen' },
+        tip: 'Your own business is kept apart from the demo: switch between them from the business name at the top.',
+      },
+      {
         title: 'Gather your papers',
         body: 'Have these nearby: your business bank statements, receipts and bills, any invoices you’ve already sent, letters from IRD about GST or tax, and your accountant’s last annual report if you have one.',
       },

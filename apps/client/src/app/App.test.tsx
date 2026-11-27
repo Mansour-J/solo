@@ -41,7 +41,7 @@ describe('starting the desktop app', () => {
     );
     render(<App />);
     // No sign-in: a first start goes to setting up a business.
-    expect(await screen.findByRole('heading', { name: 'Kia ora' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /^Welcome to / })).toBeInTheDocument();
     await waitFor(() => expect(requests.some((r) => r.url.endsWith('/api/v1/users/me'))).toBe(true));
     expect(requests.filter((r) => !r.url.startsWith(SERVER))).toEqual([]);
     expect(requests.every((r) => r.headers.get('x-api-key') === KEY)).toBe(true);
