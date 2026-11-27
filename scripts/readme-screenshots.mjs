@@ -29,10 +29,14 @@ const RUNS = [
       'year-end:/year-end',
       'assets:/year-end?tab=assets',
       'balance-sheet:/reports?report=balance_sheet',
+      'gst:/gst',
+      'income-tax:/income-tax',
+      'health:/settings/health',
+      'data:/settings/data',
     ],
   ],
-  [['--dark'], ['dashboard:/dashboard', 'reports:/reports', 'insights:/insights']],
-  [['--mobile'], ['dashboard:/dashboard', 'allocations:/allocations']],
+  [['--dark'], ['dashboard:/dashboard', 'reports:/reports', 'insights:/insights', 'health:/settings/health']],
+  [['--mobile'], ['dashboard:/dashboard', 'income-tax:/income-tax']],
 ];
 
 for (const [flags, shots] of RUNS) {

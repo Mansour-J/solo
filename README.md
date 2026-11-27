@@ -184,9 +184,13 @@ Everything below works in the current release. Click a section to expand it.
 | Insights with notices | Insights, dark theme |
 | ![Year end](docs/screenshots/year-end.png) | ![Assets](docs/screenshots/assets.png) |
 | Money in and out | Assets and depreciation |
-| ![Balance sheet](docs/screenshots/balance-sheet.png) | |
-| Balance sheet beside last year end | |
-| ![Reports in dark mode](docs/screenshots/reports_d.png) | <img src="docs/screenshots/dashboard_m.png" alt="Dashboard on a phone" width="200"> <img src="docs/screenshots/allocations_m.png" alt="Allocations on a phone" width="200"> |
+| ![Balance sheet](docs/screenshots/balance-sheet.png) | ![GST returns](docs/screenshots/gst.png) |
+| Balance sheet beside last year end | GST returns with IRD’s due dates |
+| ![Income tax](docs/screenshots/income-tax.png) | ![Business health](docs/screenshots/health.png) |
+| Income tax, provisional tax and ACC levies | Business health |
+| ![Back up and restore](docs/screenshots/data.png) | ![Business health in dark mode](docs/screenshots/health_d.png) |
+| Back up and restore | Business health, dark theme |
+| ![Reports in dark mode](docs/screenshots/reports_d.png) | <img src="docs/screenshots/dashboard_m.png" alt="Dashboard on a phone" width="200"> <img src="docs/screenshots/income-tax_m.png" alt="Income tax on a phone" width="200"> |
 | Reports, dark theme | At phone width |
 
 </details>
